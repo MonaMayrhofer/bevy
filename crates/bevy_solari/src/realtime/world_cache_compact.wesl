@@ -1,11 +1,10 @@
 import package::realtime::world_cache_query::WORLD_CACHE_EMPTY_CELL;
-import package::realtime::bindings::{
-    world_cache,
-};
+import package::realtime::bindings::{world_cache};
 
 enable wgpu_ray_query;
 
-@group(2) @binding(0) var<storage, read_write> world_cache_active_cells_dispatch: vec3<u32>;
+@group(2) @binding(0)
+var<storage, read_write> world_cache_active_cells_dispatch: vec3<u32>;
 
 var<workgroup> w1: array<u32, 1024u>;
 var<workgroup> w2: array<u32, 1024u>;
@@ -30,32 +29,140 @@ fn compact_world_cache_single_block(
     @builtin(global_invocation_id) cell_id: vec3<u32>,
     @builtin(local_invocation_index) t: u32,
 ) {
-    if t == 0u { w1[0u] = 0u; } else { w1[t] = u32(world_cache.life[cell_id.x - 1u] != 0u); }; workgroupBarrier();
-    if t < 1u { w2[t] = w1[t]; } else { w2[t] = w1[t] + w1[t - 1u]; } workgroupBarrier();
-    if t < 2u { w1[t] = w2[t]; } else { w1[t] = w2[t] + w2[t - 2u]; } workgroupBarrier();
-    if t < 4u { w2[t] = w1[t]; } else { w2[t] = w1[t] + w1[t - 4u]; } workgroupBarrier();
-    if t < 8u { w1[t] = w2[t]; } else { w1[t] = w2[t] + w2[t - 8u]; } workgroupBarrier();
-    if t < 16u { w2[t] = w1[t]; } else { w2[t] = w1[t] + w1[t - 16u]; } workgroupBarrier();
-    if t < 32u { w1[t] = w2[t]; } else { w1[t] = w2[t] + w2[t - 32u]; } workgroupBarrier();
-    if t < 64u { w2[t] = w1[t]; } else { w2[t] = w1[t] + w1[t - 64u]; } workgroupBarrier();
-    if t < 128u { w1[t] = w2[t]; } else { w1[t] = w2[t] + w2[t - 128u]; } workgroupBarrier();
-    if t < 256u { w2[t] = w1[t]; } else { w2[t] = w1[t] + w1[t - 256u]; } workgroupBarrier();
-    if t < 512u { world_cache.a[cell_id.x] = w2[t]; } else { world_cache.a[cell_id.x] = w2[t] + w2[t - 512u]; }
+    if t == 0u {
+        w1[0u] = 0u;
+    } else {
+        w1[t] = u32(world_cache.life[cell_id.x - 1u] != 0u);
+    }
+    workgroupBarrier();
+    if t < 1u {
+        w2[t] = w1[t];
+    } else {
+        w2[t] = w1[t] + w1[t - 1u];
+    }
+    workgroupBarrier();
+    if t < 2u {
+        w1[t] = w2[t];
+    } else {
+        w1[t] = w2[t] + w2[t - 2u];
+    }
+    workgroupBarrier();
+    if t < 4u {
+        w2[t] = w1[t];
+    } else {
+        w2[t] = w1[t] + w1[t - 4u];
+    }
+    workgroupBarrier();
+    if t < 8u {
+        w1[t] = w2[t];
+    } else {
+        w1[t] = w2[t] + w2[t - 8u];
+    }
+    workgroupBarrier();
+    if t < 16u {
+        w2[t] = w1[t];
+    } else {
+        w2[t] = w1[t] + w1[t - 16u];
+    }
+    workgroupBarrier();
+    if t < 32u {
+        w1[t] = w2[t];
+    } else {
+        w1[t] = w2[t] + w2[t - 32u];
+    }
+    workgroupBarrier();
+    if t < 64u {
+        w2[t] = w1[t];
+    } else {
+        w2[t] = w1[t] + w1[t - 64u];
+    }
+    workgroupBarrier();
+    if t < 128u {
+        w1[t] = w2[t];
+    } else {
+        w1[t] = w2[t] + w2[t - 128u];
+    }
+    workgroupBarrier();
+    if t < 256u {
+        w2[t] = w1[t];
+    } else {
+        w2[t] = w1[t] + w1[t - 256u];
+    }
+    workgroupBarrier();
+    if t < 512u {
+        world_cache.a[cell_id.x] = w2[t];
+    } else {
+        world_cache.a[cell_id.x] = w2[t] + w2[t - 512u];
+    }
 }
 
 @compute @workgroup_size(1024, 1, 1)
 fn compact_world_cache_blocks(@builtin(local_invocation_index) t: u32) {
-    if t == 0u { w1[0u] = 0u; } else { w1[t] = world_cache.a[t * 1024u - 1u]; }; workgroupBarrier();
-    if t < 1u { w2[t] = w1[t]; } else { w2[t] = w1[t] + w1[t - 1u]; } workgroupBarrier();
-    if t < 2u { w1[t] = w2[t]; } else { w1[t] = w2[t] + w2[t - 2u]; } workgroupBarrier();
-    if t < 4u { w2[t] = w1[t]; } else { w2[t] = w1[t] + w1[t - 4u]; } workgroupBarrier();
-    if t < 8u { w1[t] = w2[t]; } else { w1[t] = w2[t] + w2[t - 8u]; } workgroupBarrier();
-    if t < 16u { w2[t] = w1[t]; } else { w2[t] = w1[t] + w1[t - 16u]; } workgroupBarrier();
-    if t < 32u { w1[t] = w2[t]; } else { w1[t] = w2[t] + w2[t - 32u]; } workgroupBarrier();
-    if t < 64u { w2[t] = w1[t]; } else { w2[t] = w1[t] + w1[t - 64u]; } workgroupBarrier();
-    if t < 128u { w1[t] = w2[t]; } else { w1[t] = w2[t] + w2[t - 128u]; } workgroupBarrier();
-    if t < 256u { w2[t] = w1[t]; } else { w2[t] = w1[t] + w1[t - 256u]; } workgroupBarrier();
-    if t < 512u { world_cache.b[t] = w2[t]; } else { world_cache.b[t] = w2[t] + w2[t - 512u]; }
+    if t == 0u {
+        w1[0u] = 0u;
+    } else {
+        w1[t] = world_cache.a[t * 1024u - 1u];
+    }
+    workgroupBarrier();
+    if t < 1u {
+        w2[t] = w1[t];
+    } else {
+        w2[t] = w1[t] + w1[t - 1u];
+    }
+    workgroupBarrier();
+    if t < 2u {
+        w1[t] = w2[t];
+    } else {
+        w1[t] = w2[t] + w2[t - 2u];
+    }
+    workgroupBarrier();
+    if t < 4u {
+        w2[t] = w1[t];
+    } else {
+        w2[t] = w1[t] + w1[t - 4u];
+    }
+    workgroupBarrier();
+    if t < 8u {
+        w1[t] = w2[t];
+    } else {
+        w1[t] = w2[t] + w2[t - 8u];
+    }
+    workgroupBarrier();
+    if t < 16u {
+        w2[t] = w1[t];
+    } else {
+        w2[t] = w1[t] + w1[t - 16u];
+    }
+    workgroupBarrier();
+    if t < 32u {
+        w1[t] = w2[t];
+    } else {
+        w1[t] = w2[t] + w2[t - 32u];
+    }
+    workgroupBarrier();
+    if t < 64u {
+        w2[t] = w1[t];
+    } else {
+        w2[t] = w1[t] + w1[t - 64u];
+    }
+    workgroupBarrier();
+    if t < 128u {
+        w1[t] = w2[t];
+    } else {
+        w1[t] = w2[t] + w2[t - 128u];
+    }
+    workgroupBarrier();
+    if t < 256u {
+        w2[t] = w1[t];
+    } else {
+        w2[t] = w1[t] + w1[t - 256u];
+    }
+    workgroupBarrier();
+    if t < 512u {
+        world_cache.b[t] = w2[t];
+    } else {
+        world_cache.b[t] = w2[t] + w2[t - 512u];
+    }
 }
 
 @compute @workgroup_size(1024, 1, 1)

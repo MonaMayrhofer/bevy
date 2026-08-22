@@ -54,9 +54,9 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 
 import package::atmosphere::{
-    types::Atmosphere,
     bindings::atmosphere,
     functions::{get_local_r, sample_transmittance_lut},
+    types::Atmosphere
 };
 
 // Bruneton's paper calls the surface and exosphere "bottom radius" and "top radius".
@@ -148,13 +148,8 @@ fn sample_transmittance_lut_segment(r: f32, mu: f32, t: f32) -> vec3<f32> {
     let mu_t = clamp((r * mu + t) / r_t, -1.0, 1.0);
 
     if ray_intersects_ground(r, mu) {
-        return min(
-            sample_transmittance_lut(r_t, -mu_t) / sample_transmittance_lut(r, -mu),
-            vec3(1.0)
-        );
+        return min(sample_transmittance_lut(r_t, -mu_t) / sample_transmittance_lut(r, -mu), vec3(1.0));
     } else {
-        return min(
-            sample_transmittance_lut(r, mu) / sample_transmittance_lut(r_t, mu_t), vec3(1.0)
-        );
+        return min(sample_transmittance_lut(r, mu) / sample_transmittance_lut(r_t, mu_t), vec3(1.0));
     }
 }

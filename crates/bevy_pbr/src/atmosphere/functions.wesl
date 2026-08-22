@@ -1,16 +1,28 @@
-import bevy_render::maths::{PI, HALF_PI, PI_2, fast_acos, fast_acos_4, fast_atan2, ray_sphere_intersect};
+import bevy_render::maths::{HALF_PI, PI, PI_2, fast_acos, fast_acos_4, fast_atan2, ray_sphere_intersect};
 
 import package::atmosphere::{
-    types::Atmosphere,
     bindings::{
-        atmosphere, settings, view, lights, transmittance_lut, atmosphere_lut_sampler,
-        multiscattering_lut, sky_view_lut, aerial_view_lut, atmosphere_transforms,
-        medium_density_lut, medium_scattering_lut, medium_sampler,
+        aerial_view_lut,
+        atmosphere,
+        atmosphere_lut_sampler,
+        atmosphere_transforms,
+        lights,
+        medium_density_lut,
+        medium_sampler,
+        medium_scattering_lut,
+        multiscattering_lut,
+        settings,
+        sky_view_lut,
+        transmittance_lut,
+        view
     },
     bruneton_functions::{
-        transmittance_lut_r_mu_to_uv, ray_intersects_ground,
-        distance_to_top_atmosphere_boundary, distance_to_bottom_atmosphere_boundary
+        distance_to_bottom_atmosphere_boundary,
+        distance_to_top_atmosphere_boundary,
+        ray_intersects_ground,
+        transmittance_lut_r_mu_to_uv
     },
+    types::Atmosphere
 };
 
 // NOTE FOR CONVENTIONS: 
@@ -31,10 +43,9 @@ import package::atmosphere::{
 //   frame. This enables the non-linear latitude parametrization the paper uses 
 //   to concentrate detail near the horizon 
 
-
 // CONSTANTS
 const FRAC_PI: f32 = 0.3183098862; // 1 / π
-const FRAC_2_PI: f32 = 0.15915494309;  // 1 / (2π)
+const FRAC_2_PI: f32 = 0.15915494309; // 1 / (2π)
 const FRAC_3_16_PI: f32 = 0.0596831036594607509; // 3 / (16π)
 const FRAC_4_PI: f32 = 0.07957747154594767; // 1 / (4π)
 const ROOT_2: f32 = 1.41421356; // √2
@@ -190,7 +201,7 @@ fn sample_local_inscattering(local_scattering: vec3<f32>, ray_dir: vec3<f32>, wo
     let local_r = length(world_pos);
     let local_up = normalize(world_pos);
     var inscattering = vec3(0.0);
-    for (var light_i: u32 = 0u; light_i < lights.n_directional_lights; light_i++) {
+    for(var light_i: u32 = 0u; light_i < lights.n_directional_lights; light_i++) {
         let light = &lights.directional_lights[light_i];
 
         let mu_light = dot((*light).direction_to_light, local_up);
@@ -222,7 +233,7 @@ fn sample_sun_radiance(ray_dir_ws: vec3<f32>) -> vec3<f32> {
     let mu_view = dot(ray_dir_ws, up);
     let shadow_factor = f32(!ray_intersects_ground(r, mu_view));
     var sun_radiance = vec3(0.0);
-    for (var light_i: u32 = 0u; light_i < lights.n_directional_lights; light_i++) {
+    for(var light_i: u32 = 0u; light_i < lights.n_directional_lights; light_i++) {
         let light = &lights.directional_lights[light_i];
         let neg_LdotV = dot((*light).direction_to_light, ray_dir_ws);
         let angle_to_sun = fast_acos(clamp(neg_LdotV, -1.0, 1.0));
@@ -245,17 +256,17 @@ fn calculate_visible_sun_ratio(atmosphere: Atmosphere, r: f32, mu: f32, sun_angu
     let horizon_cos = -sqrt(1.0 - (inner_radius * inner_radius) / (r * r));
     let horizon_angle = fast_acos_4(horizon_cos);
     let sun_zenith_angle = fast_acos_4(mu);
-    
+
     // If sun is completely above horizon
     if sun_zenith_angle + sun_angular_size * 0.5 <= horizon_angle {
         return 1.0;
     }
-    
+
     // If sun is completely below horizon
     if sun_zenith_angle - sun_angular_size * 0.5 >= horizon_angle {
         return 0.0;
     }
-    
+
     // Calculate partial visibility using circular segment area formula
     let d = (horizon_angle - sun_zenith_angle) / (sun_angular_size * 0.5);
     let visible_ratio = 0.5 + d * 0.5;
@@ -334,11 +345,7 @@ fn uv_to_ray_direction(uv: vec2<f32>) -> vec3<f32> {
     // fragment position.
     // Use the position on the near clipping plane to avoid -inf world position
     // because the far plane of an infinite reverse projection is at infinity.
-    let view_position_homogeneous = view.view_from_clip * vec4(
-        uv_to_ndc(uv),
-        1.0,
-        1.0,
-    );
+    let view_position_homogeneous = view.view_from_clip * vec4(uv_to_ndc(uv), 1.0, 1.0);
 
     let view_ray_direction = view_position_homogeneous.xyz / view_position_homogeneous.w;
     // Transforming the view space ray direction by the inverse view matrix, transforms the
@@ -403,7 +410,7 @@ fn raymarch_atmosphere(
     t_max: f32,
     max_samples: u32,
     uv: vec2<f32>,
-    ground: bool
+    ground: bool,
 ) -> RaymarchResult {
     let r = length(pos);
     let up = normalize(pos);
@@ -430,7 +437,7 @@ fn raymarch_atmosphere(
 
     var prev_t = t_start;
     var optical_depth = vec3(0.0);
-    for (var s = 0.0; s < sample_count; s += 1.0) {
+    for(var s = 0.0; s < sample_count; s += 1.0) {
         // Linear distribution from atmosphere entry to exit/ground
         let t_i = t_start + t_total * (s + MIDPOINT_RATIO) / sample_count;
         let dt_i = (t_i - prev_t);
@@ -448,11 +455,7 @@ fn raymarch_atmosphere(
         optical_depth += sample_optical_depth;
         let sample_transmittance = exp(-sample_optical_depth);
 
-        let inscattering = sample_local_inscattering(
-            scattering,
-            ray_dir,
-            sample_pos
-        );
+        let inscattering = sample_local_inscattering(scattering, ray_dir, sample_pos);
 
         let s_int = (inscattering - inscattering * sample_transmittance) / max(extinction, MIN_EXTINCTION);
         result.inscattering += result.transmittance * s_int;
@@ -465,7 +468,7 @@ fn raymarch_atmosphere(
 
     // include reflected luminance from planet ground 
     if ground && ray_intersects_ground(r, mu) {
-        for (var light_i: u32 = 0u; light_i < lights.n_directional_lights; light_i++) {
+        for(var light_i: u32 = 0u; light_i < lights.n_directional_lights; light_i++) {
             let light = &lights.directional_lights[light_i];
             let light_dir = (*light).direction_to_light;
             let light_color = (*light).color.rgb;

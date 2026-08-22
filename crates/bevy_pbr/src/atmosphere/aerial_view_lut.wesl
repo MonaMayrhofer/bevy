@@ -2,19 +2,26 @@ import package::{
     atmosphere::{
         bindings::settings,
         functions::{
-            sample_density_lut, sample_local_inscattering, uv_to_ray_direction, get_view_position,
-            MIDPOINT_RATIO, MIN_EXTINCTION, ABSORPTION_DENSITY, SCATTERING_DENSITY,
-        },
+            ABSORPTION_DENSITY,
+            MIDPOINT_RATIO,
+            MIN_EXTINCTION,
+            SCATTERING_DENSITY,
+            get_view_position,
+            sample_density_lut,
+            sample_local_inscattering,
+            uv_to_ray_direction
+        }
     }
 };
 
+@group(0) @binding(13)
+var aerial_view_lut_out: texture_storage_3d<rgba16float, write>;
 
-@group(0) @binding(13) var aerial_view_lut_out: texture_storage_3d<rgba16float, write>;
-
-@compute
-@workgroup_size(16, 16, 1)
+@compute @workgroup_size(16, 16, 1)
 fn main(@builtin(global_invocation_id) idx: vec3<u32>) {
-    if any(idx.xy > settings.aerial_view_lut_size.xy) { return; }
+    if any(idx.xy > settings.aerial_view_lut_size.xy) {
+        return;
+    }
 
     let uv = (vec2<f32>(idx.xy) + 0.5) / vec2<f32>(settings.aerial_view_lut_size.xy);
     let ray_dir = uv_to_ray_direction(uv);
@@ -27,9 +34,10 @@ fn main(@builtin(global_invocation_id) idx: vec3<u32>) {
     var total_inscattering = vec3(0.0);
     var throughput = vec3(1.0);
 
-    for (var slice_i: u32 = 0; slice_i < settings.aerial_view_lut_size.z; slice_i++) {
-        for (var step_i: u32 = 0; step_i < settings.aerial_view_lut_samples; step_i++) {
-            let t_i = t_max * (f32(slice_i) + ((f32(step_i) + MIDPOINT_RATIO) / f32(settings.aerial_view_lut_samples))) / f32(settings.aerial_view_lut_size.z);
+    for(var slice_i: u32 = 0; slice_i < settings.aerial_view_lut_size.z; slice_i++) {
+        for(var step_i: u32 = 0; step_i < settings.aerial_view_lut_samples; step_i++) {
+            let t_i = t_max * (f32(slice_i) + ((f32(step_i) + MIDPOINT_RATIO) / f32(settings.aerial_view_lut_samples)))
+                / f32(settings.aerial_view_lut_size.z);
             let dt = (t_i - prev_t);
             prev_t = t_i;
 

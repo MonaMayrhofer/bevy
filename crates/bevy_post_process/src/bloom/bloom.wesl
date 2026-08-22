@@ -11,12 +11,15 @@ struct BloomUniforms {
     viewport: vec4<f32>,
     scale: vec2<f32>,
     aspect: f32,
-};
+}
 
-@group(0) @binding(0) var input_texture: texture_2d<f32>;
-@group(0) @binding(1) var s: sampler;
+@group(0) @binding(0)
+var input_texture: texture_2d<f32>;
+@group(0) @binding(1)
+var s: sampler;
 
-@group(0) @binding(2) var<uniform> uniforms: BloomUniforms;
+@group(0) @binding(2)
+var<uniform> uniforms: BloomUniforms;
 
 @if(FIRST_DOWNSAMPLE)
 // https://catlikecoding.com/unity/tutorials/advanced-rendering/bloom/#3.4
@@ -109,7 +112,6 @@ fn sample_input_13_tap(uv: vec2<f32>) -> vec3<f32> {
     l = textureSample(input_texture, s, uv + vec2<f32>(ns.x, ns.y)).rgb;
     m = textureSample(input_texture, s, uv + vec2<f32>(ps.x, ns.y)).rgb;
 }
-
 @if(FIRST_DOWNSAMPLE) {
     // [COD] slide 168
     //
@@ -167,7 +169,10 @@ fn sample_input_3x3_tent(uv: vec2<f32>) -> vec3<f32> {
 
 @if(FIRST_DOWNSAMPLE)
 @fragment
-fn downsample_first(@location(0) output_uv: vec2<f32>) -> @location(0) vec4<f32> {
+fn downsample_first(
+    @location(0)
+    output_uv: vec2<f32>,
+) -> @location(0) vec4<f32> {
     let sample_uv = uniforms.viewport.xy + output_uv * uniforms.viewport.zw;
     var sample = sample_input_13_tap(sample_uv);
     // Lower bound of 0.0001 is to avoid propagating multiplying by 0.0 through the
@@ -176,18 +181,24 @@ fn downsample_first(@location(0) output_uv: vec2<f32>) -> @location(0) vec4<f32>
     // with f32::MAX (E+38) Chrome fails with ":value 340282346999999984391321947108527833088.0 cannot be represented as 'f32'"
     sample = clamp(sample, vec3<f32>(0.0001), vec3<f32>(3.40282347E+37));
 
-@if(USE_THRESHOLD)
+    @if(USE_THRESHOLD)
     sample = soft_threshold(sample);
 
     return vec4<f32>(sample, 1.0);
 }
 
 @fragment
-fn downsample(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
+fn downsample(
+    @location(0)
+    uv: vec2<f32>,
+) -> @location(0) vec4<f32> {
     return vec4<f32>(sample_input_13_tap(uv), 1.0);
 }
 
 @fragment
-fn upsample(@location(0) uv: vec2<f32>) -> @location(0) vec4<f32> {
+fn upsample(
+    @location(0)
+    uv: vec2<f32>,
+) -> @location(0) vec4<f32> {
     return vec4<f32>(sample_input_3x3_tent(uv), 1.0);
 }

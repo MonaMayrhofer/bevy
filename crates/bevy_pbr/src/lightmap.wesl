@@ -4,21 +4,21 @@ import package::render::mesh_bindings::mesh;
 enable wgpu_binding_array;
 
 @if(MULTIPLE_LIGHTMAPS_IN_ARRAY) {
-@group(2) @binding(4) var lightmaps_textures: binding_array<texture_2d<f32>, 4>;
-@group(2) @binding(5) var lightmaps_samplers: binding_array<sampler, 4>;
-}
-@else {
-@group(2) @binding(4) var lightmaps_texture: texture_2d<f32>;
-@group(2) @binding(5) var lightmaps_sampler: sampler;
+@group(2) @binding(4)
+var lightmaps_textures: binding_array<texture_2d<f32>, 4>;
+@group(2) @binding(5)
+var lightmaps_samplers: binding_array<sampler, 4>;
+} @else {
+@group(2) @binding(4)
+var lightmaps_texture: texture_2d<f32>;
+@group(2) @binding(5)
+var lightmaps_sampler: sampler;
 }
 
 // Samples the lightmap, if any, and returns indirect illumination from it.
 fn lightmap(uv: vec2<f32>, exposure: f32, instance_index: u32) -> vec3<f32> {
     let packed_uv_rect = mesh[instance_index].lightmap_uv_rect;
-    let uv_rect = vec4<f32>(
-        unpack2x16unorm(packed_uv_rect.x),
-        unpack2x16unorm(packed_uv_rect.y),
-    );
+    let uv_rect = vec4<f32>(unpack2x16unorm(packed_uv_rect.x), unpack2x16unorm(packed_uv_rect.y));
     let lightmap_uv = mix(uv_rect.xy, uv_rect.zw, uv);
     let lightmap_slot = mesh[instance_index].material_and_lightmap_bind_group_slot >> 16u;
 
@@ -42,7 +42,8 @@ fn lightmap(uv: vec2<f32>, exposure: f32, instance_index: u32) -> vec3<f32> {
     let p1 = (vec2(iuv.x + h1x, iuv.y + h0y) - 0.5) * texel_size;
     let p2 = (vec2(iuv.x + h0x, iuv.y + h1y) - 0.5) * texel_size;
     let p3 = (vec2(iuv.x + h1x, iuv.y + h1y) - 0.5) * texel_size;
-    color = g0(fuv.y) * (g0x * sample(p0, lightmap_slot) + g1x * sample(p1, lightmap_slot)) + g1(fuv.y) * (g0x * sample(p2, lightmap_slot) + g1x * sample(p3, lightmap_slot));
+    color = g0(fuv.y) * (g0x * sample(p0, lightmap_slot) + g1x * sample(p1, lightmap_slot))
+        + g1(fuv.y) * (g0x * sample(p2, lightmap_slot) + g1x * sample(p3, lightmap_slot));
 } @else {
     color = sample(lightmap_uv, lightmap_slot);
 }

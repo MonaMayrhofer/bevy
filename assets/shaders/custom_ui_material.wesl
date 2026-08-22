@@ -1,12 +1,16 @@
 // Draws a progress bar with properties defined in CustomUiMaterial
 import bevy_ui_render::ui_vertex_output::UiVertexOutput;
 
-@group(1) @binding(0) var<uniform> color: vec4<f32>;
-@group(1) @binding(1) var<uniform> slider: vec4<f32>;
-@group(1) @binding(2) var material_color_texture: texture_2d<f32>;
-@group(1) @binding(3) var material_color_sampler: sampler;
-@group(1) @binding(4) var<uniform> border_color: vec4<f32>;
-
+@group(1) @binding(0)
+var<uniform> color: vec4<f32>;
+@group(1) @binding(1)
+var<uniform> slider: vec4<f32>;
+@group(1) @binding(2)
+var material_color_texture: texture_2d<f32>;
+@group(1) @binding(3)
+var material_color_sampler: sampler;
+@group(1) @binding(4)
+var<uniform> border_color: vec4<f32>;
 
 @fragment
 fn fragment(in: UiVertexOutput) -> @location(0) vec4<f32> {
@@ -20,9 +24,9 @@ fn fragment(in: UiVertexOutput) -> @location(0) vec4<f32> {
 
     // thickness of the border closest to the current position
     let b = vec2(
-        select(in.border_widths.x, in.border_widths.z, 0. < p.x),
-        select(in.border_widths.y, in.border_widths.w, 0. < p.y)
-    );
+            select(in.border_widths.x, in.border_widths.z, 0. < p.x),
+            select(in.border_widths.y, in.border_widths.w, 0. < p.y),
+        );
 
     // select radius for the nearest corner
     let rs = select(in.border_radius_x.xy, in.border_radius_x.wz, 0.0 < p.y);

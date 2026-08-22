@@ -3,19 +3,17 @@
 //! See examples/3d/order_independent_transpatency.rs
 
 // As an hard-coded always transparent material it is only meant to be forward rendered
-import bevy_pbr::render::forward_io::{VertexOutput, FragmentOutput};
+import bevy_pbr::render::forward_io::{FragmentOutput, VertexOutput};
 import bevy_pbr::render::utils;
 
 @if(MATERIAL_OIT_ENABLED)
 import bevy_core_pipeline::oit::draw::oit_draw;
 
-@group(constants::MATERIAL_BIND_GROUP) @binding(0) var<uniform> material_color: vec4<f32>;
+@group(constants::MATERIAL_BIND_GROUP) @binding(0)
+var<uniform> material_color: vec4<f32>;
 
 @fragment
-fn fragment(
-    in: VertexOutput,
-) -> @location(0) vec4<f32> {
-
+fn fragment(in: VertexOutput) -> @location(0) vec4<f32> {
     // This produces a noise-like varying transparency.
     // Using world coordinates for simplicity, but local mesh coordinates
     // would be required if the mesh moved.
@@ -45,19 +43,18 @@ fn gradient_noise(coord: vec3f, scale: f32) -> f32 {
     let g7 = rand3(grid_coord + vec3u(1, 1, 1));
 
     let noise = mix(
-                    mix(
-                        mix(dot(g0, f - vec3f(0.0, 0.0, 0.0)),
-                            dot(g1, f - vec3f(1.0, 0.0, 0.0)), f.x),
-                        mix(dot(g2, f - vec3f(0.0, 1.0, 0.0)),
-                            dot(g3, f - vec3f(1.0, 1.0, 0.0)), f.x),
-                        f.y),
-                    mix(
-                        mix(dot(g4, f - vec3f(0.0, 0.0, 1.0)),
-                            dot(g5, f - vec3f(1.0, 0.0, 1.0)), f.x),
-                        mix(dot(g6, f - vec3f(0.0, 1.0, 1.0)),
-                            dot(g7, f - vec3f(1.0, 1.0, 1.0)), f.x),
-                        f.y),
-                    f.z);
+            mix(
+                mix(dot(g0, f - vec3f(0.0, 0.0, 0.0)), dot(g1, f - vec3f(1.0, 0.0, 0.0)), f.x),
+                mix(dot(g2, f - vec3f(0.0, 1.0, 0.0)), dot(g3, f - vec3f(1.0, 1.0, 0.0)), f.x),
+                f.y,
+            ),
+            mix(
+                mix(dot(g4, f - vec3f(0.0, 0.0, 1.0)), dot(g5, f - vec3f(1.0, 0.0, 1.0)), f.x),
+                mix(dot(g6, f - vec3f(0.0, 1.0, 1.0)), dot(g7, f - vec3f(1.0, 1.0, 1.0)), f.x),
+                f.y,
+            ),
+            f.z,
+        );
 
     return noise;
 }

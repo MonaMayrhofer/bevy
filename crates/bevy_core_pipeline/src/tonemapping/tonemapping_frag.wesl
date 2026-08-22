@@ -1,18 +1,17 @@
-import bevy_render::{
-    view::View,
-    maths::powsafe,
-};
-import package::{
-    fullscreen_vertex_shader::FullscreenVertexOutput,
-    tonemapping::{tone_mapping, screen_space_dither},
-};
+import bevy_render::{maths::powsafe, view::View};
+import package::{fullscreen_vertex_shader::FullscreenVertexOutput, tonemapping::{screen_space_dither, tone_mapping}};
 
-@group(0) @binding(0) var<uniform> view: View;
+@group(0) @binding(0)
+var<uniform> view: View;
 
-@group(0) @binding(1) var hdr_texture: texture_2d<f32>;
-@group(0) @binding(2) var hdr_sampler: sampler;
-@group(0) @binding(3) var dt_lut_texture: texture_3d<f32>;
-@group(0) @binding(4) var dt_lut_sampler: sampler;
+@group(0) @binding(1)
+var hdr_texture: texture_2d<f32>;
+@group(0) @binding(2)
+var hdr_sampler: sampler;
+@group(0) @binding(3)
+var dt_lut_texture: texture_3d<f32>;
+@group(0) @binding(4)
+var dt_lut_sampler: sampler;
 
 @fragment
 fn fragment(in: FullscreenVertexOutput) -> @location(0) vec4<f32> {

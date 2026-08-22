@@ -1,10 +1,9 @@
-@if(WIREFRAME_WIDE) import package::render::{
-    mesh_bindings::mesh,
-    mesh_view_bindings::view,
-    view_transformations::position_world_to_clip,
-};
-@if(WIREFRAME_WIDE) import bevy_render::maths::affine3_to_square;
-@if(!WIREFRAME_WIDE) import package::render::forward_io::VertexOutput;
+@if(WIREFRAME_WIDE)
+import package::render::{mesh_bindings::mesh, mesh_view_bindings::view, view_transformations::position_world_to_clip};
+@if(WIREFRAME_WIDE)
+import bevy_render::maths::affine3_to_square;
+@if(!WIREFRAME_WIDE)
+import package::render::forward_io::VertexOutput;
 
 @if(WIREFRAME_WIDE) {
 struct Immediates {
@@ -25,13 +24,18 @@ struct VertexPullParams {
     position_offset: u32,
 }
 
-@group(3) @binding(0) var<storage, read> vertex_data: array<u32>;
-@group(3) @binding(1) var<storage, read> index_data: array<u32>;
-@group(3) @binding(2) var<uniform> vp_params: VertexPullParams;
+@group(3) @binding(0)
+var<storage, read> vertex_data: array<u32>;
+@group(3) @binding(1)
+var<storage, read> index_data: array<u32>;
+@group(3) @binding(2)
+var<uniform> vp_params: VertexPullParams;
 
 struct WireframeVertexOutput {
     @builtin(position) position: vec4<f32>,
-    @location(0) @interpolate(linear) edge_distance: vec4<f32>,
+    @interpolate(linear)
+    @location(0)
+    edge_distance: vec4<f32>,
 }
 
 // unsigned perpendicular distance from point p to the infinite line through a and b.
@@ -48,13 +52,12 @@ fn point_line_distance(p: vec2<f32>, a: vec2<f32>, b: vec2<f32>) -> f32 {
 // parameters. the vertex buffer is interpreted as an array of u32s, so the parameters allow us to calculate the
 // correct offset for the position attribute of the vertex at the given index.
 fn read_local_position(first_vertex: u32, vertex_index: u32) -> vec3<f32> {
-    let base = (first_vertex + vertex_index) * vp_params.vertex_stride
-               + vp_params.position_offset;
+    let base = (first_vertex + vertex_index) * vp_params.vertex_stride + vp_params.position_offset;
     return vec3<f32>(
-        bitcast<f32>(vertex_data[base]),
-        bitcast<f32>(vertex_data[base + 1u]),
-        bitcast<f32>(vertex_data[base + 2u]),
-    );
+            bitcast<f32>(vertex_data[base]),
+            bitcast<f32>(vertex_data[base + 1u]),
+            bitcast<f32>(vertex_data[base + 2u]),
+        );
 }
 
 @vertex
@@ -87,8 +90,8 @@ fn vertex(
     let screen1 = (clip1.xy / clip1.w) * viewport_size * 0.5;
     let screen2 = (clip2.xy / clip2.w) * viewport_size * 0.5;
 
-    let area2 = abs((screen1.x - screen0.x) * (screen2.y - screen0.y)
-                   - (screen2.x - screen0.x) * (screen1.y - screen0.y));
+    let area2 =
+        abs((screen1.x - screen0.x) * (screen2.y - screen0.y) - (screen2.x - screen0.x) * (screen1.y - screen0.y));
 
     let len01 = length(screen1 - screen0);
     let len12 = length(screen2 - screen1);
@@ -162,24 +165,20 @@ fn vertex(
         // other edge 2: extra_vertex → diag_b
         // compute unsigned perpendicular distance at each of our three vertices.
         other_d0 = vec2<f32>(
-            point_line_distance(screen0, screen_extra, diag_a),
-            point_line_distance(screen0, screen_extra, diag_b),
-        );
+                point_line_distance(screen0, screen_extra, diag_a),
+                point_line_distance(screen0, screen_extra, diag_b),
+            );
         other_d1 = vec2<f32>(
-            point_line_distance(screen1, screen_extra, diag_a),
-            point_line_distance(screen1, screen_extra, diag_b),
-        );
+                point_line_distance(screen1, screen_extra, diag_a),
+                point_line_distance(screen1, screen_extra, diag_b),
+            );
         other_d2 = vec2<f32>(
-            point_line_distance(screen2, screen_extra, diag_a),
-            point_line_distance(screen2, screen_extra, diag_b),
-        );
+                point_line_distance(screen2, screen_extra, diag_a),
+                point_line_distance(screen2, screen_extra, diag_b),
+            );
     }
 
-    let mask = vec3<f32>(
-        select(1.0, 0.0, diag_12),
-        select(1.0, 0.0, diag_20),
-        select(1.0, 0.0, diag_01),
-    );
+    let mask = vec3<f32>(select(1.0, 0.0, diag_12), select(1.0, 0.0, diag_20), select(1.0, 0.0, diag_01));
     let suppress = vec3<f32>(1.0) - mask;
 
     // pack all 4 quad perimeter edge distances into edge_distance:
@@ -203,7 +202,8 @@ fn vertex(
         out.edge_distance = vec4<f32>(ed.x, ed.y, ed.z, other_d2.y);
         out.position = clip2;
     }
-} @else { // WIREFRAME_QUADS
+} @else {
+    // WIREFRAME_QUADS
     if corner == 0u {
         out.edge_distance = vec4<f32>(h0, 0.0, 0.0, 1e6);
         out.position = clip0;
@@ -221,8 +221,7 @@ fn vertex(
 
 @fragment
 fn fragment(in: WireframeVertexOutput) -> @location(0) vec4<f32> {
-    let d = min(min(in.edge_distance.x, in.edge_distance.y),
-               min(in.edge_distance.z, in.edge_distance.w));
+    let d = min(min(in.edge_distance.x, in.edge_distance.y), min(in.edge_distance.z, in.edge_distance.w));
 
     let width = immediates.line_width;
     let smoothing = immediates.smoothing;
@@ -232,9 +231,7 @@ fn fragment(in: WireframeVertexOutput) -> @location(0) vec4<f32> {
 
     let half_width = effective_width * 0.5;
 
-    let alpha = (1.0 - smoothstep(half_width, half_width + smoothing, d))
-              * alpha_scale
-              * immediates.color.a;
+    let alpha = (1.0 - smoothstep(half_width, half_width + smoothing, d)) * alpha_scale * immediates.color.a;
 
     if alpha < 0.01 {
         discard;
@@ -243,7 +240,6 @@ fn fragment(in: WireframeVertexOutput) -> @location(0) vec4<f32> {
     return vec4<f32>(immediates.color.rgb, alpha);
 }
 }
-
 
 // the fast path for thin wireframes that render as lines
 @if(!WIREFRAME_WIDE) {

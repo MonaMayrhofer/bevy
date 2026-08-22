@@ -1,0 +1,3 @@
+# Version of WESL used in this project.
+edition = "2026_pre"
+root = "./src"

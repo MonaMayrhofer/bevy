@@ -1,10 +1,7 @@
 import constants::WORLD_CACHE_SIZE;
 import bevy_pbr::render::utils::{rand_f, rand_vec2f};
 import bevy_render::maths::orthonormalize;
-import package::realtime::bindings::{
-    world_cache,
-    constants,
-};
+import package::realtime::bindings::{constants, world_cache};
 
 enable wgpu_ray_query;
 
@@ -17,7 +14,14 @@ const WORLD_CACHE_MAX_SEARCH_STEPS: u32 = 3u;
 const WORLD_CACHE_EMPTY_CELL: u32 = 0u;
 
 @if(!WORLD_CACHE_NON_ATOMIC_LIFE_BUFFER)
-fn query_world_cache(world_position_in: vec3<f32>, world_normal: vec3<f32>, view_position: vec3<f32>, ray_t: f32, cell_lifetime: u32, rng: ptr<function, u32>) -> vec3<f32> {
+fn query_world_cache(
+    world_position_in: vec3<f32>,
+    world_normal: vec3<f32>,
+    view_position: vec3<f32>,
+    ray_t: f32,
+    cell_lifetime: u32,
+    rng: ptr<function, u32>,
+) -> vec3<f32> {
     var world_position = world_position_in;
     var cell_size = get_cell_size(world_position, view_position, ray_t, rng);
 
@@ -35,7 +39,7 @@ fn query_world_cache(world_position_in: vec3<f32>, world_normal: vec3<f32>, view
     var key = compute_key(world_position_quantized, world_normal_quantized);
     let checksum = compute_checksum(world_position_quantized, world_normal_quantized);
 
-    for (var i = 0u; i < WORLD_CACHE_MAX_SEARCH_STEPS; i++) {
+    for(var i = 0u; i < WORLD_CACHE_MAX_SEARCH_STEPS; i++) {
         let cas = atomicCompareExchangeWeak(&world_cache.checksums[key], WORLD_CACHE_EMPTY_CELL, checksum);
         let existing_checksum = cas.old_value;
 

@@ -1,7 +1,4 @@
-import bevy_pbr::{
-    render::{mesh_view_bindings::globals, forward_io::VertexOutput},
-    prepass::utils,
-};
+import bevy_pbr::{prepass::utils, render::{forward_io::VertexOutput, mesh_view_bindings::globals}};
 
 struct ShowPrepassSettings {
     show_depth: u32,
@@ -10,14 +7,17 @@ struct ShowPrepassSettings {
     padding_1: u32,
     padding_2: u32,
 }
-@group(constants::MATERIAL_BIND_GROUP) @binding(0) var<uniform> settings: ShowPrepassSettings;
+@group(constants::MATERIAL_BIND_GROUP) @binding(0)
+var<uniform> settings: ShowPrepassSettings;
 
 @fragment
 fn fragment(
-    @if(MULTISAMPLED) @builtin(sample_index) sample_index: u32,
+    @if(MULTISAMPLED)
+    @builtin(sample_index) sample_index: u32,
     mesh: VertexOutput,
 ) -> @location(0) vec4<f32> {
-    @if(!MULTISAMPLED) let sample_index = 0u;
+    @if(!MULTISAMPLED)
+    let sample_index = 0u;
     if settings.show_depth == 1u {
         let depth = bevy_pbr::prepass::utils::prepass_depth(mesh.position, sample_index);
         return vec4(depth, depth, depth, 1.0);

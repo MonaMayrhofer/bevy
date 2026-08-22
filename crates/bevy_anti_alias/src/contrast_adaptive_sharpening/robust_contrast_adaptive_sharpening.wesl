@@ -21,11 +21,14 @@ import bevy_core_pipeline::fullscreen_vertex_shader::FullscreenVertexOutput;
 
 struct CASUniforms {
     sharpness: f32,
-};
+}
 
-@group(0) @binding(0) var screenTexture: texture_2d<f32>;
-@group(0) @binding(1) var samp: sampler;
-@group(0) @binding(2) var<uniform> uniforms: CASUniforms;
+@group(0) @binding(0)
+var screenTexture: texture_2d<f32>;
+@group(0) @binding(1)
+var samp: sampler;
+@group(0) @binding(2)
+var<uniform> uniforms: CASUniforms;
 
 // This is set at the limit of providing unnatural results for sharpening.
 const FSR_RCAS_LIMIT = 0.1875;
@@ -85,7 +88,7 @@ fn fragment(in: FullscreenVertexOutput) -> @location(0) vec4<f32> {
     let fL = f.b * 0.5 + (f.r * 0.5 + f.g);
     let hL = h.b * 0.5 + (h.r * 0.5 + h.g);
     // Noise detection.
-    var noise = 0.25 * bL + 0.25 * dL + 0.25 * fL + 0.25 * hL - eL;;
+    var noise = 0.25 * bL + 0.25 * dL + 0.25 * fL + 0.25 * hL - eL;
     noise = saturate(abs(noise) / (max(max(bL, dL), max(fL, hL)) - min(min(bL, dL), min(fL, hL))));
     noise = 1.0 - 0.5 * noise;
     // Apply noise removal.

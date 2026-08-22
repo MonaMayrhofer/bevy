@@ -5,13 +5,10 @@
 // In our case we're always transparent and so forward rendered, but
 // this is the general setup if it's not always the case.
 @if(PREPASS_PIPELINE)
-import bevy_pbr::{
-    prepass::io::{VertexOutput, FragmentOutput},
-};
-@else // PREPASS_PIPELINE
-import bevy_pbr::render::{
-    forward_io::{VertexOutput, FragmentOutput},
-};
+import bevy_pbr::{prepass::io::{FragmentOutput, VertexOutput}};
+@else
+// PREPASS_PIPELINE
+import bevy_pbr::render::{forward_io::{FragmentOutput, VertexOutput}};
 
 @if(MATERIAL_OIT_ENABLED)
 import bevy_core_pipeline::oit::draw::oit_draw;
@@ -24,14 +21,13 @@ import bevy_pbr::render::pbr_fragment::pbr_input_from_standard_material;
 struct Colors {
     color1: vec4<f32>,
     color2: vec4<f32>,
-};
+}
 
-@group(constants::MATERIAL_BIND_GROUP) @binding(100) var<uniform> material: Colors;
+@group(constants::MATERIAL_BIND_GROUP) @binding(100)
+var<uniform> material: Colors;
 
 @fragment
-fn fragment(
-    in: VertexOutput,
-) -> FragmentOutput {
+fn fragment(in: VertexOutput) -> FragmentOutput {
     var out: FragmentOutput;
 
     // This produces a checkered pattern along the uv isolines filled with the two colors

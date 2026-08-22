@@ -1,14 +1,9 @@
 import bevy_render::bindless::{bindless_samplers_filtering, bindless_textures_2d};
 
 import package::{
-    prepass::io::VertexOutput,
     prepass::bindings::previous_view_uniforms,
-    render::{
-        mesh_bindings::mesh,
-        mesh_view_bindings::view,
-        pbr_bindings,
-        pbr_types,
-    },
+    prepass::io::VertexOutput,
+    render::{pbr_bindings, pbr_types, mesh_bindings::mesh, mesh_view_bindings::view}
 };
 
 @if(BINDLESS)
@@ -25,9 +20,9 @@ fn prepass_alpha_discard(material_flags: u32, alpha_cutoff: f32, output_color: v
         if output_color.a < alpha_cutoff {
             discard;
         }
-    } else if (alpha_mode == pbr_types::STANDARD_MATERIAL_FLAGS_ALPHA_MODE_BLEND ||
-            alpha_mode == pbr_types::STANDARD_MATERIAL_FLAGS_ALPHA_MODE_ADD ||
-            alpha_mode == pbr_types::STANDARD_MATERIAL_FLAGS_ALPHA_MODE_ALPHA_TO_COVERAGE) {
+    } else if alpha_mode == pbr_types::STANDARD_MATERIAL_FLAGS_ALPHA_MODE_BLEND
+        || alpha_mode == pbr_types::STANDARD_MATERIAL_FLAGS_ALPHA_MODE_ADD
+        || alpha_mode == pbr_types::STANDARD_MATERIAL_FLAGS_ALPHA_MODE_ALPHA_TO_COVERAGE {
         if output_color.a < PREMULTIPLIED_ALPHA_CUTOFF {
             discard;
         }
@@ -41,47 +36,40 @@ fn prepass_alpha_discard(material_flags: u32, alpha_cutoff: f32, output_color: v
 // Samples the StandardMaterial's base color (including the base color texture, if any) and then
 // invokes `prepass_alpha_discard` with the material's flags and alpha cutoff.
 fn prepass_sample_color_and_alpha_discard(in: VertexOutput) {
-
 @if(MAY_DISCARD) {
 @if(BINDLESS) {
     let slot = mesh[in.instance_index].material_and_lightmap_bind_group_slot & 0xffffu;
     var output_color: vec4<f32> = pbr_bindings::material_array[material_indices[slot].material].base_color;
     let flags = pbr_bindings::material_array[material_indices[slot].material].flags;
     let alpha_cutoff = pbr_bindings::material_array[material_indices[slot].material].alpha_cutoff;
-}
-@else {
+} @else {
     var output_color: vec4<f32> = pbr_bindings::material.base_color;
     let flags = pbr_bindings::material.flags;
     let alpha_cutoff = pbr_bindings::material.alpha_cutoff;
 }
-
 @if(VERTEX_UVS) {
-@if(STANDARD_MATERIAL_BASE_COLOR_UV_B)
+    @if(STANDARD_MATERIAL_BASE_COLOR_UV_B)
     var uv = in.uv_b;
-@else   // STANDARD_MATERIAL_BASE_COLOR_UV_B
+    @else
+    // STANDARD_MATERIAL_BASE_COLOR_UV_B
     var uv = in.uv;
 
-@if(BINDLESS)
+    @if(BINDLESS)
     let uv_transform = pbr_bindings::material_array[material_indices[slot].material].uv_transform;
-@else
+    @else
     let uv_transform = pbr_bindings::material.uv_transform;
 
     uv = (uv_transform * vec3(uv, 1.0)).xy;
     if (flags & pbr_types::STANDARD_MATERIAL_FLAGS_BASE_COLOR_TEXTURE_BIT) != 0u {
-@if(BINDLESS)
+        @if(BINDLESS)
         let texture = bindless_textures_2d[material_indices[slot].base_color_texture];
-@else
+        @else
         let texture = pbr_bindings::base_color_texture;
-@if(BINDLESS)
+        @if(BINDLESS)
         let sampler_ = bindless_samplers_filtering[material_indices[slot].base_color_sampler];
-@else
+        @else
         let sampler_ = pbr_bindings::base_color_sampler;
-        output_color = output_color * textureSampleBias(
-            texture,
-            sampler_,
-            uv,
-            view.mip_bias
-        );
+        output_color = output_color * textureSampleBias(texture, sampler_, uv, view.mip_bias);
     }
 }
 

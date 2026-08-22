@@ -1,17 +1,11 @@
-import bevy_pbr::render::{
-    pbr_fragment::pbr_input_from_standard_material,
-    pbr_functions::alpha_discard,
-};
+import bevy_pbr::render::{pbr_fragment::pbr_input_from_standard_material, pbr_functions::alpha_discard};
 
 @if(PREPASS_PIPELINE)
-import bevy_pbr::{
-    prepass::io::{VertexOutput, FragmentOutput},
-    deferred::functions::deferred_output,
-};
+import bevy_pbr::{deferred::functions::deferred_output, prepass::io::{FragmentOutput, VertexOutput}};
 @else
 import bevy_pbr::render::{
-    forward_io::{VertexOutput, FragmentOutput},
-    pbr_functions::{apply_pbr_lighting, main_pass_post_lighting_processing},
+    forward_io::{FragmentOutput, VertexOutput},
+    pbr_functions::{apply_pbr_lighting, main_pass_post_lighting_processing}
 };
 
 struct MyExtendedMaterial {
@@ -29,10 +23,7 @@ struct MyExtendedMaterial {
 var<uniform> my_extended_material: MyExtendedMaterial;
 
 @fragment
-fn fragment(
-    in: VertexOutput,
-    @builtin(front_facing) is_front: bool,
-) -> FragmentOutput {
+fn fragment(in: VertexOutput, @builtin(front_facing) is_front: bool) -> FragmentOutput {
     // generate a PbrInput struct from the StandardMaterial bindings
     var pbr_input = pbr_input_from_standard_material(in, is_front);
 
@@ -41,10 +32,10 @@ fn fragment(
 
     // alpha discard
     pbr_input.material.base_color = alpha_discard(
-        pbr_input.material.flags,
-        pbr_input.material.alpha_cutoff,
-        pbr_input.material.base_color
-    );
+            pbr_input.material.flags,
+            pbr_input.material.alpha_cutoff,
+            pbr_input.material.base_color,
+        );
 
     var out: FragmentOutput;
 @if(PREPASS_PIPELINE) {
@@ -55,7 +46,8 @@ fn fragment(
     out.color = apply_pbr_lighting(pbr_input);
 
     // we can optionally modify the lit color before post-processing is applied
-    out.color = vec4<f32>(vec4<u32>(out.color * f32(my_extended_material.quantize_steps))) / f32(my_extended_material.quantize_steps);
+    out.color = vec4<f32>(vec4<u32>(out.color * f32(my_extended_material.quantize_steps)))
+        / f32(my_extended_material.quantize_steps);
 
     // apply in-shader post processing (fog, alpha-premultiply, and also tonemapping, debanding if the camera is non-hdr)
     // note this does not include fullscreen postprocessing effects like bloom.

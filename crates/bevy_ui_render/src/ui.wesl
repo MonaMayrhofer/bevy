@@ -15,38 +15,59 @@ fn enabled(flags: u32, mask: u32) -> bool {
     return (flags & mask) != 0u;
 }
 
-@group(0) @binding(0) var<uniform> view: View;
+@group(0) @binding(0)
+var<uniform> view: View;
 
 struct VertexOutput {
-    @location(0) uv: vec2<f32>,
-    @location(1) color: vec4<f32>,
+    @location(0)
+    uv: vec2<f32>,
+    @location(1)
+    color: vec4<f32>,
 
-    @location(2) @interpolate(flat) size: vec2<f32>,
-    @location(3) @interpolate(flat) flags: u32,
-    @location(4) @interpolate(flat) radius_x: vec4<f32>,
-    @location(5) @interpolate(flat) radius_y: vec4<f32>,
-    @location(6) @interpolate(flat) border: vec4<f32>,
+    @interpolate(flat)
+    @location(2)
+    size: vec2<f32>,
+    @interpolate(flat)
+    @location(3)
+    flags: u32,
+    @interpolate(flat)
+    @location(4)
+    radius_x: vec4<f32>,
+    @interpolate(flat)
+    @location(5)
+    radius_y: vec4<f32>,
+    @interpolate(flat)
+    @location(6)
+    border: vec4<f32>,
 
     // Position relative to the center of the rectangle.
-    @location(7) point: vec2<f32>,
+    @location(7)
+    point: vec2<f32>,
     @builtin(position) position: vec4<f32>,
-};
+}
 
 @vertex
 fn vertex(
-    @location(0) vertex_position: vec3<f32>,
-    @location(1) vertex_uv: vec2<f32>,
-    @location(2) vertex_color: vec4<f32>,
-    @location(3) flags: u32,
-
+    @location(0)
+    vertex_position: vec3<f32>,
+    @location(1)
+    vertex_uv: vec2<f32>,
+    @location(2)
+    vertex_color: vec4<f32>,
+    @location(3)
+    flags: u32,
     // x: top left, y: top right, z: bottom right, w: bottom left.
-    @location(4) radius_x: vec4<f32>,
-    @location(5) radius_y: vec4<f32>,
-
+    @location(4)
+    radius_x: vec4<f32>,
+    @location(5)
+    radius_y: vec4<f32>,
     // x: left, y: top, z: right, w: bottom.
-    @location(6) border: vec4<f32>,
-    @location(7) size: vec2<f32>,
-    @location(8) point: vec2<f32>,
+    @location(6)
+    border: vec4<f32>,
+    @location(7)
+    size: vec2<f32>,
+    @location(8)
+    point: vec2<f32>,
 ) -> VertexOutput {
     var out: VertexOutput;
     out.uv = vertex_uv;
@@ -62,9 +83,10 @@ fn vertex(
     return out;
 }
 
-@group(1) @binding(0) var sprite_texture: texture_2d<f32>;
-@group(1) @binding(1) var sprite_sampler: sampler;
-
+@group(1) @binding(0)
+var sprite_texture: texture_2d<f32>;
+@group(1) @binding(1)
+var sprite_sampler: sampler;
 
 // Returns the radius of the corner closest to the given point.
 //
@@ -73,11 +95,7 @@ fn vertex(
 //  - `corner_radii_x` -> The horizontal radius of each rounded corner.
 //  - `corner_radii_y` -> The vertical radius of each rounded corner.
 //                        Both ordered x: top left, y: top right, z: bottom right, w: bottom left.
-fn select_corner_radius(
-    point: vec2<f32>,
-    corner_radii_x: vec4<f32>,
-    corner_radii_y: vec4<f32>,
-) -> vec2<f32> {
+fn select_corner_radius(point: vec2<f32>, corner_radii_x: vec4<f32>, corner_radii_y: vec4<f32>) -> vec2<f32> {
     // If 0.0 < y then select bottom left (w) and bottom right corner radius (z).
     // Else select top left (x) and top right corner radius (y).
     let rxs = select(corner_radii_x.xy, corner_radii_x.wz, 0.0 < point.y);
@@ -99,12 +117,7 @@ fn select_corner_radius(
 //  - `size`            -> The maximum width and height of the box.
 //  - `corner_radii_x`   -> The horizontal semi-axis of each rounded corner. Ordered counter clockwise starting top left.
 //  - `corner_radii_y`   -> The vertical semi-axis of each rounded corner. Ordered counter clockwise starting top left.
-fn sd_rounded_box(
-    point: vec2<f32>,
-    size: vec2<f32>,
-    corner_radii_x: vec4<f32>,
-    corner_radii_y: vec4<f32>,
-) -> f32 {
+fn sd_rounded_box(point: vec2<f32>, size: vec2<f32>, corner_radii_x: vec4<f32>, corner_radii_y: vec4<f32>) -> f32 {
     let radius = select_corner_radius(point, corner_radii_x, corner_radii_y);
     // Vector from the corner closest to the point, to the point.
     let corner_to_point = abs(point) - 0.5 * size;
@@ -116,7 +129,7 @@ fn sd_rounded_box(
     let q = corner_to_point + radius;
     let edge_distance = max(q.x - radius.x, q.y - radius.y);
     let inv_radii_sq = 1.0 / (radius * radius);
-    let corner_distance = distance_to_ellipse_approx(q, inv_radii_sq, 1.0); 
+    let corner_distance = distance_to_ellipse_approx(q, inv_radii_sq, 1.0);
     return select(edge_distance, corner_distance, q.x > 0.0 && q.y > 0.0);
 }
 
@@ -165,21 +178,19 @@ fn nearest_border_active(point_vs_mid: vec2<f32>, size: vec2<f32>, width: vec4<f
     if (flags & BORDER_ANY) == BORDER_ANY {
         return true;
     }
- 
+
     // get point vs top left
     let point = clamp(point_vs_mid + size * 0.49999, vec2(0.0), size);
- 
+
     let left = point.x / width.x;
     let top = point.y / width.y;
     let right = (size.x - point.x) / width.z;
     let bottom = (size.y - point.y) / width.w;
- 
+
     let min_dist = min(min(left, top), min(right, bottom));
- 
-    return (enabled(flags, BORDER_LEFT) && min_dist == left) ||
-        (enabled(flags, BORDER_TOP) && min_dist == top) || 
-        (enabled(flags, BORDER_RIGHT) && min_dist == right) || 
-        (enabled(flags, BORDER_BOTTOM) && min_dist == bottom);
+
+    return (enabled(flags, BORDER_LEFT) && min_dist == left) || (enabled(flags, BORDER_TOP) && min_dist == top)
+        || (enabled(flags, BORDER_RIGHT) && min_dist == right) || (enabled(flags, BORDER_BOTTOM) && min_dist == bottom);
 }
 
 // get alpha for antialiasing for sdf
@@ -241,7 +252,8 @@ fn draw_uinode_background(
     flags: u32,
 ) -> vec4<f32> {
     // When drawing the background only draw the internal area and not the border.
-    let internal_distance = sd_inset_rounded_box(point, size, radius_x, radius_y, border) * select(1., -1, enabled(flags, INVERT));
+    let internal_distance = sd_inset_rounded_box(point, size, radius_x, radius_y, border)
+        * select(1., -1, enabled(flags, INVERT));
 
     @if(ANTI_ALIAS)
     let t = antialias(internal_distance);
