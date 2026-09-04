@@ -37,16 +37,16 @@ fn fragment(@builtin(front_facing) is_front: bool, mesh: VertexOutput) -> @locat
 
     pbr_input.N = normalize(pbr_input.world_normal);
 
-@if(VERTEX_TANGENTS) {
-    let Nt = textureSampleBias(
-            pbr_bindings::normal_map_texture,
-            pbr_bindings::normal_map_sampler,
-            mesh.uv,
-            view.mip_bias,
-        ).rgb;
-    let TBN = fns::calculate_tbn_mikktspace(mesh.world_normal, mesh.world_tangent);
-    pbr_input.N = fns::apply_normal_mapping(pbr_input.material.flags, TBN, double_sided, is_front, Nt);
-}
+    @if(VERTEX_TANGENTS) {
+        let Nt = textureSampleBias(
+                pbr_bindings::normal_map_texture,
+                pbr_bindings::normal_map_sampler,
+                mesh.uv,
+                view.mip_bias,
+            ).rgb;
+        let TBN = fns::calculate_tbn_mikktspace(mesh.world_normal, mesh.world_tangent);
+        pbr_input.N = fns::apply_normal_mapping(pbr_input.material.flags, TBN, double_sided, is_front, Nt);
+    }
 
     pbr_input.V = fns::calculate_view(mesh.world_position, pbr_input.is_orthographic);
 

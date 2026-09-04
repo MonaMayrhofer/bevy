@@ -115,25 +115,27 @@ var<storage, read_write> output: array<Mesh>;
 var<storage, read_write> indirect_parameters_metadata: array<IndirectParametersMetadata>;
 
 @if(FRUSTUM_CULLING) {
-// Data needed to cull the meshes.
-//
-// At the moment, this consists only of AABBs.
-@group(0) @binding(9)
-var<storage> mesh_culling_data: array<MeshCullingData>;
+    // Data needed to cull the meshes.
+    //
+    // At the moment, this consists only of AABBs.
+    @group(0) @binding(9)
+    var<storage> mesh_culling_data: array<MeshCullingData>;
 
-@group(0) @binding(10)
-var<storage> visibility_ranges: array<vec4<f32>>;
+    @group(0) @binding(10)
+    var<storage> visibility_ranges: array<vec4<f32>>;
 }
 @if(OCCLUSION_CULLING)
 @group(0) @binding(11)
 var depth_pyramid: texture_2d<f32>;
 
 @if(OCCLUSION_CULLING && EARLY_PHASE) {
-@group(0) @binding(12)
-var<storage, read_write> late_preprocess_work_items: array<PreprocessWorkItem>;
+    @group(0) @binding(12)
+    var<storage, read_write> late_preprocess_work_items: array<PreprocessWorkItem>;
 
-@group(0) @binding(13)
-var<storage, read_write> late_preprocess_work_item_indirect_parameters: array<LatePreprocessWorkItemIndirectParameters>;
+    @group(0) @binding(13)
+    var<storage, read_write> late_preprocess_work_item_indirect_parameters: array<
+            LatePreprocessWorkItemIndirectParameters,
+        >;
 }
 @if(OCCLUSION_CULLING && LATE_PHASE)
 @group(0) @binding(13)
@@ -213,42 +215,42 @@ fn main(@builtin(global_invocation_id) global_invocation_id: vec3<u32>) {
     let world_from_local_affine_transpose = current_input[input_index].world_from_local;
     let world_from_local = maths::affine3_to_square(world_from_local_affine_transpose);
 
-@if(FRUSTUM_CULLING) {
-    // Frustum cull if necessary.
-    if (current_input[input_index].flags & MESH_FLAGS_NO_FRUSTUM_CULLING_BIT) == 0u {
-        let aabb_center = mesh_culling_data[input_index].aabb_center.xyz;
-        let aabb_half_extents = mesh_culling_data[input_index].aabb_half_extents.xyz;
-
-        // Do an OBB-based frustum cull.
-        let model_center = world_from_local * vec4(aabb_center, 1.0);
-        if !view_frustum_intersects_obb(world_from_local, model_center, aabb_half_extents) {
-            return;
-        }
-    }
-
-    // Visibility range cull if necessary.
-    let visibility_buffer_array_len = arrayLength(&visibility_ranges);
-    let visibility_buffer_index = current_input[input_index].flags & MESH_FLAGS_VISIBILITY_RANGE_INDEX_BITS;
-    if visibility_buffer_index < visibility_buffer_array_len {
-        let lod_range = visibility_ranges[visibility_buffer_index];
-
-        // If we're using the AABB as the mesh center, determine its world space position.
-        // Otherwise, just use the center of the transform.
-        var world_pos: vec3<f32>;
-        if (current_input[input_index].flags & MESH_FLAGS_AABB_BASED_VISIBILITY_RANGE_BIT) != 0u {
+    @if(FRUSTUM_CULLING) {
+        // Frustum cull if necessary.
+        if (current_input[input_index].flags & MESH_FLAGS_NO_FRUSTUM_CULLING_BIT) == 0u {
             let aabb_center = mesh_culling_data[input_index].aabb_center.xyz;
-            world_pos = (world_from_local * vec4(aabb_center, 1.0)).xyz;
-        } else {
-            world_pos = world_from_local[3].xyz;
+            let aabb_half_extents = mesh_culling_data[input_index].aabb_half_extents.xyz;
+
+            // Do an OBB-based frustum cull.
+            let model_center = world_from_local * vec4(aabb_center, 1.0);
+            if !view_frustum_intersects_obb(world_from_local, model_center, aabb_half_extents) {
+                return;
+            }
         }
 
-        let camera_distance = length(world_pos - view.lod_view_world_position);
-        // `x` is the minimum range; `w` is the largest range.
-        if camera_distance < lod_range.x || camera_distance >= lod_range.w {
-            return;
+        // Visibility range cull if necessary.
+        let visibility_buffer_array_len = arrayLength(&visibility_ranges);
+        let visibility_buffer_index = current_input[input_index].flags & MESH_FLAGS_VISIBILITY_RANGE_INDEX_BITS;
+        if visibility_buffer_index < visibility_buffer_array_len {
+            let lod_range = visibility_ranges[visibility_buffer_index];
+
+            // If we're using the AABB as the mesh center, determine its world space position.
+            // Otherwise, just use the center of the transform.
+            var world_pos: vec3<f32>;
+            if (current_input[input_index].flags & MESH_FLAGS_AABB_BASED_VISIBILITY_RANGE_BIT) != 0u {
+                let aabb_center = mesh_culling_data[input_index].aabb_center.xyz;
+                world_pos = (world_from_local * vec4(aabb_center, 1.0)).xyz;
+            } else {
+                world_pos = world_from_local[3].xyz;
+            }
+
+            let camera_distance = length(world_pos - view.lod_view_world_position);
+            // `x` is the minimum range; `w` is the largest range.
+            if camera_distance < lod_range.x || camera_distance >= lod_range.w {
+                return;
+            }
         }
     }
-}
 
     // See whether the `MeshInputUniform` was updated on this frame. If it
     // wasn't, then we know the transforms of this mesh must be identical to
@@ -274,97 +276,99 @@ fn main(@builtin(global_invocation_id) global_invocation_id: vec3<u32>) {
     // no part of the AABB is in front of the corresponding pixel quad in the
     // hierarchical Z-buffer, then this mesh must be occluded, and we can skip
     // rendering it.
-@if(OCCLUSION_CULLING) {
-    let aabb_center = mesh_culling_data[input_index].aabb_center.xyz;
-    let aabb_half_extents = mesh_culling_data[input_index].aabb_half_extents.xyz;
+    @if(OCCLUSION_CULLING) {
+        let aabb_center = mesh_culling_data[input_index].aabb_center.xyz;
+        let aabb_half_extents = mesh_culling_data[input_index].aabb_half_extents.xyz;
 
-    // Initialize the AABB and the maximum depth.
-    let infinity = bitcast<f32>(0x7f800000u);
-    let neg_infinity = bitcast<f32>(0xff800000u);
-    var aabb = vec4(infinity, infinity, neg_infinity, neg_infinity);
-    var max_depth_view = neg_infinity;
+        // Initialize the AABB and the maximum depth.
+        let infinity = bitcast<f32>(0x7f800000u);
+        let neg_infinity = bitcast<f32>(0xff800000u);
+        var aabb = vec4(infinity, infinity, neg_infinity, neg_infinity);
+        var max_depth_view = neg_infinity;
 
-    // Build up the AABB by taking each corner of this mesh's OBB, transforming
-    // it, and updating the AABB and depth accordingly.
-    for(var i = 0u; i < 8u; i += 1u) {
-        let local_pos = aabb_center
-            + select(vec3(-1.0), vec3(1.0), vec3((i & 1) != 0, (i & 2) != 0, (i & 4) != 0)) * aabb_half_extents;
+        // Build up the AABB by taking each corner of this mesh's OBB, transforming
+        // it, and updating the AABB and depth accordingly.
+        for(var i = 0u; i < 8u; i += 1u) {
+            let local_pos = aabb_center
+                + select(vec3(-1.0), vec3(1.0), vec3((i & 1) != 0, (i & 2) != 0, (i & 4) != 0)) * aabb_half_extents;
 
-        // If we're in the early phase, we're testing against the last frame's
-        // depth buffer, so we need to use the previous frame's transform.
-        @if(EARLY_PHASE)
-        let prev_world_pos = (previous_world_from_local * vec4(local_pos, 1.0)).xyz;
-        @if(EARLY_PHASE)
-        let view_pos = position_world_to_prev_view(prev_world_pos);
-        @if(EARLY_PHASE)
-        let ndc_pos = position_world_to_prev_ndc(prev_world_pos);
-        // Otherwise, if this is the late phase, we use the current frame's
-        // transform.
-        @if(!EARLY_PHASE)
-        let world_pos = (world_from_local * vec4(local_pos, 1.0)).xyz;
-        @if(!EARLY_PHASE)
-        let view_pos = position_world_to_view(world_pos);
-        @if(!EARLY_PHASE)
-        let ndc_pos = position_world_to_ndc(world_pos);
+            // If we're in the early phase, we're testing against the last frame's
+            // depth buffer, so we need to use the previous frame's transform.
+            @if(EARLY_PHASE)
+            let prev_world_pos = (previous_world_from_local * vec4(local_pos, 1.0)).xyz;
+            @if(EARLY_PHASE)
+            let view_pos = position_world_to_prev_view(prev_world_pos);
+            @if(EARLY_PHASE)
+            let ndc_pos = position_world_to_prev_ndc(prev_world_pos);
+            // Otherwise, if this is the late phase, we use the current frame's
+            // transform.
+            @if(!EARLY_PHASE)
+            let world_pos = (world_from_local * vec4(local_pos, 1.0)).xyz;
+            @if(!EARLY_PHASE)
+            let view_pos = position_world_to_view(world_pos);
+            @if(!EARLY_PHASE)
+            let ndc_pos = position_world_to_ndc(world_pos);
 
-        let uv_pos = ndc_to_uv(ndc_pos.xy);
+            let uv_pos = ndc_to_uv(ndc_pos.xy);
 
-        // Update the AABB and maximum view-space depth.
-        aabb = vec4(min(aabb.xy, uv_pos), max(aabb.zw, uv_pos));
-        max_depth_view = max(max_depth_view, view_pos.z);
-    }
-
-    // Clip to the near plane to avoid the NDC depth becoming negative.
-    @if(EARLY_PHASE)
-    max_depth_view = min(-previous_view_uniforms.clip_from_view[3][2], max_depth_view);
-    @else
-    // EARLY_PHASE
-    max_depth_view = min(-view.clip_from_view[3][2], max_depth_view);
-
-    // Figure out the depth of the occluder, and compare it to our own depth.
-
-    let aabb_pixel_size = occlusion_culling::get_aabb_size_in_pixels(aabb, depth_pyramid);
-    let occluder_depth_ndc = occlusion_culling::get_occluder_depth(aabb, aabb_pixel_size, depth_pyramid);
-
-    @if(EARLY_PHASE)
-    let max_depth_ndc = prev_view_z_to_depth_ndc(max_depth_view);
-    @else
-    // EARLY_PHASE
-    let max_depth_ndc = view_z_to_depth_ndc(max_depth_view);
-
-    // Are we culled out?
-    if max_depth_ndc < occluder_depth_ndc {
-@if(EARLY_PHASE) {
-        // If this is the early phase, we need to make a note of this mesh so
-        // that we examine it again in the late phase, so that we handle the
-        // case in which a mesh that was invisible last frame became visible in
-        // this frame.
-        let output_work_item_index = atomicAdd(
-                &late_preprocess_work_item_indirect_parameters[immediates.late_preprocess_work_item_indirect_offset]
-                    .work_item_count,
-                1u,
-            );
-        if output_work_item_index % 64u == 0u {
-            // Our workgroup size is 64, and the indirect parameters for the
-            // late mesh preprocessing phase are counted in workgroups, so if
-            // we're the first thread in this workgroup, bump the workgroup
-            // count.
-            atomicAdd(
-                &late_preprocess_work_item_indirect_parameters[immediates.late_preprocess_work_item_indirect_offset]
-                    .dispatch_x,
-                1u,
-            );
+            // Update the AABB and maximum view-space depth.
+            aabb = vec4(min(aabb.xy, uv_pos), max(aabb.zw, uv_pos));
+            max_depth_view = max(max_depth_view, view_pos.z);
         }
 
-        // Enqueue a work item for the late prepass phase.
-        late_preprocess_work_items[output_work_item_index].input_index = input_index;
-        late_preprocess_work_items[output_work_item_index].output_or_indirect_parameters_index =
-            indirect_parameters_index;
-}
-        // This mesh is culled. Skip it.
-        return;
+        // Clip to the near plane to avoid the NDC depth becoming negative.
+        @if(EARLY_PHASE)
+        max_depth_view = min(-previous_view_uniforms.clip_from_view[3][2], max_depth_view);
+        @else
+        // EARLY_PHASE
+        max_depth_view = min(-view.clip_from_view[3][2], max_depth_view);
+
+        // Figure out the depth of the occluder, and compare it to our own depth.
+
+        let aabb_pixel_size = occlusion_culling::get_aabb_size_in_pixels(aabb, depth_pyramid);
+        let occluder_depth_ndc = occlusion_culling::get_occluder_depth(aabb, aabb_pixel_size, depth_pyramid);
+
+        @if(EARLY_PHASE)
+        let max_depth_ndc = prev_view_z_to_depth_ndc(max_depth_view);
+        @else
+        // EARLY_PHASE
+        let max_depth_ndc = view_z_to_depth_ndc(max_depth_view);
+
+        // Are we culled out?
+        if max_depth_ndc < occluder_depth_ndc {
+            @if(EARLY_PHASE) {
+                // If this is the early phase, we need to make a note of this mesh so
+                // that we examine it again in the late phase, so that we handle the
+                // case in which a mesh that was invisible last frame became visible in
+                // this frame.
+                let output_work_item_index = atomicAdd(
+                        &late_preprocess_work_item_indirect_parameters[
+                            immediates.late_preprocess_work_item_indirect_offset
+                        ].work_item_count,
+                        1u,
+                    );
+                if output_work_item_index % 64u == 0u {
+                    // Our workgroup size is 64, and the indirect parameters for the
+                    // late mesh preprocessing phase are counted in workgroups, so if
+                    // we're the first thread in this workgroup, bump the workgroup
+                    // count.
+                    atomicAdd(
+                        &late_preprocess_work_item_indirect_parameters[
+                            immediates.late_preprocess_work_item_indirect_offset
+                        ].dispatch_x,
+                        1u,
+                    );
+                }
+
+                // Enqueue a work item for the late prepass phase.
+                late_preprocess_work_items[output_work_item_index].input_index = input_index;
+                late_preprocess_work_items[output_work_item_index].output_or_indirect_parameters_index =
+                    indirect_parameters_index;
+            }
+            // This mesh is culled. Skip it.
+            return;
+        }
     }
-}
 
     // Calculate inverse transpose.
     let local_from_world_transpose = transpose(maths::inverse_affine3(transpose(world_from_local_affine_transpose)));

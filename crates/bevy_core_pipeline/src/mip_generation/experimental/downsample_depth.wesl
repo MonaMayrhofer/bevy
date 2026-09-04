@@ -371,28 +371,28 @@ fn load_mip_0(x: u32, y: u32) -> f32 {
     let actual_size = textureDimensions(mip_0).xy;
     let virtual_size = vec2<u32>(next_power_of_two(actual_size.x), next_power_of_two(actual_size.y));
     let virtual_uv = (vec2<f32>(f32(x), f32(y)) + 0.5) / vec2<f32>(virtual_size);
-@if(MESHLET_VISIBILITY_BUFFER_RASTER_PASS_OUTPUT) {
-    let virtual_st = virtual_uv * vec2<f32>(actual_size);
-    let visibility = load_mip_0_meshlet(virtual_st, 32u);
-    return reduce_4(visibility);
-} @elif(MESHLET) {
-    let virtual_st = virtual_uv * vec2<f32>(actual_size);
-    let visibility = load_mip_0_meshlet(virtual_st, 0u);
-    return reduce_4(visibility);
-} @elif(MULTISAMPLE) {
-    // Downsample the top level.
-    // The top level is multisampled, so we need to loop over all the samples
-    // and reduce them to 1.
-    let virtual_st = virtual_uv * vec2<f32>(actual_size);
-    var result = load_mip_0_single_sample(virtual_st, 0);
-    let sample_count = i32(textureNumSamples(mip_0));
-    for(var sample = 1; sample < sample_count; sample += 1) {
-        result = min(result, load_mip_0_single_sample(virtual_st, sample));
+    @if(MESHLET_VISIBILITY_BUFFER_RASTER_PASS_OUTPUT) {
+        let virtual_st = virtual_uv * vec2<f32>(actual_size);
+        let visibility = load_mip_0_meshlet(virtual_st, 32u);
+        return reduce_4(visibility);
+    } @elif(MESHLET) {
+        let virtual_st = virtual_uv * vec2<f32>(actual_size);
+        let visibility = load_mip_0_meshlet(virtual_st, 0u);
+        return reduce_4(visibility);
+    } @elif(MULTISAMPLE) {
+        // Downsample the top level.
+        // The top level is multisampled, so we need to loop over all the samples
+        // and reduce them to 1.
+        let virtual_st = virtual_uv * vec2<f32>(actual_size);
+        var result = load_mip_0_single_sample(virtual_st, 0);
+        let sample_count = i32(textureNumSamples(mip_0));
+        for(var sample = 1; sample < sample_count; sample += 1) {
+            result = min(result, load_mip_0_single_sample(virtual_st, sample));
+        }
+        return result;
+    } @else {
+        return reduce_4(textureGather(mip_0, samplr, virtual_uv));
     }
-    return result;
-} @else {
-    return reduce_4(textureGather(mip_0, samplr, virtual_uv));
-}
 }
 
 // Loads a single 2×2 square of texels at the given position from the source

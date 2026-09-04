@@ -73,42 +73,42 @@ fn fragment(
 
         var normal = world_normal;
 
-@if(VERTEX_UVS) {
-@if(VERTEX_TANGENTS) {
-@if(STANDARD_MATERIAL_NORMAL_MAP) {
-        // TODO: Transforming UVs mean we need to apply derivative chain rule for meshlet mesh material pass
-        @if(STANDARD_MATERIAL_NORMAL_MAP_UV_B)
-        let uv = (uv_transform * vec3(in.uv_b, 1.0)).xy;
-        @else
-        let uv = (uv_transform * vec3(in.uv, 1.0)).xy;
+        @if(VERTEX_UVS) {
+            @if(VERTEX_TANGENTS) {
+                @if(STANDARD_MATERIAL_NORMAL_MAP) {
+                    // TODO: Transforming UVs mean we need to apply derivative chain rule for meshlet mesh material pass
+                    @if(STANDARD_MATERIAL_NORMAL_MAP_UV_B)
+                    let uv = (uv_transform * vec3(in.uv_b, 1.0)).xy;
+                    @else
+                    let uv = (uv_transform * vec3(in.uv, 1.0)).xy;
 
-        // Fill in the sample bias so we can sample from textures.
-        var bias: SampleBias;
-        @if(MESHLET_MESH_MATERIAL_PASS)
-        bias.ddx_uv = in.ddx_uv;
-        @if(MESHLET_MESH_MATERIAL_PASS)
-        bias.ddy_uv = in.ddy_uv;
-        @if(!MESHLET_MESH_MATERIAL_PASS)
-        bias.mip_bias = view.mip_bias;
+                    // Fill in the sample bias so we can sample from textures.
+                    var bias: SampleBias;
+                    @if(MESHLET_MESH_MATERIAL_PASS)
+                    bias.ddx_uv = in.ddx_uv;
+                    @if(MESHLET_MESH_MATERIAL_PASS)
+                    bias.ddy_uv = in.ddy_uv;
+                    @if(!MESHLET_MESH_MATERIAL_PASS)
+                    bias.mip_bias = view.mip_bias;
 
-        @if(BINDLESS)
-        let texture = bindless_textures_2d[material_indices[slot].normal_map_texture];
-        @else
-        let texture = pbr_bindings::normal_map_texture;
-        @if(BINDLESS)
-        let sampler_ = bindless_samplers_filtering[material_indices[slot].normal_map_sampler];
-        @else
-        let sampler_ = pbr_bindings::normal_map_sampler;
-        @if(MESHLET_MESH_MATERIAL_PASS)
-        let Nt = textureSampleGrad(texture, sampler_, uv, bias.ddx_uv, bias.ddy_uv).rgb;
-        @if(!MESHLET_MESH_MATERIAL_PASS)
-        let Nt = textureSampleBias(texture, sampler_, uv, bias.mip_bias).rgb;
-        let TBN = pbr_functions::calculate_tbn_mikktspace(normal, in.world_tangent);
+                    @if(BINDLESS)
+                    let texture = bindless_textures_2d[material_indices[slot].normal_map_texture];
+                    @else
+                    let texture = pbr_bindings::normal_map_texture;
+                    @if(BINDLESS)
+                    let sampler_ = bindless_samplers_filtering[material_indices[slot].normal_map_sampler];
+                    @else
+                    let sampler_ = pbr_bindings::normal_map_sampler;
+                    @if(MESHLET_MESH_MATERIAL_PASS)
+                    let Nt = textureSampleGrad(texture, sampler_, uv, bias.ddx_uv, bias.ddy_uv).rgb;
+                    @if(!MESHLET_MESH_MATERIAL_PASS)
+                    let Nt = textureSampleBias(texture, sampler_, uv, bias.mip_bias).rgb;
+                    let TBN = pbr_functions::calculate_tbn_mikktspace(normal, in.world_tangent);
 
-        normal = pbr_functions::apply_normal_mapping(flags, TBN, double_sided, is_logically_front, Nt);
-}
-}
-}
+                    normal = pbr_functions::apply_normal_mapping(flags, TBN, double_sided, is_logically_front, Nt);
+                }
+            }
+        }
 
         out.normal = vec4(normal * 0.5 + vec3(0.5), 1.0);
     } else {

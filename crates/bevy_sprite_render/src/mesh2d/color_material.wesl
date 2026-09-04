@@ -17,24 +17,24 @@ struct ColorMaterial {
 }
 
 @if(BINDLESS) {
-// The index table for bindless operation.
-struct ColorMaterialBindings {
-    material: u32, // 0
-    color_texture: u32, // 1
-    color_sampler: u32, // 2
-}
+    // The index table for bindless operation.
+    struct ColorMaterialBindings {
+        material: u32, // 0
+        color_texture: u32, // 1
+        color_sampler: u32, // 2
+    }
 
-@group(constants::MATERIAL_BIND_GROUP) @binding(0)
-var<storage> color_material_indices: array<ColorMaterialBindings>;
-@group(constants::MATERIAL_BIND_GROUP) @binding(10)
-var<storage> color_materials: array<ColorMaterial>;
+    @group(constants::MATERIAL_BIND_GROUP) @binding(0)
+    var<storage> color_material_indices: array<ColorMaterialBindings>;
+    @group(constants::MATERIAL_BIND_GROUP) @binding(10)
+    var<storage> color_materials: array<ColorMaterial>;
 } @else {
-@group(constants::MATERIAL_BIND_GROUP) @binding(0)
-var<uniform> material: ColorMaterial;
-@group(constants::MATERIAL_BIND_GROUP) @binding(1)
-var texture: texture_2d<f32>;
-@group(constants::MATERIAL_BIND_GROUP) @binding(2)
-var texture_sampler: sampler;
+    @group(constants::MATERIAL_BIND_GROUP) @binding(0)
+    var<uniform> material: ColorMaterial;
+    @group(constants::MATERIAL_BIND_GROUP) @binding(1)
+    var texture: texture_2d<f32>;
+    @group(constants::MATERIAL_BIND_GROUP) @binding(2)
+    var texture_sampler: sampler;
 }
 
 const COLOR_MATERIAL_FLAGS_TEXTURE_BIT: u32 = 1u;

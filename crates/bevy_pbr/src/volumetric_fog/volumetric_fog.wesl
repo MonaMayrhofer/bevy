@@ -85,10 +85,10 @@ var depth_texture: texture_depth_multisampled_2d;
 var depth_texture: texture_depth_2d;
 
 @if(DENSITY_TEXTURE) {
-@group(1) @binding(2)
-var density_texture: texture_3d<f32>;
-@group(1) @binding(3)
-var density_sampler: sampler;
+    @group(1) @binding(2)
+    var density_texture: texture_3d<f32>;
+    @group(1) @binding(3)
+    var density_sampler: sampler;
 }
 
 // 1 / (4π)
@@ -321,24 +321,24 @@ fn fragment(@builtin(position) position: vec4<f32>) -> @location(0) vec4<f32> {
                     fog_color * light_tint * light_attenuation * scattering * density * step_size_world
                     * light_intensity * exposure;
 
-@if(ATMOSPHERE) {
-                // attenuate by atmospheric scattering
-                let P = P_world + depth_offset;
-                let P_as = (atmosphere.world_to_atmosphere * vec4(P, 1.0)).xyz;
-                let P_clamped = clamp_to_surface(atmosphere, P_as);
-                let r = length(P_clamped);
-                let local_up = normalize(P_clamped);
-                let mu_light = dot(L, local_up);
+                @if(ATMOSPHERE) {
+                    // attenuate by atmospheric scattering
+                    let P = P_world + depth_offset;
+                    let P_as = (atmosphere.world_to_atmosphere * vec4(P, 1.0)).xyz;
+                    let P_clamped = clamp_to_surface(atmosphere, P_as);
+                    let r = length(P_clamped);
+                    let local_up = normalize(P_clamped);
+                    let mu_light = dot(L, local_up);
 
-                let transmittance = sample_transmittance_lut(r, mu_light);
-                let sun_visibility = calculate_visible_sun_ratio(
-                        atmosphere,
-                        r,
-                        mu_light,
-                        (*light).sun_disk_angular_size,
-                    );
-                light_factors_per_step *= transmittance * sun_visibility;
-}
+                    let transmittance = sample_transmittance_lut(r, mu_light);
+                    let sun_visibility = calculate_visible_sun_ratio(
+                            atmosphere,
+                            r,
+                            mu_light,
+                            (*light).sun_disk_angular_size,
+                        );
+                    light_factors_per_step *= transmittance * sun_visibility;
+                }
 
                 // Modulate the factor we calculated above by the phase, fog color,
                 // light color, light tint.

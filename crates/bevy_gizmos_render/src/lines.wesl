@@ -79,38 +79,38 @@ fn vertex(vertex: VertexInput) -> VertexOutput {
     var alpha = 1.;
 
     var uv: f32;
-@if(PERSPECTIVE) {
-    line_width /= clip.w;
+    @if(PERSPECTIVE) {
+        line_width /= clip.w;
 
-    // get height of near clipping plane in world space
-    let pos0 = view.view_from_clip * vec4(0, -1, 0, 1); // Bottom of the screen
-    let pos1 = view.view_from_clip * vec4(0, 1, 0, 1); // Top of the screen
-    let near_clipping_plane_height = length(pos0.xyz - pos1.xyz);
+        // get height of near clipping plane in world space
+        let pos0 = view.view_from_clip * vec4(0, -1, 0, 1); // Bottom of the screen
+        let pos1 = view.view_from_clip * vec4(0, 1, 0, 1); // Top of the screen
+        let near_clipping_plane_height = length(pos0.xyz - pos1.xyz);
 
-    // We can't use vertex.position_X because we may have changed the clip positions with clip_near_plane
-    let position_a = view.world_from_clip * clip_a;
-    let position_b = view.world_from_clip * clip_b;
-    let world_distance = length(position_a.xyz - position_b.xyz);
+        // We can't use vertex.position_X because we may have changed the clip positions with clip_near_plane
+        let position_a = view.world_from_clip * clip_a;
+        let position_b = view.world_from_clip * clip_b;
+        let world_distance = length(position_a.xyz - position_b.xyz);
 
-    // Offset to compensate for moved clip positions. If removed dots on lines will slide when position a is ofscreen.
-    let clipped_offset = length(position_a.xyz - vertex.position_a);
+        // Offset to compensate for moved clip positions. If removed dots on lines will slide when position a is ofscreen.
+        let clipped_offset = length(position_a.xyz - vertex.position_a);
 
-    uv = (clipped_offset + position.y * world_distance) * resolution.y / near_clipping_plane_height
-        / line_gizmo.line_width;
-} @else {
-    // Get the distance of b to the camera along camera axes
-    let camera_b = view.view_from_clip * clip_b;
+        uv = (clipped_offset + position.y * world_distance) * resolution.y / near_clipping_plane_height
+            / line_gizmo.line_width;
+    } @else {
+        // Get the distance of b to the camera along camera axes
+        let camera_b = view.view_from_clip * clip_b;
 
-    // This differentiates between orthographic and perspective cameras.
-    // For orthographic cameras no depth adaptment (depth_adaptment = 1) is needed.
-    var depth_adaptment: f32;
-    if clip_b.w == 1.0 {
-        depth_adaptment = 1.0;
-    } else {
-        depth_adaptment = -camera_b.z;
+        // This differentiates between orthographic and perspective cameras.
+        // For orthographic cameras no depth adaptment (depth_adaptment = 1) is needed.
+        var depth_adaptment: f32;
+        if clip_b.w == 1.0 {
+            depth_adaptment = 1.0;
+        } else {
+            depth_adaptment = -camera_b.z;
+        }
+        uv = position.y * depth_adaptment * length(screen_b - screen_a) / line_gizmo.line_width;
     }
-    uv = position.y * depth_adaptment * length(screen_b - screen_a) / line_gizmo.line_width;
-}
 
     // Line thinness fade from https://acegikmo.com/shapes/docs/#anti-aliasing
     if line_width > 0.0 && line_width < 1. {

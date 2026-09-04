@@ -167,75 +167,75 @@ fn apply_decals(pbr_input: ptr<function, PbrInput>) {
     var metallic = (*pbr_input).material.metallic;
     var perceptual_roughness = (*pbr_input).material.perceptual_roughness;
 
-@if(CLUSTERED_DECALS_ARE_USABLE) {
-    // Fetch the clusterable object index ranges for this world position.
+    @if(CLUSTERED_DECALS_ARE_USABLE) {
+        // Fetch the clusterable object index ranges for this world position.
 
-    let view_z = get_view_z(world_position);
-    let is_orthographic = view_is_orthographic();
+        let view_z = get_view_z(world_position);
+        let is_orthographic = view_is_orthographic();
 
-    let cluster_index = clustered_forward::view_fragment_cluster_index(frag_coord, view_z, is_orthographic);
-    var clusterable_object_index_ranges = clustered_forward::unpack_clusterable_object_index_ranges(cluster_index);
+        let cluster_index = clustered_forward::view_fragment_cluster_index(frag_coord, view_z, is_orthographic);
+        var clusterable_object_index_ranges = clustered_forward::unpack_clusterable_object_index_ranges(cluster_index);
 
-    // Iterate over decals.
+        // Iterate over decals.
 
-    var iterator = clustered_decal_iterator_new(world_position, &clusterable_object_index_ranges);
-    while clustered_decal_iterator_next(&iterator) {
-        // Apply base color and metallic/roughness.
-        if iterator.base_color_texture_index >= 0 {
-            let decal_base_color = textureSampleLevel(
-                    mesh_view_bindings::clustered_decal_textures[iterator.base_color_texture_index],
-                    mesh_view_bindings::clustered_decal_sampler,
-                    iterator.uv,
-                    0.0,
-                );
-
-            // Apply the metallic (blue channel) and the roughness (green channel) map.
-            if iterator.metallic_roughness_texture_index >= 0 {
-                let metallic_roughness_sampler = textureSampleLevel(
-                        mesh_view_bindings::clustered_decal_textures[iterator.metallic_roughness_texture_index],
+        var iterator = clustered_decal_iterator_new(world_position, &clusterable_object_index_ranges);
+        while clustered_decal_iterator_next(&iterator) {
+            // Apply base color and metallic/roughness.
+            if iterator.base_color_texture_index >= 0 {
+                let decal_base_color = textureSampleLevel(
+                        mesh_view_bindings::clustered_decal_textures[iterator.base_color_texture_index],
                         mesh_view_bindings::clustered_decal_sampler,
                         iterator.uv,
                         0.0,
                     );
-                // Use OVER compositing using the base color alpha.
-                metallic = mix(metallic * base_color.a, metallic_roughness_sampler.b, decal_base_color.a);
-                perceptual_roughness = mix(
-                        perceptual_roughness * base_color.a,
-                        metallic_roughness_sampler.g,
-                        decal_base_color.a,
-                    );
+
+                // Apply the metallic (blue channel) and the roughness (green channel) map.
+                if iterator.metallic_roughness_texture_index >= 0 {
+                    let metallic_roughness_sampler = textureSampleLevel(
+                            mesh_view_bindings::clustered_decal_textures[iterator.metallic_roughness_texture_index],
+                            mesh_view_bindings::clustered_decal_sampler,
+                            iterator.uv,
+                            0.0,
+                        );
+                    // Use OVER compositing using the base color alpha.
+                    metallic = mix(metallic * base_color.a, metallic_roughness_sampler.b, decal_base_color.a);
+                    perceptual_roughness = mix(
+                            perceptual_roughness * base_color.a,
+                            metallic_roughness_sampler.g,
+                            decal_base_color.a,
+                        );
+                }
+
+                // Apply base color with the standard OVER compositing operator.
+                base_color = porter_duff_over(base_color, decal_base_color);
             }
 
-            // Apply base color with the standard OVER compositing operator.
-            base_color = porter_duff_over(base_color, decal_base_color);
-        }
+            @if(VERTEX_TANGENTS)
+            if iterator.normal_map_texture_index >= 0 {
+                let Nd = textureSampleLevel(
+                        mesh_view_bindings::clustered_decal_textures[iterator.normal_map_texture_index],
+                        mesh_view_bindings::clustered_decal_sampler,
+                        iterator.uv,
+                        0.0,
+                    ).rgb * 2.0 - 1.0;
+                // This is the *Whiteout* normal map blending operator from [1].
+                //
+                // [1]: https://blog.selfshadow.com/publications/blending-in-detail/
+                Nt = vec3(Nt.xy + Nd.xy, Nt.z * Nd.z);
+            }
 
-        @if(VERTEX_TANGENTS)
-        if iterator.normal_map_texture_index >= 0 {
-            let Nd = textureSampleLevel(
-                    mesh_view_bindings::clustered_decal_textures[iterator.normal_map_texture_index],
-                    mesh_view_bindings::clustered_decal_sampler,
-                    iterator.uv,
-                    0.0,
-                ).rgb * 2.0 - 1.0;
-            // This is the *Whiteout* normal map blending operator from [1].
-            //
-            // [1]: https://blog.selfshadow.com/publications/blending-in-detail/
-            Nt = vec3(Nt.xy + Nd.xy, Nt.z * Nd.z);
-        }
-
-        // Apply emissive.
-        if iterator.emissive_texture_index >= 0 {
-            let decal_emissive = textureSampleLevel(
-                    mesh_view_bindings::clustered_decal_textures[iterator.emissive_texture_index],
-                    mesh_view_bindings::clustered_decal_sampler,
-                    iterator.uv,
-                    0.0,
-                );
-            emissive += vec4(decal_emissive.rgb, 0.0);
+            // Apply emissive.
+            if iterator.emissive_texture_index >= 0 {
+                let decal_emissive = textureSampleLevel(
+                        mesh_view_bindings::clustered_decal_textures[iterator.emissive_texture_index],
+                        mesh_view_bindings::clustered_decal_sampler,
+                        iterator.uv,
+                        0.0,
+                    );
+                emissive += vec4(decal_emissive.rgb, 0.0);
+            }
         }
     }
-}
 
     (*pbr_input).material.base_color = base_color;
     (*pbr_input).material.emissive = emissive;

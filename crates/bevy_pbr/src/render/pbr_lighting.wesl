@@ -508,16 +508,16 @@ fn F_AB(perceptual_roughness: f32, NdotV: f32) -> vec2<f32> {
             vec2<f32>(NdotV, perceptual_roughness),
             0.0,
         ).rg;
-@else {
-    // Polynomial approximation, see https://www.unrealengine.com/en-US/blog/physically-based-shading-on-mobile
-    let c0 = vec4<f32>(-1.0, -0.0275, -0.572, 0.022);
-    let c1 = vec4<f32>(1.0, 0.0425, 1.04, -0.04);
-    let r = perceptual_roughness * c0 + c1;
-    let a004 = min(r.x * r.x, exp2(-9.28 * NdotV)) * r.x + r.y;
-    // Keep F_ab positive to avoid divide-by-zero in downstream BRDF terms.
-    let f_ab_epsilon = 0.00005;
-    return max(vec2<f32>(-1.04, 1.04) * a004 + r.zw, vec2<f32>(f_ab_epsilon));
-}
+    @else {
+        // Polynomial approximation, see https://www.unrealengine.com/en-US/blog/physically-based-shading-on-mobile
+        let c0 = vec4<f32>(-1.0, -0.0275, -0.572, 0.022);
+        let c1 = vec4<f32>(1.0, 0.0425, 1.04, -0.04);
+        let r = perceptual_roughness * c0 + c1;
+        let a004 = min(r.x * r.x, exp2(-9.28 * NdotV)) * r.x + r.y;
+        // Keep F_ab positive to avoid divide-by-zero in downstream BRDF terms.
+        let f_ab_epsilon = 0.00005;
+        return max(vec2<f32>(-1.04, 1.04) * a004 + r.zw, vec2<f32>(f_ab_epsilon));
+    }
 }
 
 fn EnvBRDFApprox(F0: vec3<f32>, F_ab: vec2<f32>) -> vec3<f32> {
@@ -920,22 +920,22 @@ fn directional_light(light_id: u32, input: ptr<function, LightingInput>, enable_
 
     color *= (*light).color.rgb * texture_sample;
 
-@if(ATMOSPHERE) {
-    let P = (*input).P;
-    let atmosphere = view_bindings::atmosphere;
-    let P_as = (view_bindings::atmosphere.world_to_atmosphere * vec4(P, 1.0)).xyz;
-    let P_clamped = clamp_to_surface(atmosphere, P_as);
-    let r = length(P_clamped);
-    let local_up = normalize(P_clamped);
-    let mu_light = dot(L, local_up);
+    @if(ATMOSPHERE) {
+        let P = (*input).P;
+        let atmosphere = view_bindings::atmosphere;
+        let P_as = (view_bindings::atmosphere.world_to_atmosphere * vec4(P, 1.0)).xyz;
+        let P_clamped = clamp_to_surface(atmosphere, P_as);
+        let r = length(P_clamped);
+        let local_up = normalize(P_clamped);
+        let mu_light = dot(L, local_up);
 
-    // Sample atmosphere
-    let transmittance = sample_transmittance_lut(r, mu_light);
-    let sun_visibility = calculate_visible_sun_ratio(atmosphere, r, mu_light, (*light).sun_disk_angular_size);
+        // Sample atmosphere
+        let transmittance = sample_transmittance_lut(r, mu_light);
+        let sun_visibility = calculate_visible_sun_ratio(atmosphere, r, mu_light, (*light).sun_disk_angular_size);
 
-    // Apply atmospheric effects
-    color *= transmittance * sun_visibility;
-}
+        // Apply atmospheric effects
+        color *= transmittance * sun_visibility;
+    }
 
     return color;
 }
@@ -1086,33 +1086,45 @@ fn rect_light(light: ptr<function, RectLight>, input: ptr<function, LightingInpu
     let F0 = mix((*input).F0_dielectric, (*input).F0_metallic, (*input).metallic);
     let spec_weight = F0 * t2.x + (1.0 - F0) * t2.y;
 
-@if(STANDARD_MATERIAL_CLEARCOAT) {
-    let clearcoat_N = (*input).layers[LAYER_CLEARCOAT].N;
-    let clearcoat_strength = (*input).clearcoat_strength;
-    let clearcoat_perceptual_roughness = (*input).layers[LAYER_CLEARCOAT].perceptual_roughness;
-    let clearcoat_NdotV = (*input).layers[LAYER_CLEARCOAT].NdotV;
+    @if(STANDARD_MATERIAL_CLEARCOAT) {
+        let clearcoat_N = (*input).layers[LAYER_CLEARCOAT].N;
+        let clearcoat_strength = (*input).clearcoat_strength;
+        let clearcoat_perceptual_roughness = (*input).layers[LAYER_CLEARCOAT].perceptual_roughness;
+        let clearcoat_NdotV = (*input).layers[LAYER_CLEARCOAT].NdotV;
 
-    // Sample LUTs for clearcoat layer
-    let cc_uv = vec2<f32>(clearcoat_perceptual_roughness, sqrt(1.0 - clearcoat_NdotV)) * LUT_SCALE + LUT_BIAS;
-    let tc1 = textureSampleLevel(view_bindings::area_light_luts, view_bindings::area_light_luts_sampler, cc_uv, 0, 0.0);
-    let tc2 = textureSampleLevel(view_bindings::area_light_luts, view_bindings::area_light_luts_sampler, cc_uv, 1, 0.0);
-    let Minv_cc = mat3x3<f32>(
-            vec3<f32>(tc1.x, 0.0, tc1.y),
-            vec3<f32>(0.0, 1.0, 0.0),
-            vec3<f32>(tc1.z, 0.0, tc1.w),
-        );
-    let spec_cc = ltc_integrate_quad(clearcoat_N, V, P, Minv_cc, corners);
+        // Sample LUTs for clearcoat layer
+        let cc_uv = vec2<f32>(clearcoat_perceptual_roughness, sqrt(1.0 - clearcoat_NdotV)) * LUT_SCALE + LUT_BIAS;
+        let tc1 = textureSampleLevel(
+                view_bindings::area_light_luts,
+                view_bindings::area_light_luts_sampler,
+                cc_uv,
+                0,
+                0.0,
+            );
+        let tc2 = textureSampleLevel(
+                view_bindings::area_light_luts,
+                view_bindings::area_light_luts_sampler,
+                cc_uv,
+                1,
+                0.0,
+            );
+        let Minv_cc = mat3x3<f32>(
+                vec3<f32>(tc1.x, 0.0, tc1.y),
+                vec3<f32>(0.0, 1.0, 0.0),
+                vec3<f32>(tc1.z, 0.0, tc1.w),
+            );
+        let spec_cc = ltc_integrate_quad(clearcoat_N, V, P, Minv_cc, corners);
 
-    // Clearcoat has F0=0.04
-    let spec_weight_cc = 0.04 * tc2.x + (1.0 - 0.04) * tc2.y;
-    let Fc = clearcoat_strength * spec_weight_cc;
-    let inv_Fc = 1.0 - Fc;
+        // Clearcoat has F0=0.04
+        let spec_weight_cc = 0.04 * tc2.x + (1.0 - 0.04) * tc2.y;
+        let Fc = clearcoat_strength * spec_weight_cc;
+        let inv_Fc = 1.0 - Fc;
 
-    return ((spec_weight * spec * inv_Fc + diffuse_color * diff) * inv_Fc
-            + spec_weight_cc * spec_cc * clearcoat_strength) * (*light).color.rgb * range_falloff;
-} @else {
-    return (spec_weight * spec + diffuse_color * diff) * (*light).color.rgb * range_falloff;
-}
+        return ((spec_weight * spec * inv_Fc + diffuse_color * diff) * inv_Fc
+                + spec_weight_cc * spec_cc * clearcoat_strength) * (*light).color.rgb * range_falloff;
+    } @else {
+        return (spec_weight * spec + diffuse_color * diff) * (*light).color.rgb * range_falloff;
+    }
 }
 
 @if(ATMOSPHERE)

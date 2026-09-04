@@ -343,20 +343,20 @@ var<uniform> smaa_info: SmaaInfo;
 var color_sampler: sampler;
 
 @if(SMAA_BLENDING_WEIGHT_CALCULATION) {
-@group(1) @binding(0)
-var edges_texture: texture_2d<f32>;
-@group(1) @binding(1)
-var edges_sampler: sampler;
-@group(1) @binding(2)
-var search_texture: texture_2d<f32>;
-@group(1) @binding(3)
-var area_texture: texture_2d<f32>;
+    @group(1) @binding(0)
+    var edges_texture: texture_2d<f32>;
+    @group(1) @binding(1)
+    var edges_sampler: sampler;
+    @group(1) @binding(2)
+    var search_texture: texture_2d<f32>;
+    @group(1) @binding(3)
+    var area_texture: texture_2d<f32>;
 }
 @if(SMAA_NEIGHBORHOOD_BLENDING) {
-@group(1) @binding(0)
-var blend_texture: texture_2d<f32>;
-@group(1) @binding(1)
-var blend_sampler: sampler;
+    @group(1) @binding(0)
+    var blend_texture: texture_2d<f32>;
+    @group(1) @binding(1)
+    var blend_sampler: sampler;
 }
 
 //-----------------------------------------------------------------------------
@@ -912,42 +912,42 @@ fn area(dist: vec2<f32>, e1: f32, e2: f32, offset: f32) -> vec2<f32> {
 
 @if(SMAA_BLENDING_WEIGHT_CALCULATION)
 fn detect_horizontal_corner_pattern(weights: vec2<f32>, tex_coord: vec4<f32>, d: vec2<f32>) -> vec2<f32> {
-@if(!SMAA_DISABLE_CORNER_DETECTION) {
-    let left_right = step(d.xy, d.yx);
-    var rounding = (1.0 - SMAA_CORNER_ROUNDING_NORM) * left_right;
+    @if(!SMAA_DISABLE_CORNER_DETECTION) {
+        let left_right = step(d.xy, d.yx);
+        var rounding = (1.0 - SMAA_CORNER_ROUNDING_NORM) * left_right;
 
-    rounding /= left_right.x + left_right.y; // Reduce blending for pixels in the center of a line.
+        rounding /= left_right.x + left_right.y; // Reduce blending for pixels in the center of a line.
 
-    var factor = vec2(1.0, 1.0);
-    factor.x -= rounding.x * textureSampleLevel(edges_texture, edges_sampler, tex_coord.xy, 0.0, vec2(0, 1)).r;
-    factor.x -= rounding.y * textureSampleLevel(edges_texture, edges_sampler, tex_coord.zw, 0.0, vec2(1, 1)).r;
-    factor.y -= rounding.x * textureSampleLevel(edges_texture, edges_sampler, tex_coord.xy, 0.0, vec2(0, -2)).r;
-    factor.y -= rounding.y * textureSampleLevel(edges_texture, edges_sampler, tex_coord.zw, 0.0, vec2(1, -2)).r;
+        var factor = vec2(1.0, 1.0);
+        factor.x -= rounding.x * textureSampleLevel(edges_texture, edges_sampler, tex_coord.xy, 0.0, vec2(0, 1)).r;
+        factor.x -= rounding.y * textureSampleLevel(edges_texture, edges_sampler, tex_coord.zw, 0.0, vec2(1, 1)).r;
+        factor.y -= rounding.x * textureSampleLevel(edges_texture, edges_sampler, tex_coord.xy, 0.0, vec2(0, -2)).r;
+        factor.y -= rounding.y * textureSampleLevel(edges_texture, edges_sampler, tex_coord.zw, 0.0, vec2(1, -2)).r;
 
-    return weights * saturate(factor);
-} @else {
-    return weights;
-}
+        return weights * saturate(factor);
+    } @else {
+        return weights;
+    }
 }
 
 @if(SMAA_BLENDING_WEIGHT_CALCULATION)
 fn detect_vertical_corner_pattern(weights: vec2<f32>, tex_coord: vec4<f32>, d: vec2<f32>) -> vec2<f32> {
-@if(!SMAA_DISABLE_CORNER_DETECTION) {
-    let left_right = step(d.xy, d.yx);
-    var rounding = (1.0 - SMAA_CORNER_ROUNDING_NORM) * left_right;
+    @if(!SMAA_DISABLE_CORNER_DETECTION) {
+        let left_right = step(d.xy, d.yx);
+        var rounding = (1.0 - SMAA_CORNER_ROUNDING_NORM) * left_right;
 
-    rounding /= left_right.x + left_right.y;
+        rounding /= left_right.x + left_right.y;
 
-    var factor = vec2(1.0, 1.0);
-    factor.x -= rounding.x * textureSampleLevel(edges_texture, edges_sampler, tex_coord.xy, 0.0, vec2(1, 0)).g;
-    factor.x -= rounding.y * textureSampleLevel(edges_texture, edges_sampler, tex_coord.zw, 0.0, vec2(1, 1)).g;
-    factor.y -= rounding.x * textureSampleLevel(edges_texture, edges_sampler, tex_coord.xy, 0.0, vec2(-2, 0)).g;
-    factor.y -= rounding.y * textureSampleLevel(edges_texture, edges_sampler, tex_coord.zw, 0.0, vec2(-2, 1)).g;
+        var factor = vec2(1.0, 1.0);
+        factor.x -= rounding.x * textureSampleLevel(edges_texture, edges_sampler, tex_coord.xy, 0.0, vec2(1, 0)).g;
+        factor.x -= rounding.y * textureSampleLevel(edges_texture, edges_sampler, tex_coord.zw, 0.0, vec2(1, 1)).g;
+        factor.y -= rounding.x * textureSampleLevel(edges_texture, edges_sampler, tex_coord.xy, 0.0, vec2(-2, 0)).g;
+        factor.y -= rounding.y * textureSampleLevel(edges_texture, edges_sampler, tex_coord.zw, 0.0, vec2(-2, 1)).g;
 
-    return weights * saturate(factor);
-} @else {
-    return weights;
-}
+        return weights * saturate(factor);
+    } @else {
+        return weights;
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -964,17 +964,17 @@ fn blending_weight_calculation_fragment_main(in: BlendingWeightCalculationVaryin
 
     if e.g > 0.0 {
         // Edge at north
-@if(!SMAA_DISABLE_DIAG_DETECTION) {
-        // Diagonals have both north and west edges, so searching for them in
-        // one of the boundaries is enough.
-        weights = vec4(calculate_diag_weights(in.tex_coord, e, subsample_indices), weights.ba);
+        @if(!SMAA_DISABLE_DIAG_DETECTION) {
+            // Diagonals have both north and west edges, so searching for them in
+            // one of the boundaries is enough.
+            weights = vec4(calculate_diag_weights(in.tex_coord, e, subsample_indices), weights.ba);
 
-        // We give priority to diagonals, so if we find a diagonal we skip
-        // horizontal/vertical processing.
-        if weights.r + weights.g != 0.0 {
-            return weights;
+            // We give priority to diagonals, so if we find a diagonal we skip
+            // horizontal/vertical processing.
+            if weights.r + weights.g != 0.0 {
+                return weights;
+            }
         }
-}
 
         var d: vec2<f32>;
 

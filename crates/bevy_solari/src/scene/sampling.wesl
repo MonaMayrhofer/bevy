@@ -178,23 +178,23 @@ fn resolve_light_sample(light_sample: LightSample, light_source: LightSource) ->
         let directional_light = directional_lights[light_source.id];
 
         var direction_to_light: vec3<f32>;
-@if(!NO_DIRECTIONAL_LIGHT_SOFT_SHADOWS) {
-        // Sample a random direction within a cone whose base is the sun approximated as a disk
-        // https://www.realtimerendering.com/raytracinggems/unofficial_RayTracingGems_v1.9.pdf#0004286901.INDD%3ASec30%3A305
-        var rng = light_sample.seed;
-        let random = rand_vec2f(&rng);
-        let cos_theta = (1.0 - random.x) + random.x * directional_light.cos_theta_max;
-        let sin_theta = sqrt(1.0 - cos_theta * cos_theta);
-        let phi = random.y * PI_2;
-        let x = cos(phi) * sin_theta;
-        let y = sin(phi) * sin_theta;
-        direction_to_light = vec3(x, y, cos_theta);
+        @if(!NO_DIRECTIONAL_LIGHT_SOFT_SHADOWS) {
+            // Sample a random direction within a cone whose base is the sun approximated as a disk
+            // https://www.realtimerendering.com/raytracinggems/unofficial_RayTracingGems_v1.9.pdf#0004286901.INDD%3ASec30%3A305
+            var rng = light_sample.seed;
+            let random = rand_vec2f(&rng);
+            let cos_theta = (1.0 - random.x) + random.x * directional_light.cos_theta_max;
+            let sin_theta = sqrt(1.0 - cos_theta * cos_theta);
+            let phi = random.y * PI_2;
+            let x = cos(phi) * sin_theta;
+            let y = sin(phi) * sin_theta;
+            direction_to_light = vec3(x, y, cos_theta);
 
-        // Rotate the ray so that the cone it was sampled from is aligned with the light direction
-        direction_to_light = orthonormalize(directional_light.direction_to_light) * direction_to_light;
-} @else {
-        direction_to_light = directional_light.direction_to_light;
-}
+            // Rotate the ray so that the cone it was sampled from is aligned with the light direction
+            direction_to_light = orthonormalize(directional_light.direction_to_light) * direction_to_light;
+        } @else {
+            direction_to_light = directional_light.direction_to_light;
+        }
 
         return ResolvedLightSample(
                 vec4(direction_to_light, 0.0),

@@ -105,15 +105,15 @@ var<uniform> lights: Lights;
 @group(0) @binding(6)
 var<uniform> view: View;
 @if(!VERTEX_SHADER && POPULATE_PASS) {
-// The number of objects in each cluster, and the offset of each list.
-@group(0) @binding(7)
-var<storage> offsets_and_counts: ClusterOffsetsAndCounts;
-// For each cluster, the counts of objects written *so far* to it.
-//
-// We use this during the populate phase in order to write the ID of each object
-// to the correct spot.
-@group(0) @binding(8)
-var<storage, read_write> scratchpad_offsets_and_counts: ClusterOffsetsAndCountsAtomic;
+    // The number of objects in each cluster, and the offset of each list.
+    @group(0) @binding(7)
+    var<storage> offsets_and_counts: ClusterOffsetsAndCounts;
+    // For each cluster, the counts of objects written *so far* to it.
+    //
+    // We use this during the populate phase in order to write the ID of each object
+    // to the correct spot.
+    @group(0) @binding(8)
+    var<storage, read_write> scratchpad_offsets_and_counts: ClusterOffsetsAndCountsAtomic;
 }
 @if(!VERTEX_SHADER && !POPULATE_PASS)
 // The number of objects in each cluster.

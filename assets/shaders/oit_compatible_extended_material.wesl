@@ -34,22 +34,22 @@ fn fragment(in: VertexOutput) -> FragmentOutput {
     let grid = vec2u(in.uv * 30.0f) % 2;
     out.color = select(material.color1, material.color2, (grid.x + grid.y == 1));
 
-@if(MATERIAL_OIT_ENABLED) {
-    let pbr_input = pbr_input_from_standard_material(in, false);
-    let alpha_mode = pbr_input.material.flags & pbr_types::STANDARD_MATERIAL_FLAGS_ALPHA_MODE_RESERVED_BITS;
-    if alpha_mode == pbr_types::STANDARD_MATERIAL_FLAGS_ALPHA_MODE_BLEND {
-        // The fragments will only be drawn during the oit resolve pass.
-        oit_draw(in.position, vec4(out.color.rgb * out.color.a, out.color.a));
-        discard;
+    @if(MATERIAL_OIT_ENABLED) {
+        let pbr_input = pbr_input_from_standard_material(in, false);
+        let alpha_mode = pbr_input.material.flags & pbr_types::STANDARD_MATERIAL_FLAGS_ALPHA_MODE_RESERVED_BITS;
+        if alpha_mode == pbr_types::STANDARD_MATERIAL_FLAGS_ALPHA_MODE_BLEND {
+            // The fragments will only be drawn during the oit resolve pass.
+            oit_draw(in.position, vec4(out.color.rgb * out.color.a, out.color.a));
+            discard;
+        }
+        // Both `Premultiplied` and `Add` colors are premultiplied in `premultiply_alpha()`
+        if alpha_mode == pbr_types::STANDARD_MATERIAL_FLAGS_ALPHA_MODE_PREMULTIPLIED
+            || alpha_mode == pbr_types::STANDARD_MATERIAL_FLAGS_ALPHA_MODE_ADD {
+            // The fragments will only be drawn during the oit resolve pass.
+            oit_draw(in.position, out.color);
+            discard;
+        }
     }
-    // Both `Premultiplied` and `Add` colors are premultiplied in `premultiply_alpha()`
-    if alpha_mode == pbr_types::STANDARD_MATERIAL_FLAGS_ALPHA_MODE_PREMULTIPLIED
-        || alpha_mode == pbr_types::STANDARD_MATERIAL_FLAGS_ALPHA_MODE_ADD {
-        // The fragments will only be drawn during the oit resolve pass.
-        oit_draw(in.position, out.color);
-        discard;
-    }
-}
 
     return out;
 }

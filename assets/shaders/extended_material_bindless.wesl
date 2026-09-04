@@ -40,21 +40,21 @@ struct ExampleBindlessExtendedMaterial {
 // The indices of the bindless resources in the bindless resource arrays, for
 // the `ExampleBindlessExtension` fields.
 @if(BINDLESS) {
-@group(constants::MATERIAL_BIND_GROUP) @binding(100)
-var<storage> example_extended_material_indices: array<ExampleBindlessExtendedMaterialIndices>;
-// An array that holds the `ExampleBindlessExtendedMaterial` plain old data,
-// indexed by `ExampleBindlessExtendedMaterialIndices.material`.
-@group(constants::MATERIAL_BIND_GROUP) @binding(101)
-var<storage> example_extended_material: array<ExampleBindlessExtendedMaterial>;
+    @group(constants::MATERIAL_BIND_GROUP) @binding(100)
+    var<storage> example_extended_material_indices: array<ExampleBindlessExtendedMaterialIndices>;
+    // An array that holds the `ExampleBindlessExtendedMaterial` plain old data,
+    // indexed by `ExampleBindlessExtendedMaterialIndices.material`.
+    @group(constants::MATERIAL_BIND_GROUP) @binding(101)
+    var<storage> example_extended_material: array<ExampleBindlessExtendedMaterial>;
 }
 // In non-bindless mode, we simply use a uniform for the plain old data.
 @else {
-@group(constants::MATERIAL_BIND_GROUP) @binding(50)
-var<uniform> example_extended_material: ExampleBindlessExtendedMaterial;
-@group(constants::MATERIAL_BIND_GROUP) @binding(51)
-var modulate_texture: texture_2d<f32>;
-@group(constants::MATERIAL_BIND_GROUP) @binding(52)
-var modulate_sampler: sampler;
+    @group(constants::MATERIAL_BIND_GROUP) @binding(50)
+    var<uniform> example_extended_material: ExampleBindlessExtendedMaterial;
+    @group(constants::MATERIAL_BIND_GROUP) @binding(51)
+    var modulate_texture: texture_2d<f32>;
+    @group(constants::MATERIAL_BIND_GROUP) @binding(52)
+    var modulate_sampler: sampler;
 }
 
 @fragment

@@ -33,20 +33,20 @@ var directional_shadow_textures_comparison_sampler: sampler_comparison;
 var directional_shadow_textures_linear_sampler: sampler;
 
 @if(AVAILABLE_STORAGE_BUFFER_BINDINGS__GE_3) {
-@group(0) @binding(8)
-var<storage> clustered_lights: types::ClusteredLights;
-@group(0) @binding(9)
-var<storage> clusterable_object_index_lists: types::ClusterableObjectIndexLists;
-@group(0) @binding(10)
-var<storage> cluster_offsets_and_counts: types::ClusterOffsetsAndCounts;
+    @group(0) @binding(8)
+    var<storage> clustered_lights: types::ClusteredLights;
+    @group(0) @binding(9)
+    var<storage> clusterable_object_index_lists: types::ClusterableObjectIndexLists;
+    @group(0) @binding(10)
+    var<storage> cluster_offsets_and_counts: types::ClusterOffsetsAndCounts;
 }
 @if(!AVAILABLE_STORAGE_BUFFER_BINDINGS__GE_3) {
-@group(0) @binding(8)
-var<uniform> clustered_lights: types::ClusteredLights;
-@group(0) @binding(9)
-var<uniform> clusterable_object_index_lists: types::ClusterableObjectIndexLists;
-@group(0) @binding(10)
-var<uniform> cluster_offsets_and_counts: types::ClusterOffsetsAndCounts;
+    @group(0) @binding(8)
+    var<uniform> clustered_lights: types::ClusteredLights;
+    @group(0) @binding(9)
+    var<uniform> clusterable_object_index_lists: types::ClusterableObjectIndexLists;
+    @group(0) @binding(10)
+    var<uniform> cluster_offsets_and_counts: types::ClusterOffsetsAndCounts;
 }
 
 @group(0) @binding(11)
@@ -79,11 +79,11 @@ var<uniform> contact_shadows_settings: types::ContactShadowsSettings;
 var screen_space_ambient_occlusion_texture: texture_2d<f32>;
 
 @if(TONEMAP_IN_SHADER) {
-// NB: If you change these, make sure to update `tonemapping.wesl` too.
-@group(0) @binding(18)
-var dt_lut_texture: texture_3d<f32>;
-@group(0) @binding(19)
-var dt_lut_sampler: sampler;
+    // NB: If you change these, make sure to update `tonemapping.wesl` too.
+    @group(0) @binding(18)
+    var dt_lut_texture: texture_3d<f32>;
+    @group(0) @binding(19)
+    var dt_lut_sampler: sampler;
 }
 @if(MULTISAMPLED && DEPTH_PREPASS)
 @group(0) @binding(20)
@@ -115,52 +115,52 @@ var view_transmission_texture: texture_2d<f32>;
 var view_transmission_sampler: sampler;
 
 @if(OIT_ENABLED) {
-@group(0) @binding(26)
-var<uniform> oit_settings: types::OrderIndependentTransparencySettings;
-@group(0) @binding(27)
-var<uniform> oit_nodes_capacity: u32;
-@group(0) @binding(28)
-var<storage, read_write> oit_nodes: array<types::OitFragmentNode>;
-@group(0) @binding(29)
-var<storage, read_write> oit_heads: array<atomic<u32>>;
-@group(0) @binding(30)
-var<storage, read_write> oit_atomic_counter: atomic<u32>;
+    @group(0) @binding(26)
+    var<uniform> oit_settings: types::OrderIndependentTransparencySettings;
+    @group(0) @binding(27)
+    var<uniform> oit_nodes_capacity: u32;
+    @group(0) @binding(28)
+    var<storage, read_write> oit_nodes: array<types::OitFragmentNode>;
+    @group(0) @binding(29)
+    var<storage, read_write> oit_heads: array<atomic<u32>>;
+    @group(0) @binding(30)
+    var<storage, read_write> oit_atomic_counter: atomic<u32>;
 }
 @if(ATMOSPHERE) {
-@group(0) @binding(31)
-var atmosphere_transmittance_texture: texture_2d<f32>;
-@group(0) @binding(32)
-var atmosphere_transmittance_sampler: sampler;
-@group(0) @binding(33)
-var<storage> atmosphere: atmosphere_types::Atmosphere;
+    @group(0) @binding(31)
+    var atmosphere_transmittance_texture: texture_2d<f32>;
+    @group(0) @binding(32)
+    var atmosphere_transmittance_sampler: sampler;
+    @group(0) @binding(33)
+    var<storage> atmosphere: atmosphere_types::Atmosphere;
 }
 @if(BLUE_NOISE_TEXTURE)
 @group(0) @binding(34)
 var blue_noise_texture: texture_2d_array<f32>;
 
 @if(AREA_LIGHT_LUTS) {
-@group(0) @binding(35)
-var area_light_luts: texture_2d_array<f32>;
-@group(0) @binding(36)
-var area_light_luts_sampler: sampler;
+    @group(0) @binding(35)
+    var area_light_luts: texture_2d_array<f32>;
+    @group(0) @binding(36)
+    var area_light_luts_sampler: sampler;
 }
 @if(DFG_LUT) {
-@group(0) @binding(37)
-var dfg_lut: texture_2d<f32>;
-@group(0) @binding(38)
-var dfg_lut_sampler: sampler;
+    @group(0) @binding(37)
+    var dfg_lut: texture_2d<f32>;
+    @group(0) @binding(38)
+    var dfg_lut_sampler: sampler;
 }
 @if(ENVIRONMENT_MAP && MULTIPLE_LIGHT_PROBES_IN_ARRAY) {
-@group(1) @binding(0)
-var diffuse_environment_maps: binding_array<texture_cube<f32>, 8u>;
-@group(1) @binding(1)
-var specular_environment_maps: binding_array<texture_cube<f32>, 8u>;
+    @group(1) @binding(0)
+    var diffuse_environment_maps: binding_array<texture_cube<f32>, 8u>;
+    @group(1) @binding(1)
+    var specular_environment_maps: binding_array<texture_cube<f32>, 8u>;
 }
 @if(ENVIRONMENT_MAP && !MULTIPLE_LIGHT_PROBES_IN_ARRAY) {
-@group(1) @binding(0)
-var diffuse_environment_map: texture_cube<f32>;
-@group(1) @binding(1)
-var specular_environment_map: texture_cube<f32>;
+    @group(1) @binding(0)
+    var diffuse_environment_map: texture_cube<f32>;
+    @group(1) @binding(1)
+    var specular_environment_map: texture_cube<f32>;
 }
 @if(ENVIRONMENT_MAP)
 @group(1) @binding(2)
@@ -177,10 +177,10 @@ var irradiance_volume: texture_3d<f32>;
 var irradiance_volume_sampler: sampler;
 
 @if(CLUSTERED_DECALS_ARE_USABLE) {
-@group(1) @binding(5)
-var<storage> clustered_decals: types::ClusteredDecals;
-@group(1) @binding(6)
-var clustered_decal_textures: binding_array<texture_2d<f32>, 8u>;
-@group(1) @binding(7)
-var clustered_decal_sampler: sampler;
+    @group(1) @binding(5)
+    var<storage> clustered_decals: types::ClusteredDecals;
+    @group(1) @binding(6)
+    var clustered_decal_textures: binding_array<texture_2d<f32>, 8u>;
+    @group(1) @binding(7)
+    var clustered_decal_sampler: sampler;
 }

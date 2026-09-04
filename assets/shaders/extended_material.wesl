@@ -38,24 +38,24 @@ fn fragment(in: VertexOutput, @builtin(front_facing) is_front: bool) -> Fragment
         );
 
     var out: FragmentOutput;
-@if(PREPASS_PIPELINE) {
-    // in deferred mode we can't modify anything after that, as lighting is run in a separate fullscreen shader.
-    out = deferred_output(in, pbr_input);
-} @else {
-    // apply lighting
-    out.color = apply_pbr_lighting(pbr_input);
+    @if(PREPASS_PIPELINE) {
+        // in deferred mode we can't modify anything after that, as lighting is run in a separate fullscreen shader.
+        out = deferred_output(in, pbr_input);
+    } @else {
+        // apply lighting
+        out.color = apply_pbr_lighting(pbr_input);
 
-    // we can optionally modify the lit color before post-processing is applied
-    out.color = vec4<f32>(vec4<u32>(out.color * f32(my_extended_material.quantize_steps)))
-        / f32(my_extended_material.quantize_steps);
+        // we can optionally modify the lit color before post-processing is applied
+        out.color = vec4<f32>(vec4<u32>(out.color * f32(my_extended_material.quantize_steps)))
+            / f32(my_extended_material.quantize_steps);
 
-    // apply in-shader post processing (fog, alpha-premultiply, and also tonemapping, debanding if the camera is non-hdr)
-    // note this does not include fullscreen postprocessing effects like bloom.
-    out.color = main_pass_post_lighting_processing(pbr_input, out.color);
+        // apply in-shader post processing (fog, alpha-premultiply, and also tonemapping, debanding if the camera is non-hdr)
+        // note this does not include fullscreen postprocessing effects like bloom.
+        out.color = main_pass_post_lighting_processing(pbr_input, out.color);
 
-    // we can optionally modify the final result here
-    out.color = out.color * 2.0;
-}
+        // we can optionally modify the final result here
+        out.color = out.color * 2.0;
+    }
 
     return out;
 }

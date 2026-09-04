@@ -34,12 +34,12 @@ fn rasterize_cluster(
 ) {
     var workgroup_id_1d = workgroup_id.x;
 
-@if(MESHLET_2D_DISPATCH) {
-    workgroup_id_1d += workgroup_id.y * num_workgroups.x;
-    if workgroup_id_1d >= meshlet_software_raster_cluster_count {
-        return;
+    @if(MESHLET_2D_DISPATCH) {
+        workgroup_id_1d += workgroup_id.y * num_workgroups.x;
+        if workgroup_id_1d >= meshlet_software_raster_cluster_count {
+            return;
+        }
     }
-}
 
     let cluster_id = workgroup_id_1d + meshlet_previous_raster_counts[0];
     let instanced_offset = meshlet_raster_clusters[cluster_id];

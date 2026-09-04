@@ -20,11 +20,11 @@ fn fragment(in: VertexOutput) -> @location(0) vec4<f32> {
     let alpha = gradient_noise(in.world_position.xyz, 5.0);
     let color = vec4f(material_color.rgb, alpha);
 
-@if(MATERIAL_OIT_ENABLED) {
-    // The input color of `oit_draw` should be alpha-premultiplied.
-    oit_draw(in.position, vec4f(color.rgb * color.a, color.a));
-    discard;
-}
+    @if(MATERIAL_OIT_ENABLED) {
+        // The input color of `oit_draw` should be alpha-premultiplied.
+        oit_draw(in.position, vec4f(color.rgb * color.a, color.a));
+        discard;
+    }
 
     return color;
 }

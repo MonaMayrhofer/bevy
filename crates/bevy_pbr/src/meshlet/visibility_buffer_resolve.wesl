@@ -161,25 +161,25 @@ fn resolve_vertex_output(frag_coord: vec4<f32>) -> VertexOutput {
     let world_tangent = calculate_world_tangent(world_normal, ddx_world_position, ddy_world_position, ddx_uv, ddy_uv);
 
     var motion_vector: vec2<f32>;
-@if(PREPASS_FRAGMENT && MOTION_VECTOR_PREPASS) {
-    let previous_world_from_local = affine3_to_square(instance_uniform.previous_world_from_local);
-    let previous_world_position_0 = mesh_position_local_to_world(
-            previous_world_from_local,
-            vec4(vertex_0.position, 1.0),
-        );
-    let previous_world_position_1 = mesh_position_local_to_world(
-            previous_world_from_local,
-            vec4(vertex_1.position, 1.0),
-        );
-    let previous_world_position_2 = mesh_position_local_to_world(
-            previous_world_from_local,
-            vec4(vertex_2.position, 1.0),
-        );
-    let previous_world_position =
-        mat3x4(previous_world_position_0, previous_world_position_1, previous_world_position_2)
-        * partial_derivatives.barycentrics;
-    motion_vector = calculate_motion_vector(world_position, previous_world_position);
-}
+    @if(PREPASS_FRAGMENT && MOTION_VECTOR_PREPASS) {
+        let previous_world_from_local = affine3_to_square(instance_uniform.previous_world_from_local);
+        let previous_world_position_0 = mesh_position_local_to_world(
+                previous_world_from_local,
+                vec4(vertex_0.position, 1.0),
+            );
+        let previous_world_position_1 = mesh_position_local_to_world(
+                previous_world_from_local,
+                vec4(vertex_1.position, 1.0),
+            );
+        let previous_world_position_2 = mesh_position_local_to_world(
+                previous_world_from_local,
+                vec4(vertex_2.position, 1.0),
+            );
+        let previous_world_position =
+            mat3x4(previous_world_position_0, previous_world_position_1, previous_world_position_2)
+            * partial_derivatives.barycentrics;
+        motion_vector = calculate_motion_vector(world_position, previous_world_position);
+    }
 
     var out: VertexOutput;
     out.position = frag_coord;

@@ -23,33 +23,33 @@ fn sample_shadow_map_hardware(light_local: vec2<f32>, depth: f32, array_index: i
 // Does a single sample of the blocker search, a part of the PCSS algorithm.
 // This is the variant used for directional lights.
 fn search_for_blockers_in_shadow_map_hardware(light_local: vec2<f32>, depth: f32, array_index: i32) -> vec2<f32> {
-@if(WEBGL2) {
-    // Make sure that the WebGL 2 compiler doesn't see `sampled_depth` sampled
-    // with different samplers, or it'll blow up.
-    return vec2(0.0);
-} @else {
-@if(PCSS_SAMPLERS_AVAILABLE) {
-    @if(NO_ARRAY_TEXTURES_SUPPORT)
-    let sampled_depth = textureSampleLevel(
-            view_bindings::directional_shadow_textures,
-            view_bindings::directional_shadow_textures_linear_sampler,
-            light_local,
-            0u,
-        );
-    @else
-    // NO_ARRAY_TEXTURES_SUPPORT
-    let sampled_depth = textureSampleLevel(
-            view_bindings::directional_shadow_textures,
-            view_bindings::directional_shadow_textures_linear_sampler,
-            light_local,
-            array_index,
-            0u,
-        );
-    return select(vec2(0.0), vec2(sampled_depth, 1.0), sampled_depth >= depth);
-} @else {
-    return vec2(0.0);
-}
-}
+    @if(WEBGL2) {
+        // Make sure that the WebGL 2 compiler doesn't see `sampled_depth` sampled
+        // with different samplers, or it'll blow up.
+        return vec2(0.0);
+    } @else {
+        @if(PCSS_SAMPLERS_AVAILABLE) {
+            @if(NO_ARRAY_TEXTURES_SUPPORT)
+            let sampled_depth = textureSampleLevel(
+                    view_bindings::directional_shadow_textures,
+                    view_bindings::directional_shadow_textures_linear_sampler,
+                    light_local,
+                    0u,
+                );
+            @else
+            // NO_ARRAY_TEXTURES_SUPPORT
+            let sampled_depth = textureSampleLevel(
+                    view_bindings::directional_shadow_textures,
+                    view_bindings::directional_shadow_textures_linear_sampler,
+                    light_local,
+                    array_index,
+                    0u,
+                );
+            return select(vec2(0.0), vec2(sampled_depth, 1.0), sampled_depth >= depth);
+        } @else {
+            return vec2(0.0);
+        }
+    }
 }
 
 // Numbers determined by trial and error that gave nice results.
@@ -338,31 +338,31 @@ fn sample_shadow_cubemap_hardware(light_local: vec3<f32>, depth: f32, light_id: 
 // Performs one sample of the blocker search. This variation of the blocker
 // search function is for point and spot lights.
 fn search_for_blockers_in_shadow_cubemap_hardware(light_local: vec3<f32>, depth: f32, light_id: u32) -> vec2<f32> {
-@if(WEBGL2) {
-    // Make sure that the WebGL 2 compiler doesn't see `sampled_depth` sampled
-    // with different samplers, or it'll blow up.
-    return vec2(0.0);
-} @else {
-@if(PCSS_SAMPLERS_AVAILABLE) {
-    @if(NO_CUBE_ARRAY_TEXTURES_SUPPORT)
-    let sampled_depth = textureSample(
-            view_bindings::point_shadow_textures,
-            view_bindings::point_shadow_textures_linear_sampler,
-            light_local,
-        );
-    @else
-    let sampled_depth = textureSample(
-            view_bindings::point_shadow_textures,
-            view_bindings::point_shadow_textures_linear_sampler,
-            light_local,
-            i32(light_id),
-        );
+    @if(WEBGL2) {
+        // Make sure that the WebGL 2 compiler doesn't see `sampled_depth` sampled
+        // with different samplers, or it'll blow up.
+        return vec2(0.0);
+    } @else {
+        @if(PCSS_SAMPLERS_AVAILABLE) {
+            @if(NO_CUBE_ARRAY_TEXTURES_SUPPORT)
+            let sampled_depth = textureSample(
+                    view_bindings::point_shadow_textures,
+                    view_bindings::point_shadow_textures_linear_sampler,
+                    light_local,
+                );
+            @else
+            let sampled_depth = textureSample(
+                    view_bindings::point_shadow_textures,
+                    view_bindings::point_shadow_textures_linear_sampler,
+                    light_local,
+                    i32(light_id),
+                );
 
-    return select(vec2(0.0), vec2(sampled_depth, 1.0), sampled_depth >= depth);
-} @else {
-    return vec2(0.0);
-}
-}
+            return select(vec2(0.0), vec2(sampled_depth, 1.0), sampled_depth >= depth);
+        } @else {
+            return vec2(0.0);
+        }
+    }
 }
 
 fn sample_shadow_cubemap_at_offset(

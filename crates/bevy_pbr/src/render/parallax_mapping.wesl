@@ -76,53 +76,54 @@ fn parallaxed_uv(
         texture_depth = sample_depth_map(uv, material_bind_group_slot);
     }
 
-@if(RELIEF_MAPPING) {
-    // Relief Mapping
-    // ==============
-    // "Refine" the rough result from Steep Parallax Mapping
-    // with a **binary search** between the layer selected by steep parallax
-    // and the next one to find a point closer to the depth map surface.
-    // This reduces the jaggy step artifacts from steep parallax mapping.
+    @if(RELIEF_MAPPING) {
+        // Relief Mapping
+        // ==============
+        // "Refine" the rough result from Steep Parallax Mapping
+        // with a **binary search** between the layer selected by steep parallax
+        // and the next one to find a point closer to the depth map surface.
+        // This reduces the jaggy step artifacts from steep parallax mapping.
 
-    delta_uv *= 0.5;
-    var delta_depth = 0.5 * layer_depth;
-
-    uv -= delta_uv;
-    current_layer_depth -= delta_depth;
-
-    for(var i: u32 = 0u; i < max_steps; i++) {
-        texture_depth = sample_depth_map(uv, material_bind_group_slot);
-
-        // Halve the deltas for the next step
         delta_uv *= 0.5;
-        delta_depth *= 0.5;
+        var delta_depth = 0.5 * layer_depth;
 
-        // Step based on whether the current depth is above or below the depth map
-        if texture_depth > current_layer_depth {
-            uv += delta_uv;
-            current_layer_depth += delta_depth;
-        } else {
-            uv -= delta_uv;
-            current_layer_depth -= delta_depth;
+        uv -= delta_uv;
+        current_layer_depth -= delta_depth;
+
+        for(var i: u32 = 0u; i < max_steps; i++) {
+            texture_depth = sample_depth_map(uv, material_bind_group_slot);
+
+            // Halve the deltas for the next step
+            delta_uv *= 0.5;
+            delta_depth *= 0.5;
+
+            // Step based on whether the current depth is above or below the depth map
+            if texture_depth > current_layer_depth {
+                uv += delta_uv;
+                current_layer_depth += delta_depth;
+            } else {
+                uv -= delta_uv;
+                current_layer_depth -= delta_depth;
+            }
         }
+    } @else {
+        // Parallax Occlusion mapping
+        // ==========================
+        // "Refine" Steep Parallax Mapping by interpolating between the
+        // previous layer's depth and the computed layer depth.
+        // Only requires a single lookup, unlike Relief Mapping, but
+        // may skip small details and result in writhing material artifacts.
+        let previous_uv = uv - delta_uv;
+        let next_depth = texture_depth - current_layer_depth;
+        let previous_depth = sample_depth_map(previous_uv, material_bind_group_slot) - current_layer_depth
+            + layer_depth;
+
+        let weight = next_depth / (next_depth - previous_depth);
+
+        uv = mix(uv, previous_uv, weight);
+
+        current_layer_depth += mix(next_depth, previous_depth, weight);
     }
-} @else {
-    // Parallax Occlusion mapping
-    // ==========================
-    // "Refine" Steep Parallax Mapping by interpolating between the
-    // previous layer's depth and the computed layer depth.
-    // Only requires a single lookup, unlike Relief Mapping, but
-    // may skip small details and result in writhing material artifacts.
-    let previous_uv = uv - delta_uv;
-    let next_depth = texture_depth - current_layer_depth;
-    let previous_depth = sample_depth_map(previous_uv, material_bind_group_slot) - current_layer_depth + layer_depth;
-
-    let weight = next_depth / (next_depth - previous_depth);
-
-    uv = mix(uv, previous_uv, weight);
-
-    current_layer_depth += mix(next_depth, previous_depth, weight);
-}
 
     // Note: `current_layer_depth` is not returned, but may be useful
     // for light computation later on in future improvements of the pbr shader.

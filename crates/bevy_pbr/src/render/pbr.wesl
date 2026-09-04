@@ -84,21 +84,21 @@ fn fragment(
     @if(!PREPASS_PIPELINE)
     out.color = main_pass_post_lighting_processing(pbr_input, out.color);
 
-@if(MATERIAL_OIT_ENABLED) {
-    let alpha_mode = pbr_input.material.flags & pbr_types::STANDARD_MATERIAL_FLAGS_ALPHA_MODE_RESERVED_BITS;
-    if alpha_mode == pbr_types::STANDARD_MATERIAL_FLAGS_ALPHA_MODE_BLEND {
-        // The fragments will only be drawn during the oit resolve pass.
-        oit_draw(in.position, vec4(out.color.rgb * out.color.a, out.color.a));
-        discard;
+    @if(MATERIAL_OIT_ENABLED) {
+        let alpha_mode = pbr_input.material.flags & pbr_types::STANDARD_MATERIAL_FLAGS_ALPHA_MODE_RESERVED_BITS;
+        if alpha_mode == pbr_types::STANDARD_MATERIAL_FLAGS_ALPHA_MODE_BLEND {
+            // The fragments will only be drawn during the oit resolve pass.
+            oit_draw(in.position, vec4(out.color.rgb * out.color.a, out.color.a));
+            discard;
+        }
+        // Both `Premultiplied` and `Add` colors are premultiplied in `premultiply_alpha()`
+        if alpha_mode == pbr_types::STANDARD_MATERIAL_FLAGS_ALPHA_MODE_PREMULTIPLIED
+            || alpha_mode == pbr_types::STANDARD_MATERIAL_FLAGS_ALPHA_MODE_ADD {
+            // The fragments will only be drawn during the oit resolve pass.
+            oit_draw(in.position, out.color);
+            discard;
+        }
     }
-    // Both `Premultiplied` and `Add` colors are premultiplied in `premultiply_alpha()`
-    if alpha_mode == pbr_types::STANDARD_MATERIAL_FLAGS_ALPHA_MODE_PREMULTIPLIED
-        || alpha_mode == pbr_types::STANDARD_MATERIAL_FLAGS_ALPHA_MODE_ADD {
-        // The fragments will only be drawn during the oit resolve pass.
-        oit_draw(in.position, out.color);
-        discard;
-    }
-}
     @if(FORWARD_DECAL)
     out.color.a = min(forward_decal_info.alpha, out.color.a);
 

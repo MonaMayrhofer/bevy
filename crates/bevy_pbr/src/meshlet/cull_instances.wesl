@@ -55,13 +55,13 @@ fn cull_instances(@builtin(global_invocation_id) global_invocation_id: vec3<u32>
     // If we pass, try occlusion culling
     // If this instance was occluded, push it to the second pass to check against this frame's HZB
     if should_occlusion_cull_aabb(aabb, instance_id) {
-@if(MESHLET_FIRST_CULLING_PASS) {
-        let id = atomicAdd(&meshlet_second_pass_instance_count, 1u);
-        meshlet_second_pass_instance_candidates[id] = instance_id;
-        if (id & 127u) == 0u {
-            atomicAdd(&meshlet_second_pass_instance_dispatch.x, 1u);
+        @if(MESHLET_FIRST_CULLING_PASS) {
+            let id = atomicAdd(&meshlet_second_pass_instance_count, 1u);
+            meshlet_second_pass_instance_candidates[id] = instance_id;
+            if (id & 127u) == 0u {
+                atomicAdd(&meshlet_second_pass_instance_dispatch.x, 1u);
+            }
         }
-}
         return;
     }
 

@@ -226,90 +226,90 @@ fn fragment(in: FullscreenVertexOutput) -> @location(0) vec4<f32> {
     // This will take the specular part of the environment map into account.
     //
     // TODO: Merge this with the duplicated code in `apply_pbr_lighting`.
-@if(ENVIRONMENT_MAP) {
-    // Unpack values required for environment mapping.
-    let base_color = pbr_input.material.base_color.rgb;
-    let metallic = pbr_input.material.metallic;
-    let reflectance = pbr_input.material.reflectance;
-    let specular_transmission = pbr_input.material.specular_transmission;
-    let diffuse_transmission = pbr_input.material.diffuse_transmission;
+    @if(ENVIRONMENT_MAP) {
+        // Unpack values required for environment mapping.
+        let base_color = pbr_input.material.base_color.rgb;
+        let metallic = pbr_input.material.metallic;
+        let reflectance = pbr_input.material.reflectance;
+        let specular_transmission = pbr_input.material.specular_transmission;
+        let diffuse_transmission = pbr_input.material.diffuse_transmission;
 
-    // Do the above calculations again for the clearcoat layer. Remember that
-    // the clearcoat can have its own roughness and its own normal.
-    @if(STANDARD_MATERIAL_CLEARCOAT)
-    let clearcoat = pbr_input.material.clearcoat;
-    @if(STANDARD_MATERIAL_CLEARCOAT)
-    let clearcoat_perceptual_roughness = pbr_input.material.clearcoat_perceptual_roughness;
-    @if(STANDARD_MATERIAL_CLEARCOAT)
-    let clearcoat_roughness = lighting::perceptualRoughnessToRoughness(clearcoat_perceptual_roughness);
-    @if(STANDARD_MATERIAL_CLEARCOAT)
-    let clearcoat_N = pbr_input.clearcoat_N;
-    @if(STANDARD_MATERIAL_CLEARCOAT)
-    let clearcoat_NdotV = max(dot(clearcoat_N, pbr_input.V), 0.0001);
-    @if(STANDARD_MATERIAL_CLEARCOAT)
-    let clearcoat_R = reflect(-pbr_input.V, clearcoat_N);
+        // Do the above calculations again for the clearcoat layer. Remember that
+        // the clearcoat can have its own roughness and its own normal.
+        @if(STANDARD_MATERIAL_CLEARCOAT)
+        let clearcoat = pbr_input.material.clearcoat;
+        @if(STANDARD_MATERIAL_CLEARCOAT)
+        let clearcoat_perceptual_roughness = pbr_input.material.clearcoat_perceptual_roughness;
+        @if(STANDARD_MATERIAL_CLEARCOAT)
+        let clearcoat_roughness = lighting::perceptualRoughnessToRoughness(clearcoat_perceptual_roughness);
+        @if(STANDARD_MATERIAL_CLEARCOAT)
+        let clearcoat_N = pbr_input.clearcoat_N;
+        @if(STANDARD_MATERIAL_CLEARCOAT)
+        let clearcoat_NdotV = max(dot(clearcoat_N, pbr_input.V), 0.0001);
+        @if(STANDARD_MATERIAL_CLEARCOAT)
+        let clearcoat_R = reflect(-pbr_input.V, clearcoat_N);
 
-    // Calculate various other values needed for environment mapping.
-    let env_roughness = lighting::perceptualRoughnessToRoughness(perceptual_roughness);
-    let diffuse_color = pbr_functions::calculate_diffuse_color(
-            base_color,
-            metallic,
-            specular_transmission,
-            diffuse_transmission,
-        );
-    let NdotV = max(dot(N, V), 0.0001);
-    let F_ab = lighting::F_AB(perceptual_roughness, NdotV);
-    let F0_dielectric = pbr_functions::calculate_F0_dielectric(reflectance);
+        // Calculate various other values needed for environment mapping.
+        let env_roughness = lighting::perceptualRoughnessToRoughness(perceptual_roughness);
+        let diffuse_color = pbr_functions::calculate_diffuse_color(
+                base_color,
+                metallic,
+                specular_transmission,
+                diffuse_transmission,
+            );
+        let NdotV = max(dot(N, V), 0.0001);
+        let F_ab = lighting::F_AB(perceptual_roughness, NdotV);
+        let F0_dielectric = pbr_functions::calculate_F0_dielectric(reflectance);
 
-    // Don't add stochastic noise to hits that sample the prefiltered env map.
-    // The prefiltered env map already accounts for roughness.
-    let R = reflect(-V, N);
+        // Don't add stochastic noise to hits that sample the prefiltered env map.
+        // The prefiltered env map already accounts for roughness.
+        let R = reflect(-V, N);
 
-    // Pack all the values into a structure.
-    var lighting_input: lighting::LightingInput;
-    lighting_input.layers[LAYER_BASE].NdotV = NdotV;
-    lighting_input.layers[LAYER_BASE].N = N;
-    lighting_input.layers[LAYER_BASE].R = R;
-    lighting_input.layers[LAYER_BASE].perceptual_roughness = perceptual_roughness;
-    lighting_input.layers[LAYER_BASE].roughness = env_roughness;
-    lighting_input.P = world_position.xyz;
-    lighting_input.V = V;
-    lighting_input.diffuse_color = diffuse_color;
-    lighting_input.metallic = metallic;
-    lighting_input.F0_dielectric = F0_dielectric;
-    lighting_input.F0_metallic = base_color;
-    lighting_input.F_ab = F_ab;
-@if(STANDARD_MATERIAL_CLEARCOAT) {
-    lighting_input.layers[LAYER_CLEARCOAT].NdotV = clearcoat_NdotV;
-    lighting_input.layers[LAYER_CLEARCOAT].N = clearcoat_N;
-    lighting_input.layers[LAYER_CLEARCOAT].R = clearcoat_R;
-    lighting_input.layers[LAYER_CLEARCOAT].perceptual_roughness = clearcoat_perceptual_roughness;
-    lighting_input.layers[LAYER_CLEARCOAT].roughness = clearcoat_roughness;
-    lighting_input.clearcoat_strength = clearcoat;
-}
+        // Pack all the values into a structure.
+        var lighting_input: lighting::LightingInput;
+        lighting_input.layers[LAYER_BASE].NdotV = NdotV;
+        lighting_input.layers[LAYER_BASE].N = N;
+        lighting_input.layers[LAYER_BASE].R = R;
+        lighting_input.layers[LAYER_BASE].perceptual_roughness = perceptual_roughness;
+        lighting_input.layers[LAYER_BASE].roughness = env_roughness;
+        lighting_input.P = world_position.xyz;
+        lighting_input.V = V;
+        lighting_input.diffuse_color = diffuse_color;
+        lighting_input.metallic = metallic;
+        lighting_input.F0_dielectric = F0_dielectric;
+        lighting_input.F0_metallic = base_color;
+        lighting_input.F_ab = F_ab;
+        @if(STANDARD_MATERIAL_CLEARCOAT) {
+            lighting_input.layers[LAYER_CLEARCOAT].NdotV = clearcoat_NdotV;
+            lighting_input.layers[LAYER_CLEARCOAT].N = clearcoat_N;
+            lighting_input.layers[LAYER_CLEARCOAT].R = clearcoat_R;
+            lighting_input.layers[LAYER_CLEARCOAT].perceptual_roughness = clearcoat_perceptual_roughness;
+            lighting_input.layers[LAYER_CLEARCOAT].roughness = clearcoat_roughness;
+            lighting_input.clearcoat_strength = clearcoat;
+        }
 
-    // Determine which cluster we're in. We'll need this to find the right
-    // reflection probe.
-    let cluster_index = clustered_forward::view_fragment_cluster_index(frag_coord.xy, frag_coord.z, false);
-    var clusterable_object_index_ranges = clustered_forward::unpack_clusterable_object_index_ranges(cluster_index);
+        // Determine which cluster we're in. We'll need this to find the right
+        // reflection probe.
+        let cluster_index = clustered_forward::view_fragment_cluster_index(frag_coord.xy, frag_coord.z, false);
+        var clusterable_object_index_ranges = clustered_forward::unpack_clusterable_object_index_ranges(cluster_index);
 
-    // Sample the environment map.
-    //
-    // We pass `true` for `found_diffuse_indirect` here because we only want
-    // the specular part; the diffuse part was already accumulated in the
-    // main PBR pass.
-    let environment_light = environment_map::environment_map_light(
-            &lighting_input,
-            &clusterable_object_index_ranges,
-            true,
-        );
+        // Sample the environment map.
+        //
+        // We pass `true` for `found_diffuse_indirect` here because we only want
+        // the specular part; the diffuse part was already accumulated in the
+        // main PBR pass.
+        let environment_light = environment_map::environment_map_light(
+                &lighting_input,
+                &clusterable_object_index_ranges,
+                true,
+            );
 
-    // Accumulate the environment map light.
-    // Note that we multiply by (1.0 - ssr_specular.a * fade) to occlude the
-    // environment map if SSR hits.
-    indirect_light += (view.exposure * environment_light.specular * specular_occlusion)
-        * (1.0 - (1.0 - ssr_specular.a) * fade);
-}
+        // Accumulate the environment map light.
+        // Note that we multiply by (1.0 - ssr_specular.a * fade) to occlude the
+        // environment map if SSR hits.
+        indirect_light += (view.exposure * environment_light.specular * specular_occlusion)
+            * (1.0 - (1.0 - ssr_specular.a) * fade);
+    }
 
     // Write the results.
     return vec4(fragment.rgb + indirect_light, fragment.a);
