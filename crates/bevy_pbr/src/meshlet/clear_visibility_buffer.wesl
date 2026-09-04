@@ -12,8 +12,8 @@ fn clear_visibility_buffer(@builtin(global_invocation_id) global_id: vec3<u32>) 
         return;
     }
 
-    @if(MESHLET_VISIBILITY_BUFFER_RASTER_PASS_OUTPUT)
+@if(MESHLET_VISIBILITY_BUFFER_RASTER_PASS_OUTPUT)
     textureStore(meshlet_visibility_buffer, global_id.xy, vec4(0lu));
-    @else
+@else
     textureStore(meshlet_visibility_buffer, global_id.xy, vec4(0u));
 }

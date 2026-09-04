@@ -23,12 +23,12 @@ var<storage> prev_joint_matrices: array<mat4x4<f32>>;
 
 @if(SKINNED)
 fn skin_model(indexes: vec4<u32>, weights: vec4<f32>, instance_index: u32) -> mat4x4<f32> {
-    @if(SKINS_USE_UNIFORM_BUFFERS)
+@if(SKINS_USE_UNIFORM_BUFFERS)
     return weights.x * joint_matrices.data[indexes.x] + weights.y * joint_matrices.data[indexes.y]
         + weights.z * joint_matrices.data[indexes.z] + weights.w * joint_matrices.data[indexes.w];
-    @if(!SKINS_USE_UNIFORM_BUFFERS)
+@if(!SKINS_USE_UNIFORM_BUFFERS)
     var skin_index = mesh[instance_index].current_skin_index;
-    @if(!SKINS_USE_UNIFORM_BUFFERS)
+@if(!SKINS_USE_UNIFORM_BUFFERS)
     return weights.x * joint_matrices[skin_index + indexes.x] + weights.y * joint_matrices[skin_index + indexes.y]
         + weights.z * joint_matrices[skin_index + indexes.z] + weights.w * joint_matrices[skin_index + indexes.w];
 }
@@ -39,12 +39,12 @@ fn skin_model(indexes: vec4<u32>, weights: vec4<f32>, instance_index: u32) -> ma
 // This is used for motion vector computation.
 @if(SKINNED)
 fn skin_prev_model(indexes: vec4<u32>, weights: vec4<f32>, instance_index: u32) -> mat4x4<f32> {
-    @if(SKINS_USE_UNIFORM_BUFFERS)
+@if(SKINS_USE_UNIFORM_BUFFERS)
     return weights.x * prev_joint_matrices.data[indexes.x] + weights.y * prev_joint_matrices.data[indexes.y]
         + weights.z * prev_joint_matrices.data[indexes.z] + weights.w * prev_joint_matrices.data[indexes.w];
-    @if(!SKINS_USE_UNIFORM_BUFFERS)
+@if(!SKINS_USE_UNIFORM_BUFFERS)
     let skin_index = mesh[instance_index].current_skin_index;
-    @if(!SKINS_USE_UNIFORM_BUFFERS)
+@if(!SKINS_USE_UNIFORM_BUFFERS)
     return weights.x * prev_joint_matrices[skin_index + indexes.x]
         + weights.y * prev_joint_matrices[skin_index + indexes.y]
         + weights.z * prev_joint_matrices[skin_index + indexes.z]

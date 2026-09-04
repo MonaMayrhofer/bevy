@@ -164,7 +164,7 @@ fn compute_radiances(
         // If we're lightmapped, and we shouldn't accumulate diffuse light from the
         // environment map, note that.
         var enable_diffuse = !found_diffuse_indirect;
-        @if(LIGHTMAP)
+@if(LIGHTMAP)
         enable_diffuse = enable_diffuse
             && (query_result.flags & LIGHT_PROBE_FLAG_AFFECTS_LIGHTMAPPED_MESH_DIFFUSE) != 0u;
 
@@ -248,7 +248,7 @@ fn compute_radiances(
     // If we're lightmapped, and we shouldn't accumulate diffuse light from the
     // environment map, note that.
     var enable_diffuse = !found_diffuse_indirect;
-    @if(LIGHTMAP)
+@if(LIGHTMAP)
     enable_diffuse = enable_diffuse && light_probes.view_environment_map_affects_lightmapped_mesh_diffuse;
 
     if enable_diffuse {
@@ -385,7 +385,7 @@ fn environment_map_light(
 
     out.specular = FssEss * radiances.radiance;
 
-    @if(STANDARD_MATERIAL_CLEARCOAT)
+@if(STANDARD_MATERIAL_CLEARCOAT)
     environment_map_light_clearcoat(&out, input, clusterable_object_index_ranges, found_diffuse_indirect);
 
     return out;

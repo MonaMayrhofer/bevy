@@ -16,14 +16,14 @@ fn sample_depth_map(uv: vec2<f32>, material_bind_group_slot: u32) -> f32 {
     // the MIP level, so no gradient instructions are used, and we can use
     // sample_depth_map in our loop.
     // See https://stackoverflow.com/questions/56581141/direct3d11-gradient-instruction-used-in-a-loop-with-varying-iteration-forcing
-    @if(BINDLESS)
+@if(BINDLESS)
     return textureSampleLevel(
             bindless_textures_2d[material_indices[material_bind_group_slot].depth_map_texture],
             bindless_samplers_filtering[material_indices[material_bind_group_slot].depth_map_sampler],
             uv,
             0.0,
         ).r;
-    @else
+@else
     return textureSampleLevel(depth_map_texture, depth_map_sampler, uv, 0.0).r;
 }
 

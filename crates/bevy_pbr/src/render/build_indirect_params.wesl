@@ -85,11 +85,11 @@ fn main(@builtin(global_invocation_id) global_invocation_id: vec3<u32>) {
     // If in the early phase, we draw only the early meshes. If in the late
     // phase, we draw only the late meshes. If in the main phase, draw all the
     // meshes.
-    @if(EARLY_PHASE)
+@if(EARLY_PHASE)
     let instance_count = early_instance_count;
-    @elif(LATE_PHASE)
+@elif(LATE_PHASE)
     let instance_count = late_instance_count;
-    @else
+@else
     // LATE_PHASE
     let instance_count = early_instance_count + late_instance_count;
 
@@ -98,7 +98,7 @@ fn main(@builtin(global_invocation_id) global_invocation_id: vec3<u32>) {
     // If the current hardware and driver support `multi_draw_indirect_count`,
     // dynamically reserve an index for the indirect parameters we're to
     // generate.
-    @if(MULTI_DRAW_INDIRECT_COUNT_SUPPORTED)
+@if(MULTI_DRAW_INDIRECT_COUNT_SUPPORTED)
     // If this batch belongs to a batch set, then allocate space for the
     // indirect commands in that batch set.
     if batch_set_index != 0xffffffffu {
@@ -123,20 +123,20 @@ fn main(@builtin(global_invocation_id) global_invocation_id: vec3<u32>) {
 
     indirect_parameters[indirect_parameters_index].instance_count = instance_count;
 
-    @if(LATE_PHASE)
+@if(LATE_PHASE)
     // The late mesh instances are stored after the early mesh instances, so we
     // offset the output index by the number of early mesh instances.
     indirect_parameters[indirect_parameters_index].first_instance = base_output_index + early_instance_count;
-    @else
+@else
     // LATE_PHASE
     indirect_parameters[indirect_parameters_index].first_instance = base_output_index;
 
     indirect_parameters[indirect_parameters_index].base_vertex = current_input[mesh_index].first_vertex_index;
 
-    @if(INDEXED)
+@if(INDEXED)
     indirect_parameters[indirect_parameters_index].index_count = current_input[mesh_index].index_count;
-    @if(INDEXED)
+@if(INDEXED)
     indirect_parameters[indirect_parameters_index].first_index = current_input[mesh_index].first_index_index;
-    @if(!INDEXED)
+@if(!INDEXED)
     indirect_parameters[indirect_parameters_index].vertex_count = current_input[mesh_index].index_count;
 }

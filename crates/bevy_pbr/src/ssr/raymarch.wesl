@@ -65,16 +65,16 @@ fn depth_sample_bilinear_clamped(uv: vec2<f32>, tex_size: vec2<f32>) -> f32 {
 }
 
 fn depth_sample_linear(uv: vec2<f32>, tex_size: vec2<f32>) -> f32 {
-    @if(USE_DEPTH_SAMPLERS)
+@if(USE_DEPTH_SAMPLERS)
     return textureSampleLevel(depth_prepass_texture, depth_linear_sampler, uv, 0u);
-    @else
+@else
     return depth_sample_bilinear_clamped(uv, tex_size);
 }
 
 fn depth_sample_nearest(uv: vec2<f32>, tex_size: vec2<f32>) -> f32 {
-    @if(USE_DEPTH_SAMPLERS)
+@if(USE_DEPTH_SAMPLERS)
     return textureSampleLevel(depth_prepass_texture, depth_nearest_sampler, uv, 0u);
-    @else
+@else
     return depth_sample_nearest_clamped(uv, tex_size);
 }
 

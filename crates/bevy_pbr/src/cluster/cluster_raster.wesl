@@ -247,13 +247,13 @@ fn fragment_main(varyings: Varyings) -> @location(0) vec4<f32> {
     // If this is the populate pass, reserve a slot and write in the actual
     // object index. Otherwise, if this is the count pass, just bump the
     // appropriate counter.
-    @if(POPULATE_PASS)
+@if(POPULATE_PASS)
     let output_index = allocate_list_entry(cluster_index, object_type);
-    @if(POPULATE_PASS)
+@if(POPULATE_PASS)
     if output_index < arrayLength(&index_lists.data) {
         index_lists.data[output_index] = object_index;
     }
-    @else
+@else
     // POPULATE_PASS
     increment_object_count(cluster_index, object_type);
 

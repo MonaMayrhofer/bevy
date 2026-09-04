@@ -16,9 +16,9 @@ var<storage, read> meshlet_instance_material_ids: array<u32>; // Per entity inst
 @fragment
 fn resolve_depth(in: FullscreenVertexOutput) -> @builtin(frag_depth) f32 {
     let visibility = textureLoad(meshlet_visibility_buffer, vec2<u32>(in.position.xy)).r;
-    @if(MESHLET_VISIBILITY_BUFFER_RASTER_PASS_OUTPUT)
+@if(MESHLET_VISIBILITY_BUFFER_RASTER_PASS_OUTPUT)
     let depth = u32(visibility >> 32u);
-    @else
+@else
     let depth = visibility;
 
     if depth == 0u {

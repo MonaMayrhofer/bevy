@@ -228,9 +228,9 @@ fn fragment(@builtin(position) position: vec4<f32>) -> @location(0) vec4<f32> {
     var background_alpha = 1.0;
 
     // If we have a density texture, transform to its local space.
-    @if(DENSITY_TEXTURE)
+@if(DENSITY_TEXTURE)
     let Ro_uvw = (uvw_from_world * vec4(Ro_world, 1.0)).xyz;
-    @if(DENSITY_TEXTURE)
+@if(DENSITY_TEXTURE)
     let Rd_step_uvw = mat3x3(
             uvw_from_world[0].xyz,
             uvw_from_world[1].xyz,
@@ -275,9 +275,9 @@ fn fragment(@builtin(position) position: vec4<f32>) -> @location(0) vec4<f32> {
             // The uvs should never go outside the (0, 0, 0) to (1, 1, 1) box,
             // but sometimes due to floating point error they can. Handle this
             // case.
-            @if(DENSITY_TEXTURE)
+@if(DENSITY_TEXTURE)
             let P_uvw = Ro_uvw + Rd_step_uvw * f32(step);
-            @if(DENSITY_TEXTURE)
+@if(DENSITY_TEXTURE)
             if all(P_uvw >= vec3(0.0)) && all(P_uvw <= vec3(1.0)) {
                 density *= textureSampleLevel(density_texture, density_sampler, P_uvw + density_texture_offset, 0.0).r;
             } else {
@@ -373,9 +373,9 @@ fn fragment(@builtin(position) position: vec4<f32>) -> @location(0) vec4<f32> {
         // The uvs should never go outside the (0, 0, 0) to (1, 1, 1) box,
         // but sometimes due to floating point error they can. Handle this
         // case.
-        @if(DENSITY_TEXTURE)
+@if(DENSITY_TEXTURE)
         let P_uvw = Ro_uvw + Rd_step_uvw * f32(step);
-        @if(DENSITY_TEXTURE)
+@if(DENSITY_TEXTURE)
         if all(P_uvw >= vec3(0.0)) && all(P_uvw <= vec3(1.0)) {
             density *= textureSampleLevel(density_texture, density_sampler, P_uvw + density_texture_offset, 0.0).r;
         } else {

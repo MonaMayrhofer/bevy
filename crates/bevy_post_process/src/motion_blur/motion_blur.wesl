@@ -23,7 +23,7 @@ var texture_sampler: sampler;
 struct MotionBlur {
     shutter_angle: f32,
     samples: u32,
-    @if(SIXTEEN_BYTE_ALIGNMENT)
+@if(SIXTEEN_BYTE_ALIGNMENT)
     // WebGL2 structs must be 16 byte aligned.
     _webgl2_padding: vec2<f32>,
 }
@@ -34,28 +34,28 @@ var<uniform> globals: Globals;
 
 @fragment
 fn fragment(
-    @if(MULTISAMPLED)
+@if(MULTISAMPLED)
     @builtin(sample_index) sample_index: u32,
     in: FullscreenVertexOutput,
 ) -> @location(0) vec4<f32> {
     let texture_size = vec2<f32>(textureDimensions(screen_texture));
     let frag_coords = vec2<i32>(in.uv * texture_size);
 
-    @if(MULTISAMPLED)
+@if(MULTISAMPLED)
     let base_color = textureLoad(screen_texture, frag_coords, i32(sample_index));
-    @else
+@else
     let base_color = textureSample(screen_texture, texture_sampler, in.uv);
 
     let shutter_angle = settings.shutter_angle;
 
-    @if(MULTISAMPLED)
+@if(MULTISAMPLED)
     let this_motion_vector = textureLoad(motion_vectors, frag_coords, i32(sample_index)).rg;
-    @else
+@else
     let this_motion_vector = textureSample(motion_vectors, texture_sampler, in.uv).rg;
 
-    @if(MULTISAMPLED)
+@if(MULTISAMPLED)
     let this_depth = textureLoad(depth, frag_coords, i32(sample_index)).x;
-    @else
+@else
     let this_depth = textureLoad(depth, frag_coords, 0).x;
 
     // The exposure vector is the distance that this fragment moved while the camera shutter was
@@ -85,18 +85,18 @@ fn fragment(
 
         let sample_coords = vec2<i32>(sample_uv * texture_size);
 
-        @if(MULTISAMPLED)
+@if(MULTISAMPLED)
         let sample_color = textureLoad(screen_texture, sample_coords, i32(sample_index));
-        @else
+@else
         let sample_color = textureSample(screen_texture, texture_sampler, sample_uv);
-        @if(MULTISAMPLED)
+@if(MULTISAMPLED)
         let sample_motion = textureLoad(motion_vectors, sample_coords, i32(sample_index)).rg;
-        @else
+@else
         let sample_motion = textureSample(motion_vectors, texture_sampler, sample_uv).rg;
 
-        @if(MULTISAMPLED)
+@if(MULTISAMPLED)
         let sample_depth = textureLoad(depth, sample_coords, i32(sample_index)).x;
-        @else
+@else
         let sample_depth = textureLoad(depth, sample_coords, 0).x;
 
         var weight = 1.0;

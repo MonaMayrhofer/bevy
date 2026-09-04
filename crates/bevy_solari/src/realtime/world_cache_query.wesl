@@ -45,9 +45,9 @@ fn query_world_cache(
 
         // Cell already exists or is empty - reset lifetime
         if existing_checksum == checksum || existing_checksum == WORLD_CACHE_EMPTY_CELL {
-            @if(!WORLD_CACHE_QUERY_ATOMIC_MAX_LIFETIME)
+@if(!WORLD_CACHE_QUERY_ATOMIC_MAX_LIFETIME)
             atomicStore(&world_cache.life[key], cell_lifetime);
-            @else
+@else
             atomicMax(&world_cache.life[key], cell_lifetime);
         }
 

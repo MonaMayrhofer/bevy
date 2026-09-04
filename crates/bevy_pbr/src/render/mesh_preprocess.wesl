@@ -64,9 +64,9 @@ struct LatePreprocessWorkItemIndirectParameters {
     // are only defined for `read_write` storage, so the fields are plain `u32`
     // there and `atomic<u32>` in the early phase. `u32` and `atomic<u32>` are
     // layout-identical, so the buffer's memory layout is unchanged either way.
-    @if(LATE_PHASE)
+@if(LATE_PHASE)
     dispatch_x: u32,
-    @else
+@else
     // LATE_PHASE
     dispatch_x: atomic<u32>,
     // The number of workgroups in the Y direction; always 1.
@@ -74,9 +74,9 @@ struct LatePreprocessWorkItemIndirectParameters {
     // The number of workgroups in the Z direction; always 1.
     dispatch_z: u32,
     // The precise number of work items.
-    @if(LATE_PHASE)
+@if(LATE_PHASE)
     work_item_count: u32,
-    @else
+@else
     // LATE_PHASE
     work_item_count: atomic<u32>,
     // Padding.
@@ -180,13 +180,13 @@ fn main(@builtin(global_invocation_id) global_invocation_id: vec3<u32>) {
     // index, bail.
     let instance_index = global_invocation_id.x;
 
-    @if(LATE_PHASE)
+@if(LATE_PHASE)
     if instance_index
         >= late_preprocess_work_item_indirect_parameters[immediates.late_preprocess_work_item_indirect_offset]
             .work_item_count {
         return;
     }
-    @else
+@else
     // LATE_PHASE
     if instance_index >= arrayLength(&work_items) {
         return;
@@ -194,19 +194,19 @@ fn main(@builtin(global_invocation_id) global_invocation_id: vec3<u32>) {
 
     // Unpack the work item.
     let input_index = work_items[instance_index].input_index;
-    @if(INDIRECT)
+@if(INDIRECT)
     let indirect_parameters_index = work_items[instance_index].output_or_indirect_parameters_index;
 
     // If we're the first mesh instance in this batch, write the index of our
     // `MeshInput` into the appropriate slot so that the indirect parameters
     // building shader can access it.
-    @if(INDIRECT && !LATE_PHASE)
+@if(INDIRECT && !LATE_PHASE)
     if (instance_index == 0u)
         || (work_items[instance_index - 1].output_or_indirect_parameters_index != indirect_parameters_index) {
         indirect_parameters_metadata[indirect_parameters_index].mesh_index = input_index;
     }
 
-    @if(!INDIRECT)
+@if(!INDIRECT)
     let mesh_output_index = work_items[instance_index].output_or_indirect_parameters_index;
 
     // Unpack the input matrix.
@@ -292,19 +292,19 @@ fn main(@builtin(global_invocation_id) global_invocation_id: vec3<u32>) {
 
         // If we're in the early phase, we're testing against the last frame's
         // depth buffer, so we need to use the previous frame's transform.
-        @if(EARLY_PHASE)
+@if(EARLY_PHASE)
         let prev_world_pos = (previous_world_from_local * vec4(local_pos, 1.0)).xyz;
-        @if(EARLY_PHASE)
+@if(EARLY_PHASE)
         let view_pos = position_world_to_prev_view(prev_world_pos);
-        @if(EARLY_PHASE)
+@if(EARLY_PHASE)
         let ndc_pos = position_world_to_prev_ndc(prev_world_pos);
         // Otherwise, if this is the late phase, we use the current frame's
         // transform.
-        @if(!EARLY_PHASE)
+@if(!EARLY_PHASE)
         let world_pos = (world_from_local * vec4(local_pos, 1.0)).xyz;
-        @if(!EARLY_PHASE)
+@if(!EARLY_PHASE)
         let view_pos = position_world_to_view(world_pos);
-        @if(!EARLY_PHASE)
+@if(!EARLY_PHASE)
         let ndc_pos = position_world_to_ndc(world_pos);
 
         let uv_pos = ndc_to_uv(ndc_pos.xy);
@@ -315,9 +315,9 @@ fn main(@builtin(global_invocation_id) global_invocation_id: vec3<u32>) {
     }
 
     // Clip to the near plane to avoid the NDC depth becoming negative.
-    @if(EARLY_PHASE)
+@if(EARLY_PHASE)
     max_depth_view = min(-previous_view_uniforms.clip_from_view[3][2], max_depth_view);
-    @else
+@else
     // EARLY_PHASE
     max_depth_view = min(-view.clip_from_view[3][2], max_depth_view);
 
@@ -326,9 +326,9 @@ fn main(@builtin(global_invocation_id) global_invocation_id: vec3<u32>) {
     let aabb_pixel_size = occlusion_culling::get_aabb_size_in_pixels(aabb, depth_pyramid);
     let occluder_depth_ndc = occlusion_culling::get_occluder_depth(aabb, aabb_pixel_size, depth_pyramid);
 
-    @if(EARLY_PHASE)
+@if(EARLY_PHASE)
     let max_depth_ndc = prev_view_z_to_depth_ndc(max_depth_view);
-    @else
+@else
     // EARLY_PHASE
     let max_depth_ndc = view_z_to_depth_ndc(max_depth_view);
 
@@ -380,16 +380,16 @@ fn main(@builtin(global_invocation_id) global_invocation_id: vec3<u32>) {
     // instance index in the indirect parameters metadata, which
     // `build_indirect_params.wesl` will use to generate the actual indirect
     // parameters. Otherwise, this index was directly supplied to us.
-    @if(INDIRECT && LATE_PHASE)
+@if(INDIRECT && LATE_PHASE)
     let batch_output_index = atomicLoad(&indirect_parameters_metadata[indirect_parameters_index].early_instance_count)
         + atomicAdd(&indirect_parameters_metadata[indirect_parameters_index].late_instance_count, 1u);
-    @if(INDIRECT && !LATE_PHASE)
+@if(INDIRECT && !LATE_PHASE)
     let batch_output_index = atomicAdd(
             &indirect_parameters_metadata[indirect_parameters_index].early_instance_count,
             1u,
         );
 
-    @if(INDIRECT)
+@if(INDIRECT)
     let mesh_output_index = indirect_parameters_metadata[indirect_parameters_index].base_output_index
         + batch_output_index;
 

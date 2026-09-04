@@ -202,50 +202,50 @@ fn conic_distance(start: f32, point: vec2<f32>, center: vec2<f32>) -> f32 {
 
 // Mix the colors, choosing the appropriate interpolation method for the given color space
 fn mix_colors(start_color: vec3<f32>, end_color: vec3<f32>, t: f32) -> vec3<f32> {
-    @if(IN_OKLCH)
+@if(IN_OKLCH)
     return mix_oklch(start_color, end_color, t);
-    @elif(IN_OKLCH_LONG)
+@elif(IN_OKLCH_LONG)
     return mix_oklch_long(start_color, end_color, t);
-    @elif(IN_HSV)
+@elif(IN_HSV)
     return mix_hsv(start_color, end_color, t);
-    @elif(IN_HSV_LONG)
+@elif(IN_HSV_LONG)
     return mix_hsv_long(start_color, end_color, t);
-    @elif(IN_HSL)
+@elif(IN_HSL)
     return mix_hsl(start_color, end_color, t);
-    @elif(IN_HSL_LONG)
+@elif(IN_HSL_LONG)
     return mix_hsl_long(start_color, end_color, t);
-    @elif(IN_OKHSL)
+@elif(IN_OKHSL)
     return mix_okhsl(start_color, end_color, t);
-    @elif(IN_OKHSL_LONG)
+@elif(IN_OKHSL_LONG)
     return mix_okhsl_long(start_color, end_color, t);
-    @else
+@else
     // Just lerp in linear RGBA, OkLab and SRGBA spaces
     return mix(start_color, end_color, t);
 }
 
 // Convert a color from the interpolation color space to linear rgba
 fn convert_to_linear_rgba(color: vec4<f32>) -> vec4<f32> {
-    @if(IN_OKLCH)
+@if(IN_OKLCH)
     let rgb = oklch_to_linear_rgb(color.xyz);
-    @elif(IN_OKLCH_LONG)
+@elif(IN_OKLCH_LONG)
     let rgb = oklch_to_linear_rgb(color.xyz);
-    @elif(IN_OKHSL)
+@elif(IN_OKHSL)
     let rgb = okhsl_to_linear_rgb(color.xyz);
-    @elif(IN_OKHSL_LONG)
+@elif(IN_OKHSL_LONG)
     let rgb = okhsl_to_linear_rgb(color.xyz);
-    @elif(IN_HSV)
+@elif(IN_HSV)
     let rgb = hsv_to_linear_rgb(color.xyz);
-    @elif(IN_HSV_LONG)
+@elif(IN_HSV_LONG)
     let rgb = hsv_to_linear_rgb(color.xyz);
-    @elif(IN_HSL)
+@elif(IN_HSL)
     let rgb = hsl_to_linear_rgb(color.xyz);
-    @elif(IN_HSL_LONG)
+@elif(IN_HSL_LONG)
     let rgb = hsl_to_linear_rgb(color.xyz);
-    @elif(IN_OKLAB)
+@elif(IN_OKLAB)
     let rgb = oklab_to_linear_rgb(color.xyz);
-    @elif(IN_SRGB)
+@elif(IN_SRGB)
     let rgb = srgb_to_linear(color.xyz);
-    @else
+@else
     // Color is already in linear rgba space
     let rgb = color.rgb;
     return vec4(rgb, color.a);

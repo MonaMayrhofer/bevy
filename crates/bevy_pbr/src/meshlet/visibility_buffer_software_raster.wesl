@@ -29,7 +29,7 @@ var<workgroup> viewport_vertices: array<vec3f, 256>;
 fn rasterize_cluster(
     @builtin(workgroup_id) workgroup_id: vec3<u32>,
     @builtin(local_invocation_index) local_invocation_index: u32,
-    @if(MESHLET_2D_DISPATCH)
+@if(MESHLET_2D_DISPATCH)
     @builtin(num_workgroups) num_workgroups: vec3<u32>,
 ) {
     var workgroup_id_1d = workgroup_id.x;
@@ -176,9 +176,9 @@ fn rasterize_cluster(
 
 fn write_visibility_buffer_pixel(x: f32, y: f32, z: f32, packed_ids: u32) {
     let depth = bitcast<u32>(z);
-    @if(MESHLET_VISIBILITY_BUFFER_RASTER_PASS_OUTPUT)
+@if(MESHLET_VISIBILITY_BUFFER_RASTER_PASS_OUTPUT)
     let visibility = (u64(depth) << 32u) | u64(packed_ids);
-    @else
+@else
     let visibility = depth;
     textureAtomicMax(meshlet_visibility_buffer, vec2(u32(x), u32(y)), visibility);
 }

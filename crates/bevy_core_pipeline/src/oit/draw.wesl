@@ -12,7 +12,7 @@ import bevy_pbr::prepass::utils as prepass_utils;
 @if(OIT_ENABLED)
 // Add the fragment to the oit buffer
 fn oit_draw(position: vec4f, color: vec4f) {
-    @if(DEPTH_PREPASS)
+@if(DEPTH_PREPASS)
     if position.z < prepass_utils::prepass_depth(position, 0u) {
         return;
     }

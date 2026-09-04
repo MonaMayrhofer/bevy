@@ -21,7 +21,7 @@ var<immediate> meshlet_raster_cluster_rightmost_slot: u32;
 
 struct VertexOutput {
     @builtin(position) position: vec4<f32>,
-    @if(MESHLET_VISIBILITY_BUFFER_RASTER_PASS_OUTPUT)
+@if(MESHLET_VISIBILITY_BUFFER_RASTER_PASS_OUTPUT)
     @interpolate(flat)
     @location(0)
     packed_ids: u32,
@@ -48,29 +48,29 @@ fn vertex(@builtin(instance_index) instance_index: u32, @builtin(vertex_index) v
     let world_position = mesh_position_local_to_world(world_from_local, vec4(vertex_position, 1.0));
     let clip_position = view.clip_from_world * vec4(world_position.xyz, 1.0);
 
-    @if(MESHLET_VISIBILITY_BUFFER_RASTER_PASS_OUTPUT)
+@if(MESHLET_VISIBILITY_BUFFER_RASTER_PASS_OUTPUT)
     return VertexOutput(clip_position, (cluster_id << 7u) | triangle_id);
-    @else
+@else
     return VertexOutput(clip_position);
 }
 
 @fragment
 fn fragment(vertex_output: VertexOutput) {
     let depth = bitcast<u32>(vertex_output.position.z);
-    @if(MESHLET_VISIBILITY_BUFFER_RASTER_PASS_OUTPUT)
+@if(MESHLET_VISIBILITY_BUFFER_RASTER_PASS_OUTPUT)
     let visibility = (u64(depth) << 32u) | u64(vertex_output.packed_ids);
-    @else
+@else
     let visibility = depth;
     textureAtomicMax(meshlet_visibility_buffer, vec2<u32>(vertex_output.position.xy), visibility);
 }
 
 fn dummy_vertex() -> VertexOutput {
-    @if(MESHLET_VISIBILITY_BUFFER_RASTER_PASS_OUTPUT)
+@if(MESHLET_VISIBILITY_BUFFER_RASTER_PASS_OUTPUT)
     return VertexOutput(
             vec4(divide(0.0, 0.0)), // NaN vertex position
             0u,
         );
-    @else
+@else
     return VertexOutput(vec4(divide(0.0, 0.0)));
 }
 

@@ -59,13 +59,13 @@ var sprite_sampler: sampler;
 fn fragment(in: VertexOutput) -> @location(0) vec4<f32> {
     var color = in.color * textureSample(sprite_texture, sprite_sampler, in.uv);
 
-    @if(TONEMAP_IN_SHADER)
+@if(TONEMAP_IN_SHADER)
     color = tonemapping::tone_mapping(color, view.color_grading);
 
-    @if(SRGB_OUTPUT)
+@if(SRGB_OUTPUT)
     color = vec4(linear_to_srgb(color.rgb), color.a);
 
-    @if(OKLAB_OUTPUT)
+@if(OKLAB_OUTPUT)
     color = vec4(linear_rgb_to_oklab(color.rgb), color.a);
 
     return color;

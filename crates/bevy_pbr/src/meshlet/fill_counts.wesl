@@ -25,9 +25,9 @@ var<storage, read_write> meshlet_software_raster_cluster_count: u32;
 
 @compute @workgroup_size(1, 1, 1)
 fn fill_counts() {
-    @if(MESHLET_2D_DISPATCH)
+@if(MESHLET_2D_DISPATCH)
     meshlet_previous_raster_counts[0] += meshlet_software_raster_cluster_count;
-    @else
+@else
     meshlet_previous_raster_counts[0] += meshlet_software_raster_indirect_args.x;
     meshlet_software_raster_indirect_args.x = 0;
 

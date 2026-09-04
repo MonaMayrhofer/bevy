@@ -11,10 +11,10 @@ struct Vertex {
     @builtin(instance_index) instance_index: u32,
     // Like we defined for the vertex layout
     // position is at location 0
-    @if(VERTEX_POSITIONS_COMPRESSED)
+@if(VERTEX_POSITIONS_COMPRESSED)
     @location(0)
     compressed_position: vec4<f32>,
-    @else
+@else
     @location(0)
     position: vec3<f32>,
 }
@@ -32,15 +32,15 @@ fn vertex(vertex: Vertex) -> VertexOutput {
     // This is how bevy computes the world position
     // The vertex.instance_index is very important. Especially if you are using batching and gpu preprocessing
     var world_from_local = mesh_functions::get_world_from_local(vertex.instance_index);
-    @if(VERTEX_POSITIONS_COMPRESSED)
+@if(VERTEX_POSITIONS_COMPRESSED)
     let mesh_uniform = bevy_pbr::render::mesh_bindings::mesh[vertex.instance_index];
-    @if(VERTEX_POSITIONS_COMPRESSED)
+@if(VERTEX_POSITIONS_COMPRESSED)
     let vertex_position = bevy_render::utils::decompress_vertex_position(
             vertex.compressed_position,
             mesh_uniform.aabb_center,
             mesh_uniform.aabb_half_extents,
         );
-    @else
+@else
     let vertex_position = vertex.position;
     out.world_position = mesh_functions::mesh_position_local_to_world(world_from_local, vec4(vertex_position, 1.0));
     out.clip_position = position_world_to_clip(out.world_position.xyz);

@@ -236,17 +236,17 @@ fn fragment(in: FullscreenVertexOutput) -> @location(0) vec4<f32> {
 
     // Do the above calculations again for the clearcoat layer. Remember that
     // the clearcoat can have its own roughness and its own normal.
-    @if(STANDARD_MATERIAL_CLEARCOAT)
+@if(STANDARD_MATERIAL_CLEARCOAT)
     let clearcoat = pbr_input.material.clearcoat;
-    @if(STANDARD_MATERIAL_CLEARCOAT)
+@if(STANDARD_MATERIAL_CLEARCOAT)
     let clearcoat_perceptual_roughness = pbr_input.material.clearcoat_perceptual_roughness;
-    @if(STANDARD_MATERIAL_CLEARCOAT)
+@if(STANDARD_MATERIAL_CLEARCOAT)
     let clearcoat_roughness = lighting::perceptualRoughnessToRoughness(clearcoat_perceptual_roughness);
-    @if(STANDARD_MATERIAL_CLEARCOAT)
+@if(STANDARD_MATERIAL_CLEARCOAT)
     let clearcoat_N = pbr_input.clearcoat_N;
-    @if(STANDARD_MATERIAL_CLEARCOAT)
+@if(STANDARD_MATERIAL_CLEARCOAT)
     let clearcoat_NdotV = max(dot(clearcoat_N, pbr_input.V), 0.0001);
-    @if(STANDARD_MATERIAL_CLEARCOAT)
+@if(STANDARD_MATERIAL_CLEARCOAT)
     let clearcoat_R = reflect(-pbr_input.V, clearcoat_N);
 
     // Calculate various other values needed for environment mapping.

@@ -50,7 +50,7 @@ fn fragment(in: VertexOutput) -> @location(0) vec4<f32> {
         out = continuous_hue(vec2(uv.y * 2.0, uv.x));
     }
     var color = vec4(out, 1.0);
-    @if(TONEMAP_IN_SHADER)
+@if(TONEMAP_IN_SHADER)
     color = tone_mapping(color, mesh_view_bindings::view.color_grading);
     return color;
 }

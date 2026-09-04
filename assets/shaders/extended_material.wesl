@@ -11,11 +11,11 @@ import bevy_pbr::render::{
 struct MyExtendedMaterial {
     quantize_steps: u32,
     // Web examples WebGL2 support: structs must be 16 byte aligned.
-    @if(SIXTEEN_BYTE_ALIGNMENT)
+@if(SIXTEEN_BYTE_ALIGNMENT)
     _webgl2_padding_8b: u32,
-    @if(SIXTEEN_BYTE_ALIGNMENT)
+@if(SIXTEEN_BYTE_ALIGNMENT)
     _webgl2_padding_12b: u32,
-    @if(SIXTEEN_BYTE_ALIGNMENT)
+@if(SIXTEEN_BYTE_ALIGNMENT)
     _webgl2_padding_16b: u32,
 }
 

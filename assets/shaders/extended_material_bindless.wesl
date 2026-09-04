@@ -61,29 +61,29 @@ var modulate_sampler: sampler;
 fn fragment(in: VertexOutput, @builtin(front_facing) is_front: bool) -> FragmentOutput {
     // Fetch the material slot. We'll use this in turn to fetch the bindless
     // indices from `example_extended_material_indices`.
-    @if(BINDLESS)
+@if(BINDLESS)
     let slot = mesh[in.instance_index].material_and_lightmap_bind_group_slot & 0xffffu;
 
     // Generate a `PbrInput` struct from the `StandardMaterial` bindings.
     var pbr_input = pbr_input_from_standard_material(in, is_front);
 
     // Calculate the UV for the texture we're about to sample.
-    @if(BINDLESS)
+@if(BINDLESS)
     let uv_transform = material_array[material_indices[slot].material].uv_transform;
-    @else
+@else
     let uv_transform = material.uv_transform;
     let uv = (uv_transform * vec3(in.uv, 1.0)).xy;
 
     // Multiply the base color by the `modulate_texture` and `modulate_color`.
     // Notice how we fetch the texture, sampler, and plain extended material
     // data from the appropriate arrays.
-    @if(BINDLESS)
+@if(BINDLESS)
     pbr_input.material.base_color *= textureSample(
             bindless_textures_2d[example_extended_material_indices[slot].modulate_texture],
             bindless_samplers_filtering[example_extended_material_indices[slot].modulate_texture_sampler],
             uv,
         ) * example_extended_material[example_extended_material_indices[slot].material].modulate_color;
-    @else
+@else
     pbr_input.material.base_color *= textureSample(modulate_texture, modulate_sampler, uv)
         * example_extended_material.modulate_color;
 

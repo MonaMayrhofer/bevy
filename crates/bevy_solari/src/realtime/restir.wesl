@@ -153,7 +153,7 @@ fn spatial_and_shade(@builtin(global_invocation_id) global_id: vec3<u32>) {
     pixel_color *= view.exposure;
     textureStore(view_output, global_id.xy, vec4(pixel_color, 1.0));
 
-    @if(VISUALIZE_WORLD_CACHE)
+@if(VISUALIZE_WORLD_CACHE)
     textureStore(
         view_output,
         global_id.xy,
@@ -443,12 +443,12 @@ fn merge_reservoirs(
         other_sample_at_canonical.target_function *= visibility;
     }
     if canonical_sample_at_other.target_function > 0.0 && canonical_sample_at_other_jacobian > 0.0 {
-        @if(SPATIAL_MERGE)
+@if(SPATIAL_MERGE)
         let visibility = trace_visibility(
                 other_world_position + other_world_normal * RAY_T_MIN,
                 canonical_sample_at_other.sample_world_position,
             );
-        @else
+@else
         let visibility = trace_visibility_previous_frame(
                 other_world_position + other_world_normal * RAY_T_MIN,
                 canonical_sample_at_other.sample_world_position,
@@ -459,7 +459,7 @@ fn merge_reservoirs(
     // Defensive balance heuristic MIS (for spatial reuse only)
     let total_confidence_weight = canonical_reservoir.confidence_weight + other_reservoir.confidence_weight;
     var defensive_t_c = 0.0;
-    @if(SPATIAL_MERGE)
+@if(SPATIAL_MERGE)
     defensive_t_c = select(
             1.0,
             canonical_reservoir.confidence_weight / total_confidence_weight,

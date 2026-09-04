@@ -93,7 +93,7 @@ fn generate_initial_reservoir(
     let primary_NdotV = max(dot(world_normal, wo), 0.0001);
     let primary_F_ab = F_AB(material.perceptual_roughness, primary_NdotV);
 
-    @if(DLSS_RR_GUIDE_BUFFERS)
+@if(DLSS_RR_GUIDE_BUFFERS)
     var psr = psr_init(world_normal, material);
 
     var path: PathState;
@@ -138,7 +138,7 @@ fn generate_initial_reservoir(
         let ray = trace_ray(path.ray_origin, next_bounce.wi, RAY_T_MIN, RAY_T_MAX, RAY_FLAG_NONE);
 
         if ray.kind == RAY_QUERY_INTERSECTION_NONE {
-            @if(DLSS_RR_GUIDE_BUFFERS)
+@if(DLSS_RR_GUIDE_BUFFERS)
             if !psr.finished && !next_bounce.diffuse_selected {
                 psr_environment_miss(pixel_id, wo);
             }
@@ -149,7 +149,7 @@ fn generate_initial_reservoir(
         let ray_hit = resolve_ray_hit_full(ray);
         let p_brdf = next_bounce.pdf;
 
-        @if(DLSS_RR_GUIDE_BUFFERS)
+@if(DLSS_RR_GUIDE_BUFFERS)
         if !psr.finished {
             if next_bounce.diffuse_selected {
                 // Took the non-specular lobe, so not a mirror reflection. Keep the guide-buffer defaults.

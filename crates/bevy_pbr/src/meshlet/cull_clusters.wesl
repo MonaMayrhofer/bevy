@@ -31,9 +31,9 @@ fn cull_clusters(@builtin(global_invocation_id) global_invocation_id: vec3<u32>)
         return;
     }
 
-    @if(MESHLET_FIRST_CULLING_PASS)
+@if(MESHLET_FIRST_CULLING_PASS)
     let meshlet_id = global_invocation_id.x;
-    @else
+@else
     let meshlet_id = constants.rightmost_slot - global_invocation_id.x;
     let instanced_offset = meshlet_meshlet_cull_queue[meshlet_id];
     let instance_id = instanced_offset.instance_id;

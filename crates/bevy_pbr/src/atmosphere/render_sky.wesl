@@ -29,15 +29,15 @@ var depth_texture: texture_depth_multisampled_2d;
 var depth_texture: texture_depth_2d;
 
 struct RenderSkyOutput {
-    @if(DUAL_SOURCE_BLENDING)
+@if(DUAL_SOURCE_BLENDING)
     @blend_src(0)
     @location(0)
     inscattering: vec4<f32>,
-    @if(DUAL_SOURCE_BLENDING)
+@if(DUAL_SOURCE_BLENDING)
     @blend_src(1)
     @location(0)
     transmittance: vec4<f32>,
-    @else
+@else
     @location(0)
     inscattering: vec4<f32>,
 }
@@ -84,10 +84,10 @@ fn main(in: FullscreenVertexOutput) -> RenderSkyOutput {
     // exposure compensation
     inscattering *= view.exposure;
 
-    @if(DUAL_SOURCE_BLENDING)
+@if(DUAL_SOURCE_BLENDING)
     return RenderSkyOutput(vec4(inscattering, 0.0), vec4(transmittance, 1.0));
-    @if(!DUAL_SOURCE_BLENDING)
+@if(!DUAL_SOURCE_BLENDING)
     let mean_transmittance = (transmittance.r + transmittance.g + transmittance.b) / 3.0;
-    @if(!DUAL_SOURCE_BLENDING)
+@if(!DUAL_SOURCE_BLENDING)
     return RenderSkyOutput(vec4(inscattering, mean_transmittance));
 }

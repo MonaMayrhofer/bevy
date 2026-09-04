@@ -46,7 +46,7 @@ var<uniform> view: View;
 fn load_noise(pixel_coordinates: vec2<i32>) -> vec2<f32> {
     var index = textureLoad(hilbert_index_lut, pixel_coordinates % 64, 0).r;
 
-    @if(TEMPORAL_JITTER)
+@if(TEMPORAL_JITTER)
     index += 288u * (globals.frame_count % 64u);
 
     // R2 sequence - http://extremelearning.com.au/unreasonable-effectiveness-of-quasirandom-sequences

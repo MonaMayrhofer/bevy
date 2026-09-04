@@ -97,9 +97,9 @@ struct WorldCacheGeometryData {
 // Keep in sync with the packed world-cache layout constants in `prepare.rs`.
 struct WorldCache {
     checksums: array<atomic<u32>, constants::WORLD_CACHE_SIZE>,
-    @if(WORLD_CACHE_NON_ATOMIC_LIFE_BUFFER)
+@if(WORLD_CACHE_NON_ATOMIC_LIFE_BUFFER)
     life: array<u32, constants::WORLD_CACHE_SIZE>,
-    @if(!WORLD_CACHE_NON_ATOMIC_LIFE_BUFFER)
+@if(!WORLD_CACHE_NON_ATOMIC_LIFE_BUFFER)
     life: array<atomic<u32>, constants::WORLD_CACHE_SIZE>,
     radiance: array<vec4<f32>, constants::WORLD_CACHE_SIZE>,
     geometry_data: array<WorldCacheGeometryData, constants::WORLD_CACHE_SIZE>,

@@ -22,12 +22,12 @@ struct FullscreenVertexOutput {
 
 struct PbrDeferredLightingDepthId {
     depth_id: u32, // limited to u8
-    @if(SIXTEEN_BYTE_ALIGNMENT)
+@if(SIXTEEN_BYTE_ALIGNMENT)
     // WebGL2 structs must be 16 byte aligned.
     _webgl2_padding_0: f32,
-    @if(SIXTEEN_BYTE_ALIGNMENT)
+@if(SIXTEEN_BYTE_ALIGNMENT)
     _webgl2_padding_1: f32,
-    @if(SIXTEEN_BYTE_ALIGNMENT)
+@if(SIXTEEN_BYTE_ALIGNMENT)
     _webgl2_padding_2: f32,
 }
 @group(2) @binding(0)
@@ -53,9 +53,9 @@ fn fragment(in: FullscreenVertexOutput) -> @location(0) vec4<f32> {
 
     let deferred_data = textureLoad(deferred_prepass_texture, vec2<i32>(frag_coord.xy), 0);
 
-    @if(WEBGL2)
+@if(WEBGL2)
     frag_coord.z = unpack_unorm3x4_plus_unorm_20_(deferred_data.b).w;
-    @elif(DEPTH_PREPASS)
+@elif(DEPTH_PREPASS)
     frag_coord.z = prepass_utils::prepass_depth(in.position, 0u);
 
     var pbr_input = pbr_input_from_deferred_gbuffer(frag_coord, deferred_data);

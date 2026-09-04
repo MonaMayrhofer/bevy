@@ -125,14 +125,14 @@ fn unpack_clusterable_object_index_ranges(cluster_index: u32) -> ClusterableObje
 // Note that, in the case of a light probe, the index refers to an element in
 // one of the two `light_probes` sublists, not the `clustered_lights` list.
 fn get_clusterable_object_id(index: u32) -> u32 {
-    @if(AVAILABLE_STORAGE_BUFFER_BINDINGS__GE_3)
+@if(AVAILABLE_STORAGE_BUFFER_BINDINGS__GE_3)
     return bindings::clusterable_object_index_lists.data[index];
     // The index is correct but in clusterable_object_index_lists we pack 4 u8s into a u32
     // This means the index into clusterable_object_index_lists is index / 4
-    @if(!AVAILABLE_STORAGE_BUFFER_BINDINGS__GE_3)
+@if(!AVAILABLE_STORAGE_BUFFER_BINDINGS__GE_3)
     let indices = bindings::clusterable_object_index_lists.data[index >> 4u][(index >> 2u) & ((1u << 2u) - 1u)];
     // And index % 4 gives the sub-index of the u8 within the u32 so we shift by 8 * sub-index
-    @if(!AVAILABLE_STORAGE_BUFFER_BINDINGS__GE_3)
+@if(!AVAILABLE_STORAGE_BUFFER_BINDINGS__GE_3)
     return (indices >> (8u * (index & ((1u << 2u) - 1u)))) & ((1u << 8u) - 1u);
 }
 

@@ -8,7 +8,7 @@ struct LineGizmoUniform {
     line_width: f32,
     depth_bias: f32,
     resolution: u32,
-    @if(SIXTEEN_BYTE_ALIGNMENT)
+@if(SIXTEEN_BYTE_ALIGNMENT)
     // WebGL2 structs must be 16 byte aligned.
     _padding: f32,
 }
@@ -61,7 +61,7 @@ fn vertex_bevel(vertex: VertexInput) -> VertexOutput {
     var color = vertex.color;
     var line_width = joints_gizmo.line_width;
 
-    @if(PERSPECTIVE)
+@if(PERSPECTIVE)
     line_width /= clip_b.w;
 
     // Line thinness fade from https://acegikmo.com/shapes/docs/#anti-aliasing
@@ -121,7 +121,7 @@ fn vertex_miter(vertex: VertexInput) -> VertexOutput {
     var color = vertex.color;
     var line_width = joints_gizmo.line_width;
 
-    @if(PERSPECTIVE)
+@if(PERSPECTIVE)
     line_width /= clip_b.w;
 
     // Line thinness fade from https://acegikmo.com/shapes/docs/#anti-aliasing
@@ -172,7 +172,7 @@ fn vertex_round(vertex: VertexInput) -> VertexOutput {
     var color = vertex.color;
     var line_width = joints_gizmo.line_width;
 
-    @if(PERSPECTIVE)
+@if(PERSPECTIVE)
     line_width /= clip_b.w;
 
     // Line thinness fade from https://acegikmo.com/shapes/docs/#anti-aliasing

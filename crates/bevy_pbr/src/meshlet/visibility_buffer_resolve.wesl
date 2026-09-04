@@ -99,7 +99,7 @@ struct VertexOutput {
     mesh_flags: u32,
     cluster_id: u32,
     material_bind_group_slot: u32,
-    @if(PREPASS_FRAGMENT && MOTION_VECTOR_PREPASS)
+@if(PREPASS_FRAGMENT && MOTION_VECTOR_PREPASS)
     motion_vector: vec2<f32>,
 }
 
@@ -192,7 +192,7 @@ fn resolve_vertex_output(frag_coord: vec4<f32>) -> VertexOutput {
     out.mesh_flags = instance_uniform.flags;
     out.cluster_id = instance_id ^ meshlet_id;
     out.material_bind_group_slot = instance_uniform.material_and_lightmap_bind_group_slot & 0xffffu;
-    @if(PREPASS_FRAGMENT && MOTION_VECTOR_PREPASS)
+@if(PREPASS_FRAGMENT && MOTION_VECTOR_PREPASS)
     out.motion_vector = motion_vector;
     return out;
 }

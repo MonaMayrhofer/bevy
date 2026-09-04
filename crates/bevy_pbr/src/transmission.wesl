@@ -86,14 +86,14 @@ fn fetch_transmissive_background_non_rough(offset_position: vec2<f32>, frag_coor
             0.0,
         );
 
-    @if(DEPTH_PREPASS && !WEBGL2)
+@if(DEPTH_PREPASS && !WEBGL2)
     // Use depth prepass data to reject values that are in front of the current fragment
     if prepass_utils::prepass_depth(vec4<f32>(offset_position * view_bindings::view.viewport.zw, 0.0, 0.0), 0u)
         > frag_coord.z {
         background_color.a = 0.0;
     }
 
-    @if(TONEMAP_IN_SHADER)
+@if(TONEMAP_IN_SHADER)
     background_color = approximate_inverse_tone_mapping(background_color, view_bindings::view.color_grading);
 
     return background_color;
@@ -121,21 +121,21 @@ fn fetch_transmissive_background(
     // - proportional to the inverse of view z
     let blur_intensity = (transmission_roughness * transmission_roughness) / view_z;
 
-    @if(SCREEN_SPACE_SPECULAR_TRANSMISSION_BLUR_TAPS)
+@if(SCREEN_SPACE_SPECULAR_TRANSMISSION_BLUR_TAPS)
     let num_taps =
         constants::SCREEN_SPACE_SPECULAR_TRANSMISSION_BLUR_TAPS; // Controlled by the `ScreenSpaceTransmission::quality` property
-    @else
+@else
     let num_taps = 8; // Fallback to 8 taps, if not specified
     let num_spirals = i32(ceil(f32(num_taps) / 8.0));
-    @if(TEMPORAL_JITTER)
+@if(TEMPORAL_JITTER)
     let random_angle = interleaved_gradient_noise(frag_coord.xy, view_bindings::globals.frame_count);
-    @else
+@else
     let random_angle = interleaved_gradient_noise(frag_coord.xy, 0u);
     // Pixel checkerboard pattern (helps make the interleaved gradient noise pattern less visible)
-    @if(TEMPORAL_JITTER)
+@if(TEMPORAL_JITTER)
     let pixel_checkboard = (// 0 or 1 on even/odd pixels, alternates every frame
             (i32(frag_coord.x) + i32(frag_coord.y) + i32(view_bindings::globals.frame_count)) % 2);
-    @else
+@else
     let pixel_checkboard = (// 0 or 1 on even/odd pixels
             (i32(frag_coord.x) + i32(frag_coord.y)) % 2);
 
@@ -190,7 +190,7 @@ fn fetch_transmissive_background(
                 0.0,
             );
 
-        @if(DEPTH_PREPASS && !WEBGL2)
+@if(DEPTH_PREPASS && !WEBGL2)
         // Use depth prepass data to reject values that are in front of the current fragment
         if prepass_utils::prepass_depth(
                 vec4<f32>(modified_offset_position * view_bindings::view.viewport.zw, 0.0, 0.0),
@@ -209,7 +209,7 @@ fn fetch_transmissive_background(
 
     result /= f32(num_taps);
 
-    @if(TONEMAP_IN_SHADER)
+@if(TONEMAP_IN_SHADER)
     result = approximate_inverse_tone_mapping(result, view_bindings::view.color_grading);
 
     return result;

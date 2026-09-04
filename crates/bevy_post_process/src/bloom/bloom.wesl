@@ -181,7 +181,7 @@ fn downsample_first(
     // with f32::MAX (E+38) Chrome fails with ":value 340282346999999984391321947108527833088.0 cannot be represented as 'f32'"
     sample = clamp(sample, vec3<f32>(0.0001), vec3<f32>(3.40282347E+37));
 
-    @if(USE_THRESHOLD)
+@if(USE_THRESHOLD)
     sample = soft_threshold(sample);
 
     return vec4<f32>(sample, 1.0);

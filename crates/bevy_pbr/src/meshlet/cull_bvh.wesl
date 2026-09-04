@@ -57,7 +57,7 @@ fn cull_bvh(@builtin(global_invocation_id) global_invocation_id: vec3<u32>) {
     // If we pass, try occlusion culling
     // If this node was occluded, push it's children to the second pass to check against this frame's HZB
     if should_occlusion_cull_aabb(aabb, instance_id) {
-        @if(MESHLET_FIRST_CULLING_PASS)
+@if(MESHLET_FIRST_CULLING_PASS)
         if child_count == 255u {
             let id = atomicAdd(&meshlet_second_pass_bvh_count, 1u);
             meshlet_second_pass_bvh_queue[id] = value;

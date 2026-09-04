@@ -44,13 +44,13 @@ fn fragment(in: FullscreenVertexOutput) -> @location(0) vec4<f32> {
         }
         return vec4(0.0);
     } else {
-        @if(!DEPTH_PREPASS)
+@if(!DEPTH_PREPASS)
         // If depth prepass is disabled, load depth for manual depth testing.
         // This is necessary because early z doesn't seem to trigger in the transparent pass.
         // This should be done during the draw pass so those fragments simply don't exist in the list,
         // but this requires a bigger refactor
         let d = textureLoad(depth, vec2<i32>(in.position.xy), 0);
-        @else
+@else
         let d = 0.0;
         let color = resolve(head, d);
         heads[screen_index] = 0u; // LINKED_LIST_END_SENTINEL + 1u;
@@ -75,7 +75,7 @@ fn resolve(head: u32, opaque_depth: f32) -> vec4<f32> {
         let fragment_node = nodes[current_node];
         current_node = fragment_node.next;
 
-        @if(!DEPTH_PREPASS)
+@if(!DEPTH_PREPASS)
         // depth testing
         if fragment_node.depth_alpha < packed_opaque_depth {
             continue;

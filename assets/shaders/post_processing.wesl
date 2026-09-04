@@ -27,7 +27,7 @@ var texture_sampler: sampler;
 struct PostProcessSettings {
     intensity: f32,
     // WebGL2 structs must be 16 byte aligned.
-    @if(SIXTEEN_BYTE_ALIGNMENT)
+@if(SIXTEEN_BYTE_ALIGNMENT)
     _webgl2_padding: vec3<f32>,
 }
 @group(0) @binding(2)

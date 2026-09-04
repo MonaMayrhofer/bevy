@@ -11,7 +11,7 @@ struct LineGizmoUniform {
     _joints_resolution: u32,
     gap_scale: f32,
     line_scale: f32,
-    @if(SIXTEEN_BYTE_ALIGNMENT)
+@if(SIXTEEN_BYTE_ALIGNMENT)
     // WebGL2 structs must be 16 byte aligned.
     _padding: vec3<f32>,
 }
@@ -179,9 +179,9 @@ fn fragment_solid(in: FragmentInput) -> FragmentOutput {
 @fragment
 fn fragment_dotted(in: FragmentInput) -> FragmentOutput {
     var alpha: f32;
-    @if(PERSPECTIVE)
+@if(PERSPECTIVE)
     alpha = 1 - floor(in.uv % 2.0);
-    @else
+@else
     alpha = 1 - floor((in.uv * in.position.w) % 2.0);
 
     return FragmentOutput(vec4(in.color.xyz, in.color.w * alpha));
@@ -189,9 +189,9 @@ fn fragment_dotted(in: FragmentInput) -> FragmentOutput {
 
 @fragment
 fn fragment_dashed(in: FragmentInput) -> FragmentOutput {
-    @if(PERSPECTIVE)
+@if(PERSPECTIVE)
     let uv = in.uv;
-    @else
+@else
     let uv = in.uv * in.position.w;
     let alpha = 1.0 - floor(min((uv % 2.0) / in.line_fraction, 1.0));
 

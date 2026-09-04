@@ -14,13 +14,13 @@ const LEVEL_MARGIN_DIV: f32 = 0.5 / LEVEL_MARGIN;
 fn sample_current_lut(p: vec3<f32>) -> vec3<f32> {
     // Don't include code that will try to sample from LUTs if tonemap method doesn't require it
     // Allows this file to be imported without necessarily needing the lut texture bindings
-    @if(TONEMAP_METHOD_AGX)
+@if(TONEMAP_METHOD_AGX)
     return textureSampleLevel(dt_lut_texture, dt_lut_sampler, p, 0.0).rgb;
-    @elif(TONEMAP_METHOD_TONY_MC_MAPFACE)
+@elif(TONEMAP_METHOD_TONY_MC_MAPFACE)
     return textureSampleLevel(dt_lut_texture, dt_lut_sampler, p, 0.0).rgb;
-    @elif(TONEMAP_METHOD_BLENDER_FILMIC)
+@elif(TONEMAP_METHOD_BLENDER_FILMIC)
     return textureSampleLevel(dt_lut_texture, dt_lut_sampler, p, 0.0).rgb;
-    @else
+@else
     return vec3(1.0, 0.0, 1.0);
 }
 

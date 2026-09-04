@@ -4,11 +4,11 @@ import bevy_pbr::render::utils::coords_to_viewport_uv;
 struct SkyboxUniforms {
     brightness: f32,
     transform: mat4x4<f32>,
-    @if(SIXTEEN_BYTE_ALIGNMENT)
+@if(SIXTEEN_BYTE_ALIGNMENT)
     _wasm_padding_8b: u32,
-    @if(SIXTEEN_BYTE_ALIGNMENT)
+@if(SIXTEEN_BYTE_ALIGNMENT)
     _wasm_padding_12b: u32,
-    @if(SIXTEEN_BYTE_ALIGNMENT)
+@if(SIXTEEN_BYTE_ALIGNMENT)
     _wasm_padding_16b: u32,
 }
 

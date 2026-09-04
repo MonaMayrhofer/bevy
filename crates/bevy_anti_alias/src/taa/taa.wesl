@@ -90,7 +90,7 @@ fn sample_history(u: f32, v: f32) -> vec3<f32> {
 
 fn sample_view_target(uv: vec2<f32>) -> vec3<f32> {
     var sample = textureSample(view_target, nearest_sampler, uv).rgb;
-    @if(TONEMAP)
+@if(TONEMAP)
     sample = tonemap(sample);
     return RGB_to_YCoCg(sample);
 }
@@ -106,7 +106,7 @@ fn taa(
     // Fetch the current sample
     let original_color = textureSample(view_target, nearest_sampler, uv);
     var current_color = original_color.rgb;
-    @if(TONEMAP)
+@if(TONEMAP)
     current_color = tonemap(current_color);
 
     var history_confidence: f32;
@@ -214,10 +214,10 @@ fn taa(
 
     // Write output to history and view target
     var out: Output;
-    @if(RESET)
+@if(RESET)
     history_confidence = 1.0 / MIN_HISTORY_BLEND_RATE;
     out.history = vec4(current_color, history_confidence);
-    @if(TONEMAP)
+@if(TONEMAP)
     current_color = reverse_tonemap(current_color);
     out.view_target = vec4(current_color, original_color.a);
     return out;

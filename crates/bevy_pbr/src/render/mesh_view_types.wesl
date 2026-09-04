@@ -206,7 +206,7 @@ struct ContactShadowsSettings {
     linear_steps: u32,
     thickness: f32,
     length: f32,
-    @if(SIXTEEN_BYTE_ALIGNMENT)
+@if(SIXTEEN_BYTE_ALIGNMENT)
     _padding: f32,
 }
 

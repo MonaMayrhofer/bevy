@@ -35,11 +35,11 @@ const total_component_count: u32 = 9u;
 
 @if(MORPH_TARGETS)
 fn layer_count(descriptor_index: u32) -> u32 {
-    @if(SKINS_USE_UNIFORM_BUFFERS)
+@if(SKINS_USE_UNIFORM_BUFFERS)
     let dimensions = textureDimensions(morph_targets);
-    @if(SKINS_USE_UNIFORM_BUFFERS)
+@if(SKINS_USE_UNIFORM_BUFFERS)
     return u32(dimensions.z);
-    @if(!SKINS_USE_UNIFORM_BUFFERS)
+@if(!SKINS_USE_UNIFORM_BUFFERS)
     return morph_descriptors[descriptor_index].weight_count;
 }
 
@@ -52,25 +52,25 @@ fn component_texture_coord(vertex_index: u32, component_offset: u32) -> vec2<u32
 
 @if(MORPH_TARGETS)
 fn weight_at(weight_index: u32, descriptor_index: u32) -> f32 {
-    @if(SKINS_USE_UNIFORM_BUFFERS)
+@if(SKINS_USE_UNIFORM_BUFFERS)
     let i = weight_index;
-    @if(SKINS_USE_UNIFORM_BUFFERS)
+@if(SKINS_USE_UNIFORM_BUFFERS)
     return morph_weights.weights[i / 4u][i % 4u];
-    @if(!SKINS_USE_UNIFORM_BUFFERS)
+@if(!SKINS_USE_UNIFORM_BUFFERS)
     let weights_offset = morph_descriptors[descriptor_index].current_weights_offset;
-    @if(!SKINS_USE_UNIFORM_BUFFERS)
+@if(!SKINS_USE_UNIFORM_BUFFERS)
     return morph_weights[weights_offset + weight_index];
 }
 
 @if(MORPH_TARGETS)
 fn prev_weight_at(weight_index: u32, descriptor_index: u32) -> f32 {
-    @if(SKINS_USE_UNIFORM_BUFFERS)
+@if(SKINS_USE_UNIFORM_BUFFERS)
     let i = weight_index;
-    @if(SKINS_USE_UNIFORM_BUFFERS)
+@if(SKINS_USE_UNIFORM_BUFFERS)
     return prev_morph_weights.weights[i / 4u][i % 4u];
-    @if(!SKINS_USE_UNIFORM_BUFFERS)
+@if(!SKINS_USE_UNIFORM_BUFFERS)
     let weights_offset = morph_descriptors[descriptor_index].prev_weights_offset;
-    @if(!SKINS_USE_UNIFORM_BUFFERS)
+@if(!SKINS_USE_UNIFORM_BUFFERS)
     return prev_morph_weights[weights_offset + weight_index];
 }
 

@@ -3,14 +3,14 @@ import bevy_render::maths::{PI, orthonormalize};
 
 // Do the lookup, using HW 2x2 PCF and comparison
 fn sample_shadow_map_hardware(light_local: vec2<f32>, depth: f32, array_index: i32) -> f32 {
-    @if(NO_ARRAY_TEXTURES_SUPPORT)
+@if(NO_ARRAY_TEXTURES_SUPPORT)
     return textureSampleCompare(
             view_bindings::directional_shadow_textures,
             view_bindings::directional_shadow_textures_comparison_sampler,
             light_local,
             depth,
         );
-    @else
+@else
     return textureSampleCompareLevel(
             view_bindings::directional_shadow_textures,
             view_bindings::directional_shadow_textures_comparison_sampler,
@@ -29,14 +29,14 @@ fn search_for_blockers_in_shadow_map_hardware(light_local: vec2<f32>, depth: f32
     return vec2(0.0);
 } @else {
 @if(PCSS_SAMPLERS_AVAILABLE) {
-    @if(NO_ARRAY_TEXTURES_SUPPORT)
+@if(NO_ARRAY_TEXTURES_SUPPORT)
     let sampled_depth = textureSampleLevel(
             view_bindings::directional_shadow_textures,
             view_bindings::directional_shadow_textures_linear_sampler,
             light_local,
             0u,
         );
-    @else
+@else
     // NO_ARRAY_TEXTURES_SUPPORT
     let sampled_depth = textureSampleLevel(
             view_bindings::directional_shadow_textures,
@@ -245,13 +245,13 @@ fn sample_shadow_map(
     frag_coord_xy: vec2<f32>,
     texel_size: f32,
 ) -> f32 {
-    @if(SHADOW_FILTER_METHOD_GAUSSIAN)
+@if(SHADOW_FILTER_METHOD_GAUSSIAN)
     return sample_shadow_map_castano_thirteen(light_local, depth, array_index);
-    @elif(SHADOW_FILTER_METHOD_TEMPORAL)
+@elif(SHADOW_FILTER_METHOD_TEMPORAL)
     return sample_shadow_map_jimenez_fourteen(light_local, depth, array_index, frag_coord_xy, texel_size, 1.0, true);
-    @elif(SHADOW_FILTER_METHOD_HARDWARE_2X2)
+@elif(SHADOW_FILTER_METHOD_HARDWARE_2X2)
     return sample_shadow_map_hardware(light_local, depth, array_index);
-    @else
+@else
     // This needs a default return value to avoid shader compilation errors if it's compiled with no SHADOW_FILTER_METHOD_* defined.
     // (eg. if the normal prepass is enabled it ends up compiling this due to the normal prepass depending on pbr_functions, which depends on shadows)
     // This should never actually get used, as anyone using bevy's lighting/shadows should always have a SHADOW_FILTER_METHOD defined.
@@ -289,7 +289,7 @@ fn sample_shadow_map_pcss(
     // variant this is unfortunately rather noisy. This may be improvable in the
     // future by generating a mip chain of the shadow map and using that to
     // provide better blurs.
-    @if(SHADOW_FILTER_METHOD_TEMPORAL)
+@if(SHADOW_FILTER_METHOD_TEMPORAL)
     return sample_shadow_map_jimenez_fourteen(
             light_local,
             depth,
@@ -299,7 +299,7 @@ fn sample_shadow_map_pcss(
             blur_size,
             true,
         );
-    @else
+@else
     // SHADOW_FILTER_METHOD_TEMPORAL
     return sample_shadow_map_jimenez_fourteen(
             light_local,
@@ -318,14 +318,14 @@ fn sample_shadow_map_pcss(
 // processed not being sampled, and this messing with mip-mapping functionality.
 // The shadow maps have no mipmaps so Level just samples from LOD 0.
 fn sample_shadow_cubemap_hardware(light_local: vec3<f32>, depth: f32, light_id: u32) -> f32 {
-    @if(NO_CUBE_ARRAY_TEXTURES_SUPPORT)
+@if(NO_CUBE_ARRAY_TEXTURES_SUPPORT)
     return textureSampleCompare(
             view_bindings::point_shadow_textures,
             view_bindings::point_shadow_textures_comparison_sampler,
             light_local,
             depth,
         );
-    @else
+@else
     return textureSampleCompareLevel(
             view_bindings::point_shadow_textures,
             view_bindings::point_shadow_textures_comparison_sampler,
@@ -344,13 +344,13 @@ fn search_for_blockers_in_shadow_cubemap_hardware(light_local: vec3<f32>, depth:
     return vec2(0.0);
 } @else {
 @if(PCSS_SAMPLERS_AVAILABLE) {
-    @if(NO_CUBE_ARRAY_TEXTURES_SUPPORT)
+@if(NO_CUBE_ARRAY_TEXTURES_SUPPORT)
     let sampled_depth = textureSample(
             view_bindings::point_shadow_textures,
             view_bindings::point_shadow_textures_linear_sampler,
             light_local,
         );
-    @else
+@else
     let sampled_depth = textureSample(
             view_bindings::point_shadow_textures,
             view_bindings::point_shadow_textures_linear_sampler,
@@ -536,9 +536,9 @@ fn sample_shadow_cubemap(
     light_id: u32,
     frag_coord_xy: vec2<f32>,
 ) -> f32 {
-    @if(SHADOW_FILTER_METHOD_GAUSSIAN)
+@if(SHADOW_FILTER_METHOD_GAUSSIAN)
     return sample_shadow_cubemap_gaussian(light_local, depth, POINT_SHADOW_SCALE, distance_to_light, light_id);
-    @elif(SHADOW_FILTER_METHOD_TEMPORAL)
+@elif(SHADOW_FILTER_METHOD_TEMPORAL)
     return sample_shadow_cubemap_jittered(
             light_local,
             depth,
@@ -548,9 +548,9 @@ fn sample_shadow_cubemap(
             light_id,
             true,
         );
-    @elif(SHADOW_FILTER_METHOD_HARDWARE_2X2)
+@elif(SHADOW_FILTER_METHOD_HARDWARE_2X2)
     return sample_shadow_cubemap_hardware(light_local, depth, light_id);
-    @else
+@else
     // This needs a default return value to avoid shader compilation errors if it's compiled with no SHADOW_FILTER_METHOD_* defined.
     // (eg. if the normal prepass is enabled it ends up compiling this due to the normal prepass depending on pbr_functions, which depends on shadows)
     // This should never actually get used, as anyone using bevy's lighting/shadows should always have a SHADOW_FILTER_METHOD defined.
@@ -666,7 +666,7 @@ fn sample_shadow_cubemap_pcss(
     // Don't let the blur size go below 0.5, or shadows will look unacceptably aliased.
     let blur_size = max((z_blocker - depth) * light_size / depth, 0.5);
 
-    @if(SHADOW_FILTER_METHOD_TEMPORAL)
+@if(SHADOW_FILTER_METHOD_TEMPORAL)
     return sample_shadow_cubemap_jittered(
             light_local,
             depth,
@@ -676,7 +676,7 @@ fn sample_shadow_cubemap_pcss(
             light_id,
             true,
         );
-    @else
+@else
     return sample_shadow_cubemap_jittered(
             light_local,
             depth,

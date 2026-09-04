@@ -210,7 +210,7 @@ fn apply_decals(pbr_input: ptr<function, PbrInput>) {
             base_color = porter_duff_over(base_color, decal_base_color);
         }
 
-        @if(VERTEX_TANGENTS)
+@if(VERTEX_TANGENTS)
         if iterator.normal_map_texture_index >= 0 {
             let Nd = textureSampleLevel(
                     mesh_view_bindings::clustered_decal_textures[iterator.normal_map_texture_index],

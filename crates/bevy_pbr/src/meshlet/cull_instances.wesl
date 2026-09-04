@@ -14,16 +14,16 @@ import package::meshlet::bindings::{
 import package::meshlet::cull_shared::{aabb_in_frustum, should_occlusion_cull_aabb};
 
 fn instance_count() -> u32 {
-    @if(MESHLET_FIRST_CULLING_PASS)
+@if(MESHLET_FIRST_CULLING_PASS)
     return constants.scene_instance_count;
-    @else
+@else
     return meshlet_second_pass_instance_count;
 }
 
 fn map_instance_id(id: u32) -> u32 {
-    @if(MESHLET_FIRST_CULLING_PASS)
+@if(MESHLET_FIRST_CULLING_PASS)
     return id;
-    @else
+@else
     return meshlet_second_pass_instance_candidates[id];
 }
 
@@ -47,7 +47,7 @@ fn cull_instances(@builtin(global_invocation_id) global_invocation_id: vec3<u32>
     let aabb = meshlet_instance_aabbs[instance_id];
 
     // Visibility and frustum cull, but only in the first pass
-    @if(MESHLET_FIRST_CULLING_PASS)
+@if(MESHLET_FIRST_CULLING_PASS)
     if should_cull_instance(instance_id) || !aabb_in_frustum(aabb, instance_id) {
         return;
     }

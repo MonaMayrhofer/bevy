@@ -45,8 +45,8 @@ fn get_tag(instance_index: u32) -> u32 {
 }
 
 fn get_metadata(instance_index: u32) -> MeshMetadata {
-    @if(METADATA_USE_UNIFORM_BUFFERS)
+@if(METADATA_USE_UNIFORM_BUFFERS)
     return metadata;
-    @else
+@else
     return metadata[mesh[instance_index].metadata_index];
 }

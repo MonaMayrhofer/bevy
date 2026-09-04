@@ -52,9 +52,9 @@ fn lightmap(uv: vec2<f32>, exposure: f32, instance_index: u32) -> vec3<f32> {
 }
 
 fn lightmap_size(lightmap_slot: u32) -> vec2<u32> {
-    @if(MULTIPLE_LIGHTMAPS_IN_ARRAY)
+@if(MULTIPLE_LIGHTMAPS_IN_ARRAY)
     return textureDimensions(lightmaps_textures[lightmap_slot]);
-    @else
+@else
     return textureDimensions(lightmaps_texture);
 }
 
@@ -62,9 +62,9 @@ fn sample(uv: vec2<f32>, lightmap_slot: u32) -> vec3<f32> {
     // Mipmapping lightmaps is usually a bad idea due to leaking across UV
     // islands, so there's no harm in using mip level 0 and it lets us avoid
     // control flow uniformity problems.
-    @if(MULTIPLE_LIGHTMAPS_IN_ARRAY)
+@if(MULTIPLE_LIGHTMAPS_IN_ARRAY)
     return textureSampleLevel(lightmaps_textures[lightmap_slot], lightmaps_samplers[lightmap_slot], uv, 0.0).rgb;
-    @else
+@else
     return textureSampleLevel(lightmaps_texture, lightmaps_sampler, uv, 0.0).rgb;
 }
 

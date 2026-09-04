@@ -10,9 +10,9 @@ struct Immediates {
     color: vec4<f32>,
     line_width: f32,
     smoothing: f32,
-    @if(SIXTEEN_BYTE_ALIGNMENT)
+@if(SIXTEEN_BYTE_ALIGNMENT)
     _pad0: f32,
-    @if(SIXTEEN_BYTE_ALIGNMENT)
+@if(SIXTEEN_BYTE_ALIGNMENT)
     _pad1: f32,
 }
 

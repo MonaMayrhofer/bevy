@@ -41,14 +41,14 @@ fn irradiance_volume_light(
 
         // If we're lightmapped, and the irradiance volume contributes no diffuse
         // light, then bail out.
-        @if(LIGHTMAP)
+@if(LIGHTMAP)
         if (query_result.flags & LIGHT_PROBE_FLAG_AFFECTS_LIGHTMAPPED_MESH_DIFFUSE) == 0u {
             continue;
         }
 
-        @if(MULTIPLE_LIGHT_PROBES_IN_ARRAY)
+@if(MULTIPLE_LIGHT_PROBES_IN_ARRAY)
         let irradiance_volume_texture = irradiance_volumes[query_result.texture_index];
-        @else
+@else
         let irradiance_volume_texture = irradiance_volume;
 
         let atlas_resolution = vec3<f32>(textureDimensions(irradiance_volume_texture));

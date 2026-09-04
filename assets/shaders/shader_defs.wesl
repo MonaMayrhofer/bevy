@@ -9,8 +9,8 @@ var<uniform> material: CustomMaterial;
 
 @fragment
 fn fragment(mesh: VertexOutput) -> @location(0) vec4<f32> {
-    @if(IS_RED)
+@if(IS_RED)
     return vec4<f32>(1.0, 0.0, 0.0, 1.0);
-    @else
+@else
     return material.color;
 }

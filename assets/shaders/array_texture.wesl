@@ -24,7 +24,7 @@ fn fragment(@builtin(front_facing) is_front: bool, mesh: VertexOutput) -> @locat
     var pbr_input: PbrInput = pbr_input_new();
 
     pbr_input.material.base_color = textureSample(my_array_texture, my_array_texture_sampler, mesh.uv, layer);
-    @if(VERTEX_COLORS)
+@if(VERTEX_COLORS)
     pbr_input.material.base_color = pbr_input.material.base_color * mesh.color;
 
     let double_sided = (pbr_input.material.flags & STANDARD_MATERIAL_FLAGS_DOUBLE_SIDED_BIT) != 0u;

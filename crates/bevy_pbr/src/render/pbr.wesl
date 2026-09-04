@@ -26,30 +26,30 @@ import package::decal::forward::get_forward_decal_info;
 
 @fragment
 fn fragment(
-    @if(MESHLET_MESH_MATERIAL_PASS)
+@if(MESHLET_MESH_MATERIAL_PASS)
     @builtin(position) frag_coord: vec4<f32>,
-    @if(!MESHLET_MESH_MATERIAL_PASS)
+@if(!MESHLET_MESH_MATERIAL_PASS)
     vertex_output: VertexOutput,
-    @if(!MESHLET_MESH_MATERIAL_PASS)
+@if(!MESHLET_MESH_MATERIAL_PASS)
     @builtin(front_facing) is_front: bool,
 ) -> FragmentOutput {
-    @if(MESHLET_MESH_MATERIAL_PASS)
+@if(MESHLET_MESH_MATERIAL_PASS)
     let vertex_output = resolve_vertex_output(frag_coord);
-    @if(MESHLET_MESH_MATERIAL_PASS)
+@if(MESHLET_MESH_MATERIAL_PASS)
     let is_front = true;
 
     var in = vertex_output;
 
     // If we're in the crossfade section of a visibility range, conditionally
     // discard the fragment according to the visibility pattern.
-    @if(VISIBILITY_RANGE_DITHER)
+@if(VISIBILITY_RANGE_DITHER)
     visibility_range_dither(in.position, in.visibility_range_dither);
 
-    @if(FORWARD_DECAL)
+@if(FORWARD_DECAL)
     let forward_decal_info = get_forward_decal_info(in);
-    @if(FORWARD_DECAL)
+@if(FORWARD_DECAL)
     in.world_position = forward_decal_info.world_position;
-    @if(FORWARD_DECAL)
+@if(FORWARD_DECAL)
     in.uv = forward_decal_info.uv;
 
     // generate a PbrInput struct from the StandardMaterial bindings
@@ -66,13 +66,13 @@ fn fragment(
     apply_decals(&pbr_input);
 
     // write the gbuffer, lighting pass id, and optionally normal and motion_vector textures
-    @if(PREPASS_PIPELINE)
+@if(PREPASS_PIPELINE)
     let out = deferred_output(in, pbr_input);
     // in forward mode, we calculate the lit color immediately, and then apply some post-lighting effects here.
     // in deferred mode the lit color and these effects will be calculated in the deferred lighting shader
-    @if(!PREPASS_PIPELINE)
+@if(!PREPASS_PIPELINE)
     var out: FragmentOutput;
-    @if(!PREPASS_PIPELINE)
+@if(!PREPASS_PIPELINE)
     if (pbr_input.material.flags & STANDARD_MATERIAL_FLAGS_UNLIT_BIT) == 0u {
         out.color = apply_pbr_lighting(pbr_input);
     } else {
@@ -81,7 +81,7 @@ fn fragment(
 
     // apply in-shader post processing (fog, alpha-premultiply, and also tonemapping, debanding if the camera is non-hdr)
     // note this does not include fullscreen postprocessing effects like bloom.
-    @if(!PREPASS_PIPELINE)
+@if(!PREPASS_PIPELINE)
     out.color = main_pass_post_lighting_processing(pbr_input, out.color);
 
 @if(MATERIAL_OIT_ENABLED) {
@@ -99,7 +99,7 @@ fn fragment(
         discard;
     }
 }
-    @if(FORWARD_DECAL)
+@if(FORWARD_DECAL)
     out.color.a = min(forward_decal_info.alpha, out.color.a);
 
     return out;

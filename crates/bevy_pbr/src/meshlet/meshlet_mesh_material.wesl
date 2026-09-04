@@ -28,19 +28,19 @@ fn prepass_fragment(@builtin(position) frag_coord: vec4<f32>) -> prepass_io::Fra
 
     var out: prepass_io::FragmentOutput;
 
-    @if(NORMAL_PREPASS)
+@if(NORMAL_PREPASS)
     out.normal = vec4(vertex_output.world_normal * 0.5 + vec3(0.5), 1.0);
 
-    @if(MOTION_VECTOR_PREPASS)
+@if(MOTION_VECTOR_PREPASS)
     out.motion_vector = vertex_output.motion_vector;
 
-    @if(DEFERRED_PREPASS)
+@if(DEFERRED_PREPASS)
     // There isn't any material info available for this default prepass shader so we are just writing 
     // emissive magenta out to the deferred gbuffer to be rendered by the first deferred lighting pass layer.
     // This is here so if the default prepass fragment is used for deferred magenta will be rendered, and also
     // as an example to show that a user could write to the deferred gbuffer if they were to start from this shader.
     out.deferred = vec4(0u, package::render::rgb9e5::vec3_to_rgb9e5_(vec3(1.0, 0.0, 1.0)), 0u, 0u);
-    @if(DEFERRED_PREPASS)
+@if(DEFERRED_PREPASS)
     out.deferred_lighting_pass_id = 1u;
 
     return out;
