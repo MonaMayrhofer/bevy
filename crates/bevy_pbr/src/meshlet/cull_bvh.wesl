@@ -86,7 +86,8 @@ fn cull_bvh(@builtin(global_invocation_id) global_invocation_id: vec3<u32>) {
             atomicAdd(&meshlet_bvh_cull_dispatch.x, 1u);
         }
     } else {
-@if(MESHLET_FIRST_CULLING_PASS) {
+        @if(MESHLET_FIRST_CULLING_PASS)
+        {
         let base = atomicAdd(&meshlet_meshlet_cull_count_early, child_count);
         let end = base + child_count;
         for(var i = base; i < end; i++) {
@@ -95,7 +96,9 @@ fn cull_bvh(@builtin(global_invocation_id) global_invocation_id: vec3<u32>) {
         }
         let req = (end + 127u) >> 7u;
         atomicMax(&meshlet_meshlet_cull_dispatch_early.x, req);
-} @else {
+        }
+        @else
+        {
         let base = atomicAdd(&meshlet_meshlet_cull_count_late, child_count);
         let start = constants.rightmost_slot - base;
         for(var i = start; i > start - child_count; i--) {
@@ -104,6 +107,6 @@ fn cull_bvh(@builtin(global_invocation_id) global_invocation_id: vec3<u32>) {
         }
         let req = (base + child_count + 127u) >> 7u;
         atomicMax(&meshlet_meshlet_cull_dispatch_late.x, req);
-}
+        }
     }
 }

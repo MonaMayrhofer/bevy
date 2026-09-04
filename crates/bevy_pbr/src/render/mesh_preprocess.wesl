@@ -114,7 +114,8 @@ var<storage, read_write> output: array<Mesh>;
 @group(0) @binding(7)
 var<storage, read_write> indirect_parameters_metadata: array<IndirectParametersMetadata>;
 
-@if(FRUSTUM_CULLING) {
+@if(FRUSTUM_CULLING)
+{
 // Data needed to cull the meshes.
 //
 // At the moment, this consists only of AABBs.
@@ -128,7 +129,8 @@ var<storage> visibility_ranges: array<vec4<f32>>;
 @group(0) @binding(11)
 var depth_pyramid: texture_2d<f32>;
 
-@if(OCCLUSION_CULLING && EARLY_PHASE) {
+@if(OCCLUSION_CULLING && EARLY_PHASE)
+{
 @group(0) @binding(12)
 var<storage, read_write> late_preprocess_work_items: array<PreprocessWorkItem>;
 
@@ -213,7 +215,8 @@ fn main(@builtin(global_invocation_id) global_invocation_id: vec3<u32>) {
     let world_from_local_affine_transpose = current_input[input_index].world_from_local;
     let world_from_local = maths::affine3_to_square(world_from_local_affine_transpose);
 
-@if(FRUSTUM_CULLING) {
+    @if(FRUSTUM_CULLING)
+    {
     // Frustum cull if necessary.
     if (current_input[input_index].flags & MESH_FLAGS_NO_FRUSTUM_CULLING_BIT) == 0u {
         let aabb_center = mesh_culling_data[input_index].aabb_center.xyz;
@@ -248,7 +251,7 @@ fn main(@builtin(global_invocation_id) global_invocation_id: vec3<u32>) {
             return;
         }
     }
-}
+    }
 
     // See whether the `MeshInputUniform` was updated on this frame. If it
     // wasn't, then we know the transforms of this mesh must be identical to
@@ -274,7 +277,8 @@ fn main(@builtin(global_invocation_id) global_invocation_id: vec3<u32>) {
     // no part of the AABB is in front of the corresponding pixel quad in the
     // hierarchical Z-buffer, then this mesh must be occluded, and we can skip
     // rendering it.
-@if(OCCLUSION_CULLING) {
+    @if(OCCLUSION_CULLING)
+    {
     let aabb_center = mesh_culling_data[input_index].aabb_center.xyz;
     let aabb_half_extents = mesh_culling_data[input_index].aabb_half_extents.xyz;
 
@@ -334,7 +338,8 @@ fn main(@builtin(global_invocation_id) global_invocation_id: vec3<u32>) {
 
     // Are we culled out?
     if max_depth_ndc < occluder_depth_ndc {
-@if(EARLY_PHASE) {
+        @if(EARLY_PHASE)
+        {
         // If this is the early phase, we need to make a note of this mesh so
         // that we examine it again in the late phase, so that we handle the
         // case in which a mesh that was invisible last frame became visible in
@@ -360,11 +365,11 @@ fn main(@builtin(global_invocation_id) global_invocation_id: vec3<u32>) {
         late_preprocess_work_items[output_work_item_index].input_index = input_index;
         late_preprocess_work_items[output_work_item_index].output_or_indirect_parameters_index =
             indirect_parameters_index;
-}
+        }
         // This mesh is culled. Skip it.
         return;
     }
-}
+    }
 
     // Calculate inverse transpose.
     let local_from_world_transpose = transpose(maths::inverse_affine3(transpose(world_from_local_affine_transpose)));

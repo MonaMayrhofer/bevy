@@ -169,10 +169,11 @@ fn depth_ndc_to_view_z(ndc_depth: f32) -> f32 {
     return -perspective_camera_near() / ndc_depth;
     @elif(VIEW_PROJECTION_ORTHOGRAPHIC)
     return -(view_bindings::view.clip_from_view[3][2] - ndc_depth) / view_bindings::view.clip_from_view[2][2];
-@else {
+    @else
+    {
     let view_pos = view_bindings::view.view_from_clip * vec4(0.0, 0.0, ndc_depth, 1.0);
     return view_pos.z / view_pos.w;
-}
+    }
 }
 
 /// Convert linear view z to ndc depth. 
@@ -182,10 +183,11 @@ fn view_z_to_depth_ndc(view_z: f32) -> f32 {
     return -perspective_camera_near() / view_z;
     @elif(VIEW_PROJECTION_ORTHOGRAPHIC)
     return view_bindings::view.clip_from_view[3][2] + view_z * view_bindings::view.clip_from_view[2][2];
-@else {
+    @else
+    {
     let ndc_pos = view_bindings::view.clip_from_view * vec4(0.0, 0.0, view_z, 1.0);
     return ndc_pos.z / ndc_pos.w;
-}
+    }
 }
 
 fn prev_view_z_to_depth_ndc(view_z: f32) -> f32 {
@@ -194,10 +196,11 @@ fn prev_view_z_to_depth_ndc(view_z: f32) -> f32 {
     @elif(VIEW_PROJECTION_ORTHOGRAPHIC)
     return prepass_bindings::previous_view_uniforms.clip_from_view[3][2]
         + view_z * prepass_bindings::previous_view_uniforms.clip_from_view[2][2];
-@else {
+    @else
+    {
     let ndc_pos = prepass_bindings::previous_view_uniforms.clip_from_view * vec4(0.0, 0.0, view_z, 1.0);
     return ndc_pos.z / ndc_pos.w;
-}
+    }
 }
 
 // -----------------

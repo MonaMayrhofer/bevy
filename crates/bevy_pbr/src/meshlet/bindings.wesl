@@ -85,7 +85,8 @@ const CENTIMETERS_PER_METER = 100.0;
 struct Constants {
     scene_instance_count: u32,
 }
-@if(MESHLET_INSTANCE_CULLING_PASS) {
+@if(MESHLET_INSTANCE_CULLING_PASS)
+{
 var<immediate> constants: Constants;
 
 // Cull data
@@ -116,7 +117,8 @@ var<storage, read_write> meshlet_bvh_cull_queue: array<InstancedOffset>;
 }
 
 // Second pass queue data
-@if(MESHLET_INSTANCE_CULLING_PASS && MESHLET_FIRST_CULLING_PASS) {
+@if(MESHLET_INSTANCE_CULLING_PASS && MESHLET_FIRST_CULLING_PASS)
+{
 @group(0) @binding(10)
 var<storage, read_write> meshlet_second_pass_instance_count: atomic<u32>;
 @group(0) @binding(11)
@@ -124,7 +126,8 @@ var<storage, read_write> meshlet_second_pass_instance_dispatch: DispatchIndirect
 @group(0) @binding(12)
 var<storage, read_write> meshlet_second_pass_instance_candidates: array<u32>;
 }
-@if(MESHLET_INSTANCE_CULLING_PASS && !MESHLET_FIRST_CULLING_PASS) {
+@if(MESHLET_INSTANCE_CULLING_PASS && !MESHLET_FIRST_CULLING_PASS)
+{
 @group(0) @binding(10)
 var<storage, read> meshlet_second_pass_instance_count: u32;
 @group(0) @binding(11)
@@ -135,7 +138,8 @@ struct Constants {
     read_from_front: u32,
     rightmost_slot: u32,
 }
-@if(MESHLET_BVH_CULLING_PASS) {
+@if(MESHLET_BVH_CULLING_PASS)
+{
 var<immediate> constants: Constants;
 
 // Cull data
@@ -180,7 +184,8 @@ var<storage, read_write> meshlet_meshlet_cull_queue: array<InstancedOffset>;
 }
 
 // Second pass queue data
-@if(MESHLET_BVH_CULLING_PASS && MESHLET_FIRST_CULLING_PASS) {
+@if(MESHLET_BVH_CULLING_PASS && MESHLET_FIRST_CULLING_PASS)
+{
 @group(0) @binding(14)
 var<storage, read_write> meshlet_second_pass_bvh_count: atomic<u32>;
 @group(0) @binding(15)
@@ -192,7 +197,8 @@ var<storage, read_write> meshlet_second_pass_bvh_queue: array<InstancedOffset>;
 struct Constants {
     rightmost_slot: u32,
 }
-@if(MESHLET_CLUSTER_CULLING_PASS) {
+@if(MESHLET_CLUSTER_CULLING_PASS)
+{
 var<immediate> constants: Constants;
 
 // Cull data
@@ -229,7 +235,8 @@ var<storage, read> meshlet_meshlet_cull_count_read: u32;
 }
 
 // Second pass queue data
-@if(MESHLET_CLUSTER_CULLING_PASS && MESHLET_FIRST_CULLING_PASS) {
+@if(MESHLET_CLUSTER_CULLING_PASS && MESHLET_FIRST_CULLING_PASS)
+{
 @group(0) @binding(10)
 var<storage, read_write> meshlet_meshlet_cull_count_write: atomic<u32>;
 @group(0) @binding(11)
@@ -241,7 +248,8 @@ var<storage, read_write> meshlet_meshlet_cull_queue: array<InstancedOffset>;
 @group(0) @binding(10)
 var<storage, read> meshlet_meshlet_cull_queue: array<InstancedOffset>;
 
-@if(MESHLET_VISIBILITY_BUFFER_RASTER_PASS) {
+@if(MESHLET_VISIBILITY_BUFFER_RASTER_PASS)
+{
 @group(0) @binding(0)
 var<storage, read> meshlet_raster_clusters: array<InstancedOffset>; // Per cluster
 @group(0) @binding(1)
@@ -310,7 +318,8 @@ fn get_meshlet_vertex_position(meshlet: ptr<function, Meshlet>, vertex_id: u32) 
     return vertex_position;
 }
 
-@if(MESHLET_MESH_MATERIAL_PASS) {
+@if(MESHLET_MESH_MATERIAL_PASS)
+{
 @group(2) @binding(0)
 var meshlet_visibility_buffer: texture_storage_2d<r64uint, read>;
 @group(2) @binding(1)

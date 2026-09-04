@@ -45,7 +45,8 @@ fn vertex(vertex: Vertex) -> VertexOutput {
 
 @fragment
 fn fragment(in: VertexOutput) -> @location(0) vec4<f32> {
-@if(VERTEX_COLORS) {
+    @if(VERTEX_COLORS)
+    {
     var color = in.color;
     @if(TONEMAP_IN_SHADER)
     color = tonemapping::tone_mapping(color, view.color_grading);
@@ -54,7 +55,9 @@ fn fragment(in: VertexOutput) -> @location(0) vec4<f32> {
     @if(OKLAB_OUTPUT)
     color = vec4(linear_rgb_to_oklab(color.rgb), color.a);
     return color;
-} @else {
+    }
+    @else
+    {
     return vec4<f32>(1.0, 0.0, 1.0, 1.0);
-}
+    }
 }

@@ -33,7 +33,8 @@ var<storage, read_write> world_cache: WorldCache;
 @group(1) @binding(13)
 var<uniform> constants: SolariLightingSettings;
 
-@if(DLSS_RR_GUIDE_BUFFERS) {
+@if(DLSS_RR_GUIDE_BUFFERS)
+{
 @group(2) @binding(0)
 var diffuse_albedo: texture_storage_2d<rgba8unorm, write>;
 @group(2) @binding(1)

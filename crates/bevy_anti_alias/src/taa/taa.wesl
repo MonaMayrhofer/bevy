@@ -110,7 +110,8 @@ fn taa(
     current_color = tonemap(current_color);
 
     var history_confidence: f32;
-@if(!RESET) {
+    @if(!RESET)
+    {
     // Pick the closest motion_vector from 5 samples (reduces aliasing on the edges of moving entities)
     // https://advances.realtimerendering.com/s2014/index.html#_HIGH-QUALITY_TEMPORAL_SUPERSAMPLING, slide 27
     let offset = texel_size * 2.0;
@@ -210,7 +211,7 @@ fn taa(
     }
 
     current_color = mix(history_color, current_color, current_color_factor);
-} // !RESET
+    } // !RESET
 
     // Write output to history and view target
     var out: Output;

@@ -70,7 +70,8 @@ const CLUSTER_COUNT_SIZE = 9u;
 // primarily), light probes aren't clustered, and therefore both light probe
 // index ranges will be empty.
 fn unpack_clusterable_object_index_ranges(cluster_index: u32) -> ClusterableObjectIndexRanges {
-@if(AVAILABLE_STORAGE_BUFFER_BINDINGS__GE_3) {
+    @if(AVAILABLE_STORAGE_BUFFER_BINDINGS__GE_3)
+    {
     let offset_and_counts_a = bindings::cluster_offsets_and_counts.data[cluster_index][0];
     let offset_and_counts_b = bindings::cluster_offsets_and_counts.data[cluster_index][1];
 
@@ -95,7 +96,9 @@ fn unpack_clusterable_object_index_ranges(cluster_index: u32) -> ClusterableObje
             decal_offset,
             last_clusterable_offset,
         );
-} @else {
+    }
+    @else
+    {
     let raw_offset_and_counts = bindings::cluster_offsets_and_counts.data[cluster_index >> 2u][
             cluster_index & ((1u << 2u) - 1u)
         ];
@@ -117,7 +120,7 @@ fn unpack_clusterable_object_index_ranges(cluster_index: u32) -> ClusterableObje
     let offset_c = offset_b + offset_and_counts.z;
 
     return ClusterableObjectIndexRanges(offset_a, offset_b, offset_c, offset_c, offset_c, offset_c, offset_c);
-}
+    }
 }
 
 // Returns the index of the clusterable object at the given offset.
@@ -146,7 +149,8 @@ fn cluster_debug_visualization(
     var output_color = input_color;
 
     // Cluster allocation debug (using 'over' alpha blending)
-@if(CLUSTERED_FORWARD_DEBUG_Z_SLICES) {
+    @if(CLUSTERED_FORWARD_DEBUG_Z_SLICES)
+    {
     // NOTE: This debug mode visualizes the z-slices
     let cluster_overlay_alpha = 0.1;
     var z_slice: u32 = view_z_to_z_slice(
@@ -165,8 +169,9 @@ fn cluster_debug_visualization(
             (1.0 - cluster_overlay_alpha) * output_color.rgb + cluster_overlay_alpha * slice_color,
             output_color.a,
         );
-}
-@if(CLUSTERED_FORWARD_DEBUG_CLUSTER_COMPLEXITY) {
+    }
+    @if(CLUSTERED_FORWARD_DEBUG_CLUSTER_COMPLEXITY)
+    {
     // NOTE: This debug mode visualizes the number of clusterable objects within
     // the cluster that contains the fragment. It shows a sort of cluster
     // complexity measure.
@@ -178,8 +183,9 @@ fn cluster_debug_visualization(
         + cluster_overlay_alpha * smoothstep(0.0, max_complexity_per_cluster, f32(object_count));
     output_color.g = (1.0 - cluster_overlay_alpha) * output_color.g
         + cluster_overlay_alpha * (1.0 - smoothstep(0.0, max_complexity_per_cluster, f32(object_count)));
-}
-@if(CLUSTERED_FORWARD_DEBUG_CLUSTER_COHERENCY) {
+    }
+    @if(CLUSTERED_FORWARD_DEBUG_CLUSTER_COHERENCY)
+    {
     // NOTE: Visualizes the cluster to which the fragment belongs
     let cluster_overlay_alpha = 0.1;
     var rng = cluster_index;
@@ -189,7 +195,7 @@ fn cluster_debug_visualization(
             (1.0 - cluster_overlay_alpha) * output_color.rgb + cluster_overlay_alpha * cluster_color,
             output_color.a,
         );
-}
+    }
 
     return output_color;
 }

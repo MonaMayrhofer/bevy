@@ -15,7 +15,8 @@ enable wgpu_binding_array;
 
 // Binding 0 is the bindless index table.
 // Filtering samplers.
-@if(BINDLESS) {
+@if(BINDLESS)
+{
 @group(constants::MATERIAL_BIND_GROUP) @binding(1)
 var bindless_samplers_filtering: binding_array<sampler>;
 // Non-filtering samplers (nearest neighbor).

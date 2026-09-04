@@ -38,10 +38,13 @@ fn fragment(in: VertexOutput, @builtin(front_facing) is_front: bool) -> Fragment
         );
 
     var out: FragmentOutput;
-@if(PREPASS_PIPELINE) {
+    @if(PREPASS_PIPELINE)
+    {
     // in deferred mode we can't modify anything after that, as lighting is run in a separate fullscreen shader.
     out = deferred_output(in, pbr_input);
-} @else {
+    }
+    @else
+    {
     // apply lighting
     out.color = apply_pbr_lighting(pbr_input);
 
@@ -55,7 +58,7 @@ fn fragment(in: VertexOutput, @builtin(front_facing) is_front: bool) -> Fragment
 
     // we can optionally modify the final result here
     out.color = out.color * 2.0;
-}
+    }
 
     return out;
 }

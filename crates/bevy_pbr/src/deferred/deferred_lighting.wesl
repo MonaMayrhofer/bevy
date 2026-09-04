@@ -63,7 +63,8 @@ fn fragment(in: FullscreenVertexOutput) -> @location(0) vec4<f32> {
 
     // NOTE: Unlit bit not set means == 0 is true, so the true case is if lit
     if (pbr_input.material.flags & STANDARD_MATERIAL_FLAGS_UNLIT_BIT) == 0u {
-@if(SCREEN_SPACE_AMBIENT_OCCLUSION) {
+        @if(SCREEN_SPACE_AMBIENT_OCCLUSION)
+        {
         let ssao_tex_pos = vec2<i32>(in.position.xy - view.viewport.xy);
         let ssao = textureLoad(screen_space_ambient_occlusion_texture, ssao_tex_pos, 0i).r;
         let ssao_multibounce = ssao_multibounce(ssao, pbr_input.material.base_color.rgb);
@@ -76,7 +77,7 @@ fn fragment(in: FullscreenVertexOutput) -> @location(0) vec4<f32> {
         // Use SSAO to estimate the specular occlusion.
         // Lagarde and Rousiers 2014, "Moving Frostbite to Physically Based Rendering"
         pbr_input.specular_occlusion = saturate(pow(NdotV + ssao, exp2(-16.0 * roughness - 1.0)) - 1.0 + ssao);
-}
+        }
 
         output_color = pbr_functions::apply_pbr_lighting(pbr_input);
     } else {

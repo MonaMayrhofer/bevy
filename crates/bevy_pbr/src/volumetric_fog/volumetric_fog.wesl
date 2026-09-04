@@ -84,7 +84,8 @@ var depth_texture: texture_depth_multisampled_2d;
 @group(1) @binding(1)
 var depth_texture: texture_depth_2d;
 
-@if(DENSITY_TEXTURE) {
+@if(DENSITY_TEXTURE)
+{
 @group(1) @binding(2)
 var density_texture: texture_3d<f32>;
 @group(1) @binding(3)
@@ -321,7 +322,8 @@ fn fragment(@builtin(position) position: vec4<f32>) -> @location(0) vec4<f32> {
                     fog_color * light_tint * light_attenuation * scattering * density * step_size_world
                     * light_intensity * exposure;
 
-@if(ATMOSPHERE) {
+                @if(ATMOSPHERE)
+                {
                 // attenuate by atmospheric scattering
                 let P = P_world + depth_offset;
                 let P_as = (atmosphere.world_to_atmosphere * vec4(P, 1.0)).xyz;
@@ -338,7 +340,7 @@ fn fragment(@builtin(position) position: vec4<f32>) -> @location(0) vec4<f32> {
                         (*light).sun_disk_angular_size,
                     );
                 light_factors_per_step *= transmittance * sun_visibility;
-}
+                }
 
                 // Modulate the factor we calculated above by the phase, fog color,
                 // light color, light tint.

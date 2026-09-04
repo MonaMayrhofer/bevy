@@ -224,10 +224,11 @@ fn depth_ndc_to_view_z(ndc_depth: f32, clip_from_view: mat4x4<f32>, view_from_cl
     return -perspective_camera_near(clip_from_view) / ndc_depth;
     @elif(VIEW_PROJECTION_ORTHOGRAPHIC)
     return -(clip_from_view[3][2] - ndc_depth) / clip_from_view[2][2];
-@else {
+    @else
+    {
     let view_pos = view_from_clip * vec4(0.0, 0.0, ndc_depth, 1.0);
     return view_pos.z / view_pos.w;
-}
+    }
 }
 
 /// Convert linear view z to ndc depth.
@@ -237,10 +238,11 @@ fn view_z_to_depth_ndc(view_z: f32, clip_from_view: mat4x4<f32>) -> f32 {
     return -perspective_camera_near(clip_from_view) / view_z;
     @elif(VIEW_PROJECTION_ORTHOGRAPHIC)
     return clip_from_view[3][2] + view_z * clip_from_view[2][2];
-@else {
+    @else
+    {
     let ndc_pos = clip_from_view * vec4(0.0, 0.0, view_z, 1.0);
     return ndc_pos.z / ndc_pos.w;
-}
+    }
 }
 
 // -----------------

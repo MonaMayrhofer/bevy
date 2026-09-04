@@ -1,7 +1,8 @@
 @if(MORPH_TARGETS)
 import package::render::mesh_types::{MorphAttributes, MorphDescriptor, MorphWeights};
 
-@if(MORPH_TARGETS && SKINS_USE_UNIFORM_BUFFERS) {
+@if(MORPH_TARGETS && SKINS_USE_UNIFORM_BUFFERS)
+{
 @group(2) @binding(2)
 var<uniform> morph_weights: MorphWeights;
 @group(2) @binding(3)
@@ -9,7 +10,8 @@ var morph_targets: texture_3d<f32>;
 @group(2) @binding(7)
 var<uniform> prev_morph_weights: MorphWeights;
 }
-@if(MORPH_TARGETS && !SKINS_USE_UNIFORM_BUFFERS) {
+@if(MORPH_TARGETS && !SKINS_USE_UNIFORM_BUFFERS)
+{
 @group(2) @binding(2)
 var<storage> morph_weights: array<f32>;
 @group(2) @binding(3)

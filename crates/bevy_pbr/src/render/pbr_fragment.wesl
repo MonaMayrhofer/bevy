@@ -97,12 +97,15 @@ fn pbr_input_from_standard_material(in: VertexOutput, is_front: bool) -> pbr_typ
 
     // Fill in the sample bias so we can sample from textures.
     var bias: SampleBias;
-@if(MESHLET_MESH_MATERIAL_PASS) {
+    @if(MESHLET_MESH_MATERIAL_PASS)
+    {
     bias.ddx_uv = in.ddx_uv;
     bias.ddy_uv = in.ddy_uv;
-} @else {
+    }
+    @else
+    {
     bias.mip_bias = view.mip_bias;
-}
+    }
 
     // TODO: Transforming UVs mean we need to apply derivative chain rule for meshlet mesh material pass
     @if(VERTEX_UVS && BINDLESS)
@@ -145,7 +148,8 @@ fn pbr_input_from_standard_material(in: VertexOutput, is_front: bool) -> pbr_typ
                 .max_relief_mapping_search_steps;
         @else
         let max_relief_mapping_search_steps = pbr_bindings::material.max_relief_mapping_search_steps;
-@if(VERTEX_UVS_A) {
+        @if(VERTEX_UVS_A)
+        {
         // TODO: Transforming UVs mean we need to apply derivative chain rule for meshlet mesh material pass
         uv = parallaxed_uv(
                 parallax_depth_scale,
@@ -158,8 +162,9 @@ fn pbr_input_from_standard_material(in: VertexOutput, is_front: bool) -> pbr_typ
                 -Vt,
                 slot,
             );
-}
-@if(VERTEX_UVS_B) {
+        }
+        @if(VERTEX_UVS_B)
+        {
         // TODO: Transforming UVs mean we need to apply derivative chain rule for meshlet mesh material pass
         uv_b = parallaxed_uv(
                 parallax_depth_scale,
@@ -172,7 +177,8 @@ fn pbr_input_from_standard_material(in: VertexOutput, is_front: bool) -> pbr_typ
                 -Vt,
                 slot,
             );
-} @else
+        }
+        @else
         uv_b = uv;
     }
 
@@ -195,7 +201,8 @@ fn pbr_input_from_standard_material(in: VertexOutput, is_front: bool) -> pbr_typ
         @else
         pbr_input.material.base_color *= textureSampleBias(texture, sampler_, coords, bias.mip_bias);
 
-@if(ALPHA_TO_COVERAGE) {
+        @if(ALPHA_TO_COVERAGE)
+        {
         // Sharpen alpha edges.
         //
         // https://bgolus.medium.com/anti-aliased-alpha-test-the-esoteric-alpha-to-coverage-8b177335ae4f
@@ -210,7 +217,7 @@ fn pbr_input_from_standard_material(in: VertexOutput, is_front: bool) -> pbr_typ
                 (pbr_input.material.base_color.a - alpha_cutoff) / max(fwidth(pbr_input.material.base_color.a), 0.0001)
                 + 0.5;
         }
-}
+        }
     }
 
     pbr_input.material.flags = flags;
@@ -218,17 +225,20 @@ fn pbr_input_from_standard_material(in: VertexOutput, is_front: bool) -> pbr_typ
 
     // NOTE: Unlit bit not set means == 0 is true, so the true case is if lit
     if (flags & pbr_types::STANDARD_MATERIAL_FLAGS_UNLIT_BIT) == 0u {
-@if(BINDLESS) {
+        @if(BINDLESS)
+        {
         pbr_input.material.ior = pbr_bindings::material_array[material_indices[slot].material].ior;
         pbr_input.material.attenuation_color = pbr_bindings::material_array[material_indices[slot].material]
                 .attenuation_color;
         pbr_input.material.attenuation_distance = pbr_bindings::material_array[material_indices[slot].material]
                 .attenuation_distance;
-} @else {
+        }
+        @else
+        {
         pbr_input.material.ior = pbr_bindings::material.ior;
         pbr_input.material.attenuation_color = pbr_bindings::material.attenuation_color;
         pbr_input.material.attenuation_distance = pbr_bindings::material.attenuation_distance;
-}
+        }
 
         // reflectance
         @if(BINDLESS)
@@ -236,7 +246,8 @@ fn pbr_input_from_standard_material(in: VertexOutput, is_front: bool) -> pbr_typ
         @else
         pbr_input.material.reflectance = pbr_bindings::material.reflectance;
 
-@if(PBR_SPECULAR_TEXTURES_SUPPORTED && VERTEX_UVS) {
+        @if(PBR_SPECULAR_TEXTURES_SUPPORTED && VERTEX_UVS)
+        {
         // Specular texture
         if (flags & pbr_types::STANDARD_MATERIAL_FLAGS_SPECULAR_TEXTURE_BIT) != 0u {
             @if(BINDLESS)
@@ -280,7 +291,7 @@ fn pbr_input_from_standard_material(in: VertexOutput, is_front: bool) -> pbr_typ
             let specular_tint = textureSampleBias(texture, sampler_, coords, bias.mip_bias).rgb;
             pbr_input.material.reflectance *= specular_tint;
         }
-}
+        }
 
         // emissive
         @if(BINDLESS)
@@ -520,7 +531,8 @@ fn pbr_input_from_standard_material(in: VertexOutput, is_front: bool) -> pbr_typ
             @else
             diffuse_occlusion *= textureSampleBias(texture, sampler_, coords, bias.mip_bias).r;
         }
-@if(SCREEN_SPACE_AMBIENT_OCCLUSION) {
+        @if(SCREEN_SPACE_AMBIENT_OCCLUSION)
+        {
         let ssao_tex_pos = vec2<i32>(in.position.xy - view.viewport.xy);
         let ssao = textureLoad(screen_space_ambient_occlusion_texture, ssao_tex_pos, 0i).r;
         let ssao_multibounce = ssao_multibounce(ssao, pbr_input.material.base_color.rgb);
@@ -529,19 +541,21 @@ fn pbr_input_from_standard_material(in: VertexOutput, is_front: bool) -> pbr_typ
         // Lagarde and Rousiers 2014, "Moving Frostbite to Physically Based Rendering"
         let roughness = lighting::perceptualRoughnessToRoughness(pbr_input.material.perceptual_roughness);
         specular_occlusion = saturate(pow(NdotV + ssao, exp2(-16.0 * roughness - 1.0)) - 1.0 + ssao);
-}
+        }
         pbr_input.diffuse_occlusion = diffuse_occlusion;
         pbr_input.specular_occlusion = specular_occlusion;
 
         // N (normal vector)
-@if(!LOAD_PREPASS_NORMALS) {
+        @if(!LOAD_PREPASS_NORMALS)
+        {
         pbr_input.N = normalize(pbr_input.world_normal);
         pbr_input.clearcoat_N = pbr_input.N;
 
         @if(VERTEX_UVS && VERTEX_TANGENTS)
         let TBN = pbr_functions::calculate_tbn_mikktspace(pbr_input.world_normal, in.world_tangent);
 
-@if(VERTEX_UVS && VERTEX_TANGENTS && STANDARD_MATERIAL_NORMAL_MAP) {
+        @if(VERTEX_UVS && VERTEX_TANGENTS && STANDARD_MATERIAL_NORMAL_MAP)
+        {
         @if(BINDLESS)
         let texture = bindless_textures_2d[material_indices[slot].normal_map_texture];
         @else
@@ -560,13 +574,15 @@ fn pbr_input_from_standard_material(in: VertexOutput, is_front: bool) -> pbr_typ
         let Nt = textureSampleBias(texture, sampler_, coords, bias.mip_bias).rgb;
 
         pbr_input.N = pbr_functions::apply_normal_mapping(flags, TBN, double_sided, is_logically_front, Nt);
-}
-@if(VERTEX_UVS && VERTEX_TANGENTS && STANDARD_MATERIAL_CLEARCOAT) {
+        }
+        @if(VERTEX_UVS && VERTEX_TANGENTS && STANDARD_MATERIAL_CLEARCOAT)
+        {
         // Note: `KHR_materials_clearcoat` specifies that, if there's no
         // clearcoat normal map, we must set the normal to the mesh's normal,
         // and not to the main layer's bumped normal.
 
-@if(STANDARD_MATERIAL_CLEARCOAT_NORMAL_MAP) {
+        @if(STANDARD_MATERIAL_CLEARCOAT_NORMAL_MAP)
+        {
         @if(BINDLESS)
         let clearcoat_texture = bindless_textures_2d[material_indices[slot].clearcoat_normal_texture];
         @else
@@ -597,14 +613,15 @@ fn pbr_input_from_standard_material(in: VertexOutput, is_front: bool) -> pbr_typ
                 is_logically_front,
                 clearcoat_Nt,
             );
-}
-}
+        }
+        }
 
         // Take anisotropy into account.
         //
         // This code comes from the `KHR_materials_anisotropy` spec:
         // <https://github.com/KhronosGroup/glTF/blob/main/extensions/2.0/Khronos/KHR_materials_anisotropy/README.md#individual-lights>
-@if(PBR_ANISOTROPY_TEXTURE_SUPPORTED && VERTEX_TANGENTS && STANDARD_MATERIAL_ANISOTROPY) {
+        @if(PBR_ANISOTROPY_TEXTURE_SUPPORTED && VERTEX_TANGENTS && STANDARD_MATERIAL_ANISOTROPY)
+        {
         @if(BINDLESS)
         var anisotropy_strength = pbr_bindings::material_array[material_indices[slot].material].anisotropy_strength;
         @else
@@ -648,18 +665,19 @@ fn pbr_input_from_standard_material(in: VertexOutput, is_front: bool) -> pbr_typ
         let anisotropy_B = normalize(cross(pbr_input.world_normal, anisotropy_T));
         pbr_input.anisotropy_T = anisotropy_T;
         pbr_input.anisotropy_B = anisotropy_B;
-}
-}
+        }
+        }
 
         // TODO: Meshlet support
-@if(LIGHTMAP) {
+        @if(LIGHTMAP)
+        {
         @if(BINDLESS)
         let lightmap_exposure = pbr_bindings::material_array[material_indices[slot].material].lightmap_exposure;
         @else
         let lightmap_exposure = pbr_bindings::material.lightmap_exposure;
 
         pbr_input.lightmap_light = lightmap(in.uv_b, lightmap_exposure, in.instance_index);
-}
+        }
     }
 
     return pbr_input;

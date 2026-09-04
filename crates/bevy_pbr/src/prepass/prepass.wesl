@@ -95,17 +95,19 @@ fn vertex(vertex_no_morph: Vertex) -> VertexOutput {
             vec4<f32>(vertex.position, 1.0),
         );
     out.position = position_world_to_clip(out.world_position.xyz);
-@if(UNCLIPPED_DEPTH_ORTHO_EMULATION) {
+    @if(UNCLIPPED_DEPTH_ORTHO_EMULATION)
+    {
     out.unclipped_depth = out.position.z;
     out.position.z = min(out.position.z, 1.0); // Clamp depth to avoid clipping
-}
+    }
     @if(VERTEX_UVS_A)
     out.uv = vertex.uv;
 
     @if(VERTEX_UVS_B)
     out.uv_b = vertex.uv_b;
 
-@if(NORMAL_PREPASS_OR_DEFERRED_PREPASS) {
+    @if(NORMAL_PREPASS_OR_DEFERRED_PREPASS)
+    {
     @if(VERTEX_NORMALS && SKINNED)
     out.world_normal = skinning::skin_normals(world_from_local, vertex.normal);
     @elif(VERTEX_NORMALS)
@@ -124,13 +126,14 @@ fn vertex(vertex_no_morph: Vertex) -> VertexOutput {
             // See https://github.com/gfx-rs/naga/issues/2416
             vertex_no_morph.instance_index,
         );
-}
+    }
     @if(VERTEX_COLORS)
     out.color = vertex.color;
 
     // Compute the motion vector for TAA among other purposes. For this we need
     // to know where the vertex was last frame.
-@if(MOTION_VECTOR_PREPASS) {
+    @if(MOTION_VECTOR_PREPASS)
+    {
     // Take morph targets into account.
     @if(MORPH_TARGETS && HAS_PREVIOUS_MORPH)
     let prev_vertex = morph_prev_vertex(uncompressed_vertex_no_morph, vertex_no_morph.instance_index);
@@ -161,7 +164,7 @@ fn vertex(vertex_no_morph: Vertex) -> VertexOutput {
             prev_model,
             vec4<f32>(prev_vertex.position, 1.0),
         );
-}
+    }
     @if(VERTEX_OUTPUT_INSTANCE_INDEX)
     // Use vertex_no_morph.instance_index instead of vertex.instance_index to work around a wgpu dx12 bug.
     // See https://github.com/gfx-rs/naga/issues/2416
@@ -187,7 +190,8 @@ fn fragment(in: VertexOutput) -> FragmentOutput {
     @if(UNCLIPPED_DEPTH_ORTHO_EMULATION)
     out.frag_depth = in.unclipped_depth;
 
-@if(MOTION_VECTOR_PREPASS) {
+    @if(MOTION_VECTOR_PREPASS)
+    {
     let clip_position_t = view.unjittered_clip_from_world * in.world_position;
     let clip_position = clip_position_t.xy / clip_position_t.w;
     let previous_clip_position_t = prepass_bindings::previous_view_uniforms.unjittered_clip_from_world
@@ -200,15 +204,16 @@ fn fragment(in: VertexOutput) -> FragmentOutput {
     // range -2,2, so this needs to be scaled by 0.5. And the V direction goes
     // down where clip space y goes up, so y needs to be flipped.
     out.motion_vector = (clip_position - previous_clip_position) * vec2(0.5, -0.5);
-}
-@if(DEFERRED_PREPASS) {
+    }
+    @if(DEFERRED_PREPASS)
+    {
     // There isn't any material info available for this default prepass shader so we are just writing 
     // emissive magenta out to the deferred gbuffer to be rendered by the first deferred lighting pass layer.
     // This is here so if the default prepass fragment is used for deferred magenta will be rendered, and also
     // as an example to show that a user could write to the deferred gbuffer if they were to start from this shader.
     out.deferred = vec4(0u, package::render::rgb9e5::vec3_to_rgb9e5_(vec3(1.0, 0.0, 1.0)), 0u, 0u);
     out.deferred_lighting_pass_id = 1u;
-}
+    }
 
     return out;
 }

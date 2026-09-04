@@ -62,7 +62,8 @@ fn sample_input_13_tap(uv: vec2<f32>) -> vec3<f32> {
     var k: vec3<f32>;
     var l: vec3<f32>;
     var m: vec3<f32>;
-@if(UNIFORM_SCALE) {
+    @if(UNIFORM_SCALE)
+    {
     // This is the fast path. When the bloom scale is uniform, the 13 tap sampling kernel can be
     // expressed with constant offsets.
     //
@@ -83,7 +84,9 @@ fn sample_input_13_tap(uv: vec2<f32>) -> vec3<f32> {
     k = textureSample(input_texture, s, uv, vec2<i32>(1, 1)).rgb;
     l = textureSample(input_texture, s, uv, vec2<i32>(-1, -1)).rgb;
     m = textureSample(input_texture, s, uv, vec2<i32>(1, -1)).rgb;
-} @else {
+    }
+    @else
+    {
     // This is the flexible, but potentially slower, path for non-uniform sampling. Because the
     // sample is not a constant, and it can fall outside of the limits imposed on constant sample
     // offsets (-8..8), we have to compute the pixel offset in uv coordinates using the size of the
@@ -111,8 +114,9 @@ fn sample_input_13_tap(uv: vec2<f32>) -> vec3<f32> {
     k = textureSample(input_texture, s, uv + vec2<f32>(ps.x, ps.y)).rgb;
     l = textureSample(input_texture, s, uv + vec2<f32>(ns.x, ns.y)).rgb;
     m = textureSample(input_texture, s, uv + vec2<f32>(ps.x, ns.y)).rgb;
-}
-@if(FIRST_DOWNSAMPLE) {
+    }
+    @if(FIRST_DOWNSAMPLE)
+    {
     // [COD] slide 168
     //
     // The first downsample pass reads from the rendered frame which may exhibit
@@ -132,12 +136,14 @@ fn sample_input_13_tap(uv: vec2<f32>) -> vec3<f32> {
     group3 *= karis_average(group3);
     group4 *= karis_average(group4);
     return group0 + group1 + group2 + group3 + group4;
-} @else {
+    }
+    @else
+    {
     var sample = (a + c + g + i) * 0.03125;
     sample += (b + d + f + h) * 0.0625;
     sample += (e + j + k + l + m) * 0.125;
     return sample;
-}
+    }
 }
 
 // [COD] slide 162

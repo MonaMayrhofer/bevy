@@ -25,14 +25,15 @@ fn query_world_cache(
     var world_position = world_position_in;
     var cell_size = get_cell_size(world_position, view_position, ray_t, rng);
 
-@if(!NO_JITTER_WORLD_CACHE) {
+    @if(!NO_JITTER_WORLD_CACHE)
+    {
     // Jitter query point, which essentially blurs the cache a bit so it's not so grid-like
     // https://tomclabault.github.io/blog/2025/regir, jitter_world_position_tangent_plane
     let TBN = orthonormalize(world_normal);
     let offset = (rand_vec2f(rng) * 2.0 - 1.0) * cell_size * 0.5;
     world_position += offset.x * TBN[0] + offset.y * TBN[1];
     cell_size = get_cell_size(world_position, view_position, ray_t, rng);
-}
+    }
 
     let world_position_quantized = bitcast<vec3<u32>>(quantize_position(world_position, cell_size));
     let world_normal_quantized = bitcast<vec3<u32>>(quantize_normal(world_normal));

@@ -2,12 +2,15 @@ import package::sprite_mesh::types::SpriteMaterial;
 @if(BINDLESS)
 import package::sprite_mesh::types::SpriteMaterialBindings;
 
-@if(BINDLESS) {
+@if(BINDLESS)
+{
 @group(constants::MATERIAL_BIND_GROUP) @binding(0)
 var<storage> material_indices: array<SpriteMaterialBindings>;
 @group(constants::MATERIAL_BIND_GROUP) @binding(10)
 var<storage> material: array<SpriteMaterial>;
-} @else {
+}
+@else
+{
 @group(constants::MATERIAL_BIND_GROUP) @binding(0)
 var<uniform> material: SpriteMaterial;
 @group(constants::MATERIAL_BIND_GROUP) @binding(1)

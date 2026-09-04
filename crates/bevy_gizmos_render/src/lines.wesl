@@ -79,7 +79,8 @@ fn vertex(vertex: VertexInput) -> VertexOutput {
     var alpha = 1.;
 
     var uv: f32;
-@if(PERSPECTIVE) {
+    @if(PERSPECTIVE)
+    {
     line_width /= clip.w;
 
     // get height of near clipping plane in world space
@@ -97,7 +98,9 @@ fn vertex(vertex: VertexInput) -> VertexOutput {
 
     uv = (clipped_offset + position.y * world_distance) * resolution.y / near_clipping_plane_height
         / line_gizmo.line_width;
-} @else {
+    }
+    @else
+    {
     // Get the distance of b to the camera along camera axes
     let camera_b = view.view_from_clip * clip_b;
 
@@ -110,7 +113,7 @@ fn vertex(vertex: VertexInput) -> VertexOutput {
         depth_adaptment = -camera_b.z;
     }
     uv = position.y * depth_adaptment * length(screen_b - screen_a) / line_gizmo.line_width;
-}
+    }
 
     // Line thinness fade from https://acegikmo.com/shapes/docs/#anti-aliasing
     if line_width > 0.0 && line_width < 1. {

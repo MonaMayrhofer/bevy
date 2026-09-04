@@ -84,7 +84,8 @@ fn fragment(
     @if(!PREPASS_PIPELINE)
     out.color = main_pass_post_lighting_processing(pbr_input, out.color);
 
-@if(MATERIAL_OIT_ENABLED) {
+    @if(MATERIAL_OIT_ENABLED)
+    {
     let alpha_mode = pbr_input.material.flags & pbr_types::STANDARD_MATERIAL_FLAGS_ALPHA_MODE_RESERVED_BITS;
     if alpha_mode == pbr_types::STANDARD_MATERIAL_FLAGS_ALPHA_MODE_BLEND {
         // The fragments will only be drawn during the oit resolve pass.
@@ -98,7 +99,7 @@ fn fragment(
         oit_draw(in.position, out.color);
         discard;
     }
-}
+    }
     @if(FORWARD_DECAL)
     out.color.a = min(forward_decal_info.alpha, out.color.a);
 

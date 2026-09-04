@@ -1,6 +1,7 @@
 import package::render::pbr_types::StandardMaterial;
 
-@if(BINDLESS) {
+@if(BINDLESS)
+{
 struct StandardMaterialBindings {
     material: u32, // 0
     base_color_texture: u32, // 1
@@ -39,7 +40,9 @@ struct StandardMaterialBindings {
 var<storage> material_indices: array<StandardMaterialBindings>;
 @group(constants::MATERIAL_BIND_GROUP) @binding(10)
 var<storage> material_array: array<StandardMaterial>;
-} @else {
+}
+@else
+{
 @group(constants::MATERIAL_BIND_GROUP) @binding(0)
 var<uniform> material: StandardMaterial;
 @group(constants::MATERIAL_BIND_GROUP) @binding(1)
@@ -66,13 +69,15 @@ var normal_map_sampler: sampler;
 var depth_map_texture: texture_2d<f32>;
 @group(constants::MATERIAL_BIND_GROUP) @binding(12)
 var depth_map_sampler: sampler;
-@if(PBR_ANISOTROPY_TEXTURE_SUPPORTED) {
+@if(PBR_ANISOTROPY_TEXTURE_SUPPORTED)
+{
 @group(constants::MATERIAL_BIND_GROUP) @binding(13)
 var anisotropy_texture: texture_2d<f32>;
 @group(constants::MATERIAL_BIND_GROUP) @binding(14)
 var anisotropy_sampler: sampler;
 }
-@if(PBR_TRANSMISSION_TEXTURES_SUPPORTED) {
+@if(PBR_TRANSMISSION_TEXTURES_SUPPORTED)
+{
 @group(constants::MATERIAL_BIND_GROUP) @binding(15)
 var specular_transmission_texture: texture_2d<f32>;
 @group(constants::MATERIAL_BIND_GROUP) @binding(16)
@@ -86,7 +91,8 @@ var diffuse_transmission_texture: texture_2d<f32>;
 @group(constants::MATERIAL_BIND_GROUP) @binding(20)
 var diffuse_transmission_sampler: sampler;
 }
-@if(PBR_MULTI_LAYER_MATERIAL_TEXTURES_SUPPORTED) {
+@if(PBR_MULTI_LAYER_MATERIAL_TEXTURES_SUPPORTED)
+{
 @group(constants::MATERIAL_BIND_GROUP) @binding(21)
 var clearcoat_texture: texture_2d<f32>;
 @group(constants::MATERIAL_BIND_GROUP) @binding(22)
@@ -100,7 +106,8 @@ var clearcoat_normal_texture: texture_2d<f32>;
 @group(constants::MATERIAL_BIND_GROUP) @binding(26)
 var clearcoat_normal_sampler: sampler;
 }
-@if(PBR_SPECULAR_TEXTURES_SUPPORTED) {
+@if(PBR_SPECULAR_TEXTURES_SUPPORTED)
+{
 @group(constants::MATERIAL_BIND_GROUP) @binding(27)
 var specular_texture: texture_2d<f32>;
 @group(constants::MATERIAL_BIND_GROUP) @binding(28)

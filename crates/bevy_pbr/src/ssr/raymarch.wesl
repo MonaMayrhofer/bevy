@@ -23,7 +23,8 @@ import package::render::view_transformations::{
 };
 
 // Allows us to sample from the depth buffer with bilinear filtering.
-@if(USE_DEPTH_SAMPLERS) {
+@if(USE_DEPTH_SAMPLERS)
+{
 @group(2) @binding(2)
 var depth_linear_sampler: sampler;
 

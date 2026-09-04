@@ -167,7 +167,8 @@ fn apply_decals(pbr_input: ptr<function, PbrInput>) {
     var metallic = (*pbr_input).material.metallic;
     var perceptual_roughness = (*pbr_input).material.perceptual_roughness;
 
-@if(CLUSTERED_DECALS_ARE_USABLE) {
+    @if(CLUSTERED_DECALS_ARE_USABLE)
+    {
     // Fetch the clusterable object index ranges for this world position.
 
     let view_z = get_view_z(world_position);
@@ -235,7 +236,7 @@ fn apply_decals(pbr_input: ptr<function, PbrInput>) {
             emissive += vec4(decal_emissive.rgb, 0.0);
         }
     }
-}
+    }
 
     (*pbr_input).material.base_color = base_color;
     (*pbr_input).material.emissive = emissive;

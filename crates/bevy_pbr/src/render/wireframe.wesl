@@ -5,7 +5,8 @@ import bevy_render::maths::affine3_to_square;
 @if(!WIREFRAME_WIDE)
 import package::render::forward_io::VertexOutput;
 
-@if(WIREFRAME_WIDE) {
+@if(WIREFRAME_WIDE)
+{
 struct Immediates {
     color: vec4<f32>,
     line_width: f32,
@@ -105,7 +106,8 @@ fn vertex(
     let h1 = area2 / max(len20, 0.001);
     let h2 = area2 / max(len01, 0.001);
 
-@if(WIREFRAME_QUADS) {
+    @if(WIREFRAME_QUADS)
+    {
     // detect and suppress the shared diagonal between two triangles forming a quad.
     let quad_base = (draw_id / 6u) * 6u;
     let tri_in_quad = (draw_id / 3u) % 2u;
@@ -202,7 +204,9 @@ fn vertex(
         out.edge_distance = vec4<f32>(ed.x, ed.y, ed.z, other_d2.y);
         out.position = clip2;
     }
-} @else {
+    }
+    @else
+    {
     // WIREFRAME_QUADS
     if corner == 0u {
         out.edge_distance = vec4<f32>(h0, 0.0, 0.0, 1e6);
@@ -214,7 +218,7 @@ fn vertex(
         out.edge_distance = vec4<f32>(0.0, 0.0, h2, 1e6);
         out.position = clip2;
     }
-}
+    }
 
     return out;
 }
@@ -242,7 +246,8 @@ fn fragment(in: WireframeVertexOutput) -> @location(0) vec4<f32> {
 }
 
 // the fast path for thin wireframes that render as lines
-@if(!WIREFRAME_WIDE) {
+@if(!WIREFRAME_WIDE)
+{
 struct Immediates {
     color: vec4<f32>,
 }

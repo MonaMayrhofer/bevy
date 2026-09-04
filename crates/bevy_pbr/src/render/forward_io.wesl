@@ -93,19 +93,21 @@ fn decompress_vertex(vertex_in: Vertex, instance_index: u32) -> UncompressedVert
     uncompressed_vertex.normal = bevy_render::utils::decompress_vertex_normal(vertex_in.compressed_normal);
     @if(VERTEX_NORMALS && !VERTEX_NORMALS_COMPRESSED)
     uncompressed_vertex.normal = vertex_in.normal;
-@if(VERTEX_UVS_A && VERTEX_UVS_A_COMPRESSED) {
+    @if(VERTEX_UVS_A && VERTEX_UVS_A_COMPRESSED)
+    {
     let uv_min_and_extents_a = mesh_metadata.uv_channels_min_and_extents[0];
     uncompressed_vertex.uv = bevy_render::utils::decompress_vertex_uv(vertex_in.compressed_uv, uv_min_and_extents_a);
-}
+    }
     @if(VERTEX_UVS_A && !VERTEX_UVS_A_COMPRESSED)
     uncompressed_vertex.uv = vertex_in.uv;
-@if(VERTEX_UVS_B && VERTEX_UVS_B_COMPRESSED) {
+    @if(VERTEX_UVS_B && VERTEX_UVS_B_COMPRESSED)
+    {
     let uv_min_and_extents_b = mesh_metadata.uv_channels_min_and_extents[1];
     uncompressed_vertex.uv_b = bevy_render::utils::decompress_vertex_uv(
             vertex_in.compressed_uv_b,
             uv_min_and_extents_b,
         );
-}
+    }
     @if(VERTEX_UVS_B && !VERTEX_UVS_B_COMPRESSED)
     uncompressed_vertex.uv_b = vertex_in.uv_b;
     @if(VERTEX_TANGENTS && VERTEX_TANGENTS_COMPRESSED)
@@ -114,10 +116,11 @@ fn decompress_vertex(vertex_in: Vertex, instance_index: u32) -> UncompressedVert
     uncompressed_vertex.tangent = vertex_in.tangent;
     @if(VERTEX_COLORS)
     uncompressed_vertex.color = vertex_in.color;
-@if(SKINNED) {
+    @if(SKINNED)
+    {
     uncompressed_vertex.joint_indices = vertex_in.joint_indices;
     uncompressed_vertex.joint_weights = vertex_in.joint_weights;
-}
+    }
     @if(MORPH_TARGETS)
     uncompressed_vertex.index = vertex_in.index;
     return uncompressed_vertex;

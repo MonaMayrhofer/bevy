@@ -342,7 +342,8 @@ var<uniform> smaa_info: SmaaInfo;
 @group(1) @binding(0)
 var color_sampler: sampler;
 
-@if(SMAA_BLENDING_WEIGHT_CALCULATION) {
+@if(SMAA_BLENDING_WEIGHT_CALCULATION)
+{
 @group(1) @binding(0)
 var edges_texture: texture_2d<f32>;
 @group(1) @binding(1)
@@ -352,7 +353,8 @@ var search_texture: texture_2d<f32>;
 @group(1) @binding(3)
 var area_texture: texture_2d<f32>;
 }
-@if(SMAA_NEIGHBORHOOD_BLENDING) {
+@if(SMAA_NEIGHBORHOOD_BLENDING)
+{
 @group(1) @binding(0)
 var blend_texture: texture_2d<f32>;
 @group(1) @binding(1)
@@ -912,7 +914,8 @@ fn area(dist: vec2<f32>, e1: f32, e2: f32, offset: f32) -> vec2<f32> {
 
 @if(SMAA_BLENDING_WEIGHT_CALCULATION)
 fn detect_horizontal_corner_pattern(weights: vec2<f32>, tex_coord: vec4<f32>, d: vec2<f32>) -> vec2<f32> {
-@if(!SMAA_DISABLE_CORNER_DETECTION) {
+    @if(!SMAA_DISABLE_CORNER_DETECTION)
+    {
     let left_right = step(d.xy, d.yx);
     var rounding = (1.0 - SMAA_CORNER_ROUNDING_NORM) * left_right;
 
@@ -925,14 +928,17 @@ fn detect_horizontal_corner_pattern(weights: vec2<f32>, tex_coord: vec4<f32>, d:
     factor.y -= rounding.y * textureSampleLevel(edges_texture, edges_sampler, tex_coord.zw, 0.0, vec2(1, -2)).r;
 
     return weights * saturate(factor);
-} @else {
+    }
+    @else
+    {
     return weights;
-}
+    }
 }
 
 @if(SMAA_BLENDING_WEIGHT_CALCULATION)
 fn detect_vertical_corner_pattern(weights: vec2<f32>, tex_coord: vec4<f32>, d: vec2<f32>) -> vec2<f32> {
-@if(!SMAA_DISABLE_CORNER_DETECTION) {
+    @if(!SMAA_DISABLE_CORNER_DETECTION)
+    {
     let left_right = step(d.xy, d.yx);
     var rounding = (1.0 - SMAA_CORNER_ROUNDING_NORM) * left_right;
 
@@ -945,9 +951,11 @@ fn detect_vertical_corner_pattern(weights: vec2<f32>, tex_coord: vec4<f32>, d: v
     factor.y -= rounding.y * textureSampleLevel(edges_texture, edges_sampler, tex_coord.zw, 0.0, vec2(-2, 1)).g;
 
     return weights * saturate(factor);
-} @else {
+    }
+    @else
+    {
     return weights;
-}
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -964,7 +972,8 @@ fn blending_weight_calculation_fragment_main(in: BlendingWeightCalculationVaryin
 
     if e.g > 0.0 {
         // Edge at north
-@if(!SMAA_DISABLE_DIAG_DETECTION) {
+        @if(!SMAA_DISABLE_DIAG_DETECTION)
+        {
         // Diagonals have both north and west edges, so searching for them in
         // one of the boundaries is enough.
         weights = vec4(calculate_diag_weights(in.tex_coord, e, subsample_indices), weights.ba);
@@ -974,7 +983,7 @@ fn blending_weight_calculation_fragment_main(in: BlendingWeightCalculationVaryin
         if weights.r + weights.g != 0.0 {
             return weights;
         }
-}
+        }
 
         var d: vec2<f32>;
 

@@ -226,7 +226,8 @@ fn fragment(in: FullscreenVertexOutput) -> @location(0) vec4<f32> {
     // This will take the specular part of the environment map into account.
     //
     // TODO: Merge this with the duplicated code in `apply_pbr_lighting`.
-@if(ENVIRONMENT_MAP) {
+    @if(ENVIRONMENT_MAP)
+    {
     // Unpack values required for environment mapping.
     let base_color = pbr_input.material.base_color.rgb;
     let metallic = pbr_input.material.metallic;
@@ -279,14 +280,15 @@ fn fragment(in: FullscreenVertexOutput) -> @location(0) vec4<f32> {
     lighting_input.F0_dielectric = F0_dielectric;
     lighting_input.F0_metallic = base_color;
     lighting_input.F_ab = F_ab;
-@if(STANDARD_MATERIAL_CLEARCOAT) {
+    @if(STANDARD_MATERIAL_CLEARCOAT)
+    {
     lighting_input.layers[LAYER_CLEARCOAT].NdotV = clearcoat_NdotV;
     lighting_input.layers[LAYER_CLEARCOAT].N = clearcoat_N;
     lighting_input.layers[LAYER_CLEARCOAT].R = clearcoat_R;
     lighting_input.layers[LAYER_CLEARCOAT].perceptual_roughness = clearcoat_perceptual_roughness;
     lighting_input.layers[LAYER_CLEARCOAT].roughness = clearcoat_roughness;
     lighting_input.clearcoat_strength = clearcoat;
-}
+    }
 
     // Determine which cluster we're in. We'll need this to find the right
     // reflection probe.
@@ -309,7 +311,7 @@ fn fragment(in: FullscreenVertexOutput) -> @location(0) vec4<f32> {
     // environment map if SSR hits.
     indirect_light += (view.exposure * environment_light.specular * specular_occlusion)
         * (1.0 - (1.0 - ssr_specular.a) * fade);
-}
+    }
 
     // Write the results.
     return vec4(fragment.rgb + indirect_light, fragment.a);

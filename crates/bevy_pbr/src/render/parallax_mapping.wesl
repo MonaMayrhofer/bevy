@@ -76,7 +76,8 @@ fn parallaxed_uv(
         texture_depth = sample_depth_map(uv, material_bind_group_slot);
     }
 
-@if(RELIEF_MAPPING) {
+    @if(RELIEF_MAPPING)
+    {
     // Relief Mapping
     // ==============
     // "Refine" the rough result from Steep Parallax Mapping
@@ -106,7 +107,9 @@ fn parallaxed_uv(
             current_layer_depth -= delta_depth;
         }
     }
-} @else {
+    }
+    @else
+    {
     // Parallax Occlusion mapping
     // ==========================
     // "Refine" Steep Parallax Mapping by interpolating between the
@@ -122,7 +125,7 @@ fn parallaxed_uv(
     uv = mix(uv, previous_uv, weight);
 
     current_layer_depth += mix(next_depth, previous_depth, weight);
-}
+    }
 
     // Note: `current_layer_depth` is not returned, but may be useful
     // for light computation later on in future improvements of the pbr shader.

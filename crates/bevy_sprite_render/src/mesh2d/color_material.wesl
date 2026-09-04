@@ -16,7 +16,8 @@ struct ColorMaterial {
     alpha_cutoff: f32,
 }
 
-@if(BINDLESS) {
+@if(BINDLESS)
+{
 // The index table for bindless operation.
 struct ColorMaterialBindings {
     material: u32, // 0
@@ -28,7 +29,9 @@ struct ColorMaterialBindings {
 var<storage> color_material_indices: array<ColorMaterialBindings>;
 @group(constants::MATERIAL_BIND_GROUP) @binding(10)
 var<storage> color_materials: array<ColorMaterial>;
-} @else {
+}
+@else
+{
 @group(constants::MATERIAL_BIND_GROUP) @binding(0)
 var<uniform> material: ColorMaterial;
 @group(constants::MATERIAL_BIND_GROUP) @binding(1)

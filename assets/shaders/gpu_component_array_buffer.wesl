@@ -18,7 +18,8 @@ struct CustomMaterialDataArray {
     data_array: array<CustomMaterialData>,
 }
 
-@if(BINDLESS) {
+@if(BINDLESS)
+{
 // The bindings table for bindless mode.
 //
 // These are indexes into the various arrays.
@@ -38,7 +39,9 @@ struct CustomMaterialBindings {
 var<storage> material_indices: array<CustomMaterialBindings>;
 @group(constants::MATERIAL_BIND_GROUP) @binding(4)
 var<storage> material_data: binding_array<CustomMaterialDataArray>;
-} @else {
+}
+@else
+{
 @group(constants::MATERIAL_BIND_GROUP) @binding(1)
 var<storage> material_data: CustomMaterialDataArray;
 @group(constants::MATERIAL_BIND_GROUP) @binding(2)
@@ -52,7 +55,8 @@ fn fragment(in: VertexOutput) -> @location(0) vec4<f32> {
     // The tag stores the index of the data in the data array.
     let tag = mesh[in.instance_index].tag;
 
-@if(BINDLESS) {
+    @if(BINDLESS)
+    {
     // Look up the bindless slot for this mesh.
     let slot = mesh[in.instance_index].material_and_lightmap_bind_group_slot & 0xffffu;
 
@@ -77,13 +81,15 @@ fn fragment(in: VertexOutput) -> @location(0) vec4<f32> {
             bindless_samplers_filtering[color_texture_sampler_index],
             in.uv,
         ).rgb;
-} @else {
+    }
+    @else
+    {
     // In non-bindless mode, we only have one buffer, so we simply use the tag
     // as an index into the array.
     let color = material_data.data_array[tag].color;
 
     let texture_color = textureSample(color_texture, color_texture_sampler, in.uv).rgb;
-}
+    }
 
     // Modulate the texture by the appropriate tint color.
     return vec4<f32>(color * texture_color, 1.0);

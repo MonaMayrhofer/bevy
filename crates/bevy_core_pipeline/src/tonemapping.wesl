@@ -39,13 +39,16 @@ fn rgb_to_ycbcr(col: vec3<f32>) -> vec3<f32> {
 }
 
 fn tonemap_curve(v: f32) -> f32 {
-@if(false) {
+    @if(false)
+    {
     // Large linear part in the lows, but compresses highs.
     let c = v + v * v + 0.5 * v * v * v;
     return c / (1.0 + c);
-} @else {
+    }
+    @else
+    {
     return 1.0 - exp(-v);
-}
+    }
 }
 
 fn tonemap_curve3_(v: vec3<f32>) -> vec3<f32> {
@@ -366,50 +369,72 @@ fn tone_mapping(in: vec4<f32>, in_color_grading: ColorGrading) -> vec4<f32> {
 
     // Rotate hue if needed, by converting to and from HSV. Remember that hue is
     // an angle, so it needs to be modulo 2π.
-@if(HUE_ROTATE) {
+    @if(HUE_ROTATE)
+    {
     var hsv = rgb_to_hsv(color);
     hsv.r = (hsv.r + color_grading.hue) % PI_2;
     color = hsv_to_rgb(hsv);
-}
+    }
 
     // Perform white balance correction. Conveniently, this is a linear
     // transform. The matrix was pre-calculated from the temperature and tint
     // values on the CPU.
-@if(WHITE_BALANCE) {
+    @if(WHITE_BALANCE)
+    {
     color = max(color_grading.balance * color, vec3(0.0));
-}
+    }
 
     // Perform the "sectional" color grading: i.e. the color grading that
     // applies individually to shadows, midtones, and highlights.
-@if(SECTIONAL_COLOR_GRADING) {
+    @if(SECTIONAL_COLOR_GRADING)
+    {
     color = sectional_color_grading(color, &color_grading);
-} @else {
+    }
+    @else
+    {
     // If we're not doing sectional color grading, the exposure might still need
     // to be applied, for example when using auto exposure.
     color = color * powsafe(vec3(2.0), color_grading.exposure);
-}
+    }
 
     // tone_mapping
-@if(TONEMAP_METHOD_LINEAR) {
+    @if(TONEMAP_METHOD_LINEAR)
+    {
     color = color;
-} @elif(TONEMAP_METHOD_REINHARD) {
+    }
+    @elif(TONEMAP_METHOD_REINHARD)
+    {
     color = tonemapping_reinhard(color.rgb);
-} @elif(TONEMAP_METHOD_REINHARD_LUMINANCE) {
+    }
+    @elif(TONEMAP_METHOD_REINHARD_LUMINANCE)
+    {
     color = tonemapping_reinhard_luminance(color.rgb);
-} @elif(TONEMAP_METHOD_ACES_FITTED) {
+    }
+    @elif(TONEMAP_METHOD_ACES_FITTED)
+    {
     color = ACESFitted(color.rgb);
-} @elif(TONEMAP_METHOD_AGX) {
+    }
+    @elif(TONEMAP_METHOD_AGX)
+    {
     color = applyAgXLog(color);
     color = applyLUT3D(color, 32.0);
-} @elif(TONEMAP_METHOD_SOMEWHAT_BORING_DISPLAY_TRANSFORM) {
+    }
+    @elif(TONEMAP_METHOD_SOMEWHAT_BORING_DISPLAY_TRANSFORM)
+    {
     color = somewhat_boring_display_transform(color.rgb);
-} @elif(TONEMAP_METHOD_TONY_MC_MAPFACE) {
+    }
+    @elif(TONEMAP_METHOD_TONY_MC_MAPFACE)
+    {
     color = sample_tony_mc_mapface_lut(color);
-} @elif(TONEMAP_METHOD_BLENDER_FILMIC) {
+    }
+    @elif(TONEMAP_METHOD_BLENDER_FILMIC)
+    {
     color = sample_blender_filmic_lut(color.rgb);
-} @elif(TONEMAP_METHOD_PBR_NEUTRAL) {
+    }
+    @elif(TONEMAP_METHOD_PBR_NEUTRAL)
+    {
     color = tonemapping_pbr_neutral(color.rgb);
-}
+    }
 
     // Perceptual post tonemapping grading
     color = saturation(color, color_grading.post_saturation);

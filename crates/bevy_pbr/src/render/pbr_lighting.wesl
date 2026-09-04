@@ -508,7 +508,8 @@ fn F_AB(perceptual_roughness: f32, NdotV: f32) -> vec2<f32> {
             vec2<f32>(NdotV, perceptual_roughness),
             0.0,
         ).rg;
-@else {
+    @else
+    {
     // Polynomial approximation, see https://www.unrealengine.com/en-US/blog/physically-based-shading-on-mobile
     let c0 = vec4<f32>(-1.0, -0.0275, -0.572, 0.022);
     let c1 = vec4<f32>(1.0, 0.0425, 1.04, -0.04);
@@ -517,7 +518,7 @@ fn F_AB(perceptual_roughness: f32, NdotV: f32) -> vec2<f32> {
     // Keep F_ab positive to avoid divide-by-zero in downstream BRDF terms.
     let f_ab_epsilon = 0.00005;
     return max(vec2<f32>(-1.04, 1.04) * a004 + r.zw, vec2<f32>(f_ab_epsilon));
-}
+    }
 }
 
 fn EnvBRDFApprox(F0: vec3<f32>, F_ab: vec2<f32>) -> vec3<f32> {
@@ -920,7 +921,8 @@ fn directional_light(light_id: u32, input: ptr<function, LightingInput>, enable_
 
     color *= (*light).color.rgb * texture_sample;
 
-@if(ATMOSPHERE) {
+    @if(ATMOSPHERE)
+    {
     let P = (*input).P;
     let atmosphere = view_bindings::atmosphere;
     let P_as = (view_bindings::atmosphere.world_to_atmosphere * vec4(P, 1.0)).xyz;
@@ -935,7 +937,7 @@ fn directional_light(light_id: u32, input: ptr<function, LightingInput>, enable_
 
     // Apply atmospheric effects
     color *= transmittance * sun_visibility;
-}
+    }
 
     return color;
 }
@@ -1086,7 +1088,8 @@ fn rect_light(light: ptr<function, RectLight>, input: ptr<function, LightingInpu
     let F0 = mix((*input).F0_dielectric, (*input).F0_metallic, (*input).metallic);
     let spec_weight = F0 * t2.x + (1.0 - F0) * t2.y;
 
-@if(STANDARD_MATERIAL_CLEARCOAT) {
+    @if(STANDARD_MATERIAL_CLEARCOAT)
+    {
     let clearcoat_N = (*input).layers[LAYER_CLEARCOAT].N;
     let clearcoat_strength = (*input).clearcoat_strength;
     let clearcoat_perceptual_roughness = (*input).layers[LAYER_CLEARCOAT].perceptual_roughness;
@@ -1110,9 +1113,11 @@ fn rect_light(light: ptr<function, RectLight>, input: ptr<function, LightingInpu
 
     return ((spec_weight * spec * inv_Fc + diffuse_color * diff) * inv_Fc
             + spec_weight_cc * spec_cc * clearcoat_strength) * (*light).color.rgb * range_falloff;
-} @else {
+    }
+    @else
+    {
     return (spec_weight * spec + diffuse_color * diff) * (*light).color.rgb * range_falloff;
-}
+    }
 }
 
 @if(ATMOSPHERE)

@@ -104,7 +104,8 @@ var<uniform> lights: Lights;
 // Information about the view.
 @group(0) @binding(6)
 var<uniform> view: View;
-@if(!VERTEX_SHADER && POPULATE_PASS) {
+@if(!VERTEX_SHADER && POPULATE_PASS)
+{
 // The number of objects in each cluster, and the offset of each list.
 @group(0) @binding(7)
 var<storage> offsets_and_counts: ClusterOffsetsAndCounts;
