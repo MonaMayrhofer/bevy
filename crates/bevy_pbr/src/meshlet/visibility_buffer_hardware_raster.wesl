@@ -2,19 +2,19 @@
 
 import package::{
     meshlet::bindings::{
-        meshlet_cluster_meshlet_ids,
-        meshlets,
-        meshlet_cluster_instance_ids,
-        meshlet_instance_uniforms,
-        meshlet_raster_clusters,
-        meshlet_previous_raster_counts,
-        meshlet_visibility_buffer,
-        view,
         get_meshlet_triangle_count,
         get_meshlet_vertex_id,
         get_meshlet_vertex_position,
+        meshlet_cluster_instance_ids,
+        meshlet_cluster_meshlet_ids,
+        meshlet_instance_uniforms,
+        meshlet_previous_raster_counts,
+        meshlet_raster_clusters,
+        meshlet_visibility_buffer,
+        meshlets,
+        view
     },
-    render::mesh_functions::mesh_position_local_to_world,
+    render::mesh_functions::mesh_position_local_to_world
 };
 import bevy_render::maths::affine3_to_square;
 var<immediate> meshlet_raster_cluster_rightmost_slot: u32;
@@ -22,7 +22,9 @@ var<immediate> meshlet_raster_cluster_rightmost_slot: u32;
 struct VertexOutput {
     @builtin(position) position: vec4<f32>,
     @if(MESHLET_VISIBILITY_BUFFER_RASTER_PASS_OUTPUT)
-    @location(0) @interpolate(flat) packed_ids: u32,
+    @interpolate(flat)
+    @location(0)
+    packed_ids: u32,
 }
 
 @vertex
@@ -33,7 +35,9 @@ fn vertex(@builtin(instance_index) instance_index: u32, @builtin(vertex_index) v
     var meshlet = meshlets[instanced_offset.offset];
 
     let triangle_id = vertex_index / 3u;
-    if triangle_id >= get_meshlet_triangle_count(&meshlet) { return dummy_vertex(); }
+    if triangle_id >= get_meshlet_triangle_count(&meshlet) {
+        return dummy_vertex();
+    }
     let index_id = vertex_index;
     let vertex_id = get_meshlet_vertex_id(meshlet.start_index_id + index_id);
 
@@ -45,14 +49,9 @@ fn vertex(@builtin(instance_index) instance_index: u32, @builtin(vertex_index) v
     let clip_position = view.clip_from_world * vec4(world_position.xyz, 1.0);
 
     @if(MESHLET_VISIBILITY_BUFFER_RASTER_PASS_OUTPUT)
-    return VertexOutput(
-        clip_position,
-        (cluster_id << 7u) | triangle_id,
-    );
+    return VertexOutput(clip_position, (cluster_id << 7u) | triangle_id);
     @else
-    return VertexOutput(
-        clip_position,
-    );
+    return VertexOutput(clip_position);
 }
 
 @fragment
@@ -68,13 +67,11 @@ fn fragment(vertex_output: VertexOutput) {
 fn dummy_vertex() -> VertexOutput {
     @if(MESHLET_VISIBILITY_BUFFER_RASTER_PASS_OUTPUT)
     return VertexOutput(
-        vec4(divide(0.0, 0.0)), // NaN vertex position
-        0u,
-    );
+            vec4(divide(0.0, 0.0)), // NaN vertex position
+            0u,
+        );
     @else
-    return VertexOutput(
-        vec4(divide(0.0, 0.0)),
-    );
+    return VertexOutput(vec4(divide(0.0, 0.0)));
 }
 
 /// Naga doesn't allow divide by zero literals, but this lets us work around it

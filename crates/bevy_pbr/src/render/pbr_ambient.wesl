@@ -1,7 +1,4 @@
-import package::render::{
-    pbr_lighting::{EnvBRDFApprox, F_AB},
-    mesh_view_bindings::lights,
-};
+import package::render::{mesh_view_bindings::lights, pbr_lighting::{EnvBRDFApprox, F_AB}};
 
 /// A precomputed `NdotV` is provided because it is computed regardless,
 /// but `world_normal` and the view vector `V` are provided separately for more advanced uses.

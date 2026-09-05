@@ -1,12 +1,11 @@
-import package::mesh2d::{
-    functions as mesh_functions,
-    view_bindings::view,
-    vertex_output::VertexOutput,
-};
+import package::mesh2d::{functions as mesh_functions, vertex_output::VertexOutput, view_bindings::view};
 
-@group(constants::MATERIAL_BIND_GROUP) @binding(0) var tileset: texture_2d_array<f32>;
-@group(constants::MATERIAL_BIND_GROUP) @binding(1) var tileset_sampler: sampler;
-@group(constants::MATERIAL_BIND_GROUP) @binding(2) var tile_data: texture_2d<u32>;
+@group(constants::MATERIAL_BIND_GROUP) @binding(0)
+var tileset: texture_2d_array<f32>;
+@group(constants::MATERIAL_BIND_GROUP) @binding(1)
+var tileset_sampler: sampler;
+@group(constants::MATERIAL_BIND_GROUP) @binding(2)
+var tile_data: texture_2d<u32>;
 
 struct TileData {
     tileset_index: u32,
@@ -48,26 +47,26 @@ fn fragment(in: VertexOutput) -> @location(0) vec4<f32> {
 
     let tile = get_tile_data(tile_coord);
 
-    if (tile.tileset_index == 0xffffu || !tile.visible) {
+    if tile.tileset_index == 0xffffu || !tile.visible {
         discard;
     }
 
-    if (tile.mirror_h) {
+    if tile.mirror_h {
         local_uv.x = 1 - local_uv.x;
     }
 
-    if (tile.mirror_v) {
+    if tile.mirror_v {
         local_uv.y = 1 - local_uv.y;
     }
 
-    if (tile.mirror_d) {
+    if tile.mirror_d {
         local_uv = local_uv.yx;
     }
 
     let tex_color = textureSample(tileset, tileset_sampler, local_uv, tile.tileset_index);
     let final_color = tex_color * tile.color;
 
-    if (final_color.a < 0.001) {
+    if final_color.a < 0.001 {
         discard;
     }
 

@@ -1,11 +1,11 @@
 import package::meshlet::bindings::{
-    MeshletAabb,
     DispatchIndirectArgs,
     InstancedOffset,
+    MeshletAabb,
     depth_pyramid,
-    view,
-    previous_view,
     meshlet_instance_uniforms,
+    previous_view,
+    view
 };
 import bevy_render::maths::affine3_to_square;
 
@@ -46,14 +46,14 @@ fn aabb_in_frustum(aabb: MeshletAabb, instance_id: u32) -> bool {
     let clip_from_local = view.clip_from_world * world_from_local;
     let row_major = transpose(clip_from_local);
     let planes = array(
-        row_major[3] + row_major[0],
-        row_major[3] - row_major[0],
-        row_major[3] + row_major[1],
-        row_major[3] - row_major[1],
-        row_major[2],
-    );
+            row_major[3] + row_major[0],
+            row_major[3] - row_major[0],
+            row_major[3] + row_major[1],
+            row_major[3] - row_major[1],
+            row_major[2],
+        );
 
-    for (var i = 0; i < 5; i++) {
+    for(var i = 0; i < 5; i++) {
         let plane = normalize_plane(planes[i]);
         let flipped = aabb.half_extent * sign(plane.xyz);
         if dot(aabb.center + flipped, plane.xyz) <= -plane.w {
@@ -68,15 +68,42 @@ struct ScreenAabb {
     max: vec3<f32>,
 }
 
-fn min8(a: vec3<f32>, b: vec3<f32>, c: vec3<f32>, d: vec3<f32>, e: vec3<f32>, f: vec3<f32>, g: vec3<f32>, h: vec3<f32>) -> vec3<f32> {
+fn min8(
+    a: vec3<f32>,
+    b: vec3<f32>,
+    c: vec3<f32>,
+    d: vec3<f32>,
+    e: vec3<f32>,
+    f: vec3<f32>,
+    g: vec3<f32>,
+    h: vec3<f32>,
+) -> vec3<f32> {
     return min(min(min(a, b), min(c, d)), min(min(e, f), min(g, h)));
 }
 
-fn max8(a: vec3<f32>, b: vec3<f32>, c: vec3<f32>, d: vec3<f32>, e: vec3<f32>, f: vec3<f32>, g: vec3<f32>, h: vec3<f32>) -> vec3<f32> {
+fn max8(
+    a: vec3<f32>,
+    b: vec3<f32>,
+    c: vec3<f32>,
+    d: vec3<f32>,
+    e: vec3<f32>,
+    f: vec3<f32>,
+    g: vec3<f32>,
+    h: vec3<f32>,
+) -> vec3<f32> {
     return max(max(max(a, b), max(c, d)), max(max(e, f), max(g, h)));
 }
 
-fn min8_4(a: vec4<f32>, b: vec4<f32>, c: vec4<f32>, d: vec4<f32>, e: vec4<f32>, f: vec4<f32>, g: vec4<f32>, h: vec4<f32>) -> vec4<f32> {
+fn min8_4(
+    a: vec4<f32>,
+    b: vec4<f32>,
+    c: vec4<f32>,
+    d: vec4<f32>,
+    e: vec4<f32>,
+    f: vec4<f32>,
+    g: vec4<f32>,
+    h: vec4<f32>,
+) -> vec4<f32> {
     return min(min(min(a, b), min(c, d)), min(min(e, f), min(g, h)));
 }
 

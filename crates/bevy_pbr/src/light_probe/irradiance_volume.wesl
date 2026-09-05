@@ -1,13 +1,14 @@
 import package::light_probe::{light_probe_iterator_new, light_probe_iterator_next};
 import package::render::mesh_view_bindings::{
-    irradiance_volumes,
     irradiance_volume,
     irradiance_volume_sampler,
-    light_probes,
+    irradiance_volumes,
+    light_probes
 };
 import package::render::clustered_forward::ClusterableObjectIndexRanges;
 
-@if(LIGHTMAP) import package::render::mesh_view_types::LIGHT_PROBE_FLAG_AFFECTS_LIGHTMAPPED_MESH_DIFFUSE;
+@if(LIGHTMAP)
+import package::render::mesh_view_types::LIGHT_PROBE_FLAG_AFFECTS_LIGHTMAPPED_MESH_DIFFUSE;
 
 @if(IRRADIANCE_VOLUMES_ARE_USABLE)
 
@@ -22,26 +23,26 @@ fn irradiance_volume_light(
     // Find all irradiance volumes that contain the fragment. We're going to
     // accumulate all the irradiance from them in a weighted sum.
     var iterator = light_probe_iterator_new(
-        world_position,
-        /*is_irradiance_volume=*/ true,
-        clusterable_object_index_ranges,
-    );
+            world_position,
+            /*is_irradiance_volume=*/ true,
+            clusterable_object_index_ranges,
+        );
 
     var total_weight = 0.0;
     var total_irradiance = vec3(0.0);
 
-    while (true) {
+    while true {
         var query_result = light_probe_iterator_next(&iterator);
 
         // If there was no irradiance volume found, we're done.
-        if (query_result.texture_index < 0) {
+        if query_result.texture_index < 0 {
             break;
         }
 
         // If we're lightmapped, and the irradiance volume contributes no diffuse
         // light, then bail out.
         @if(LIGHTMAP)
-        if ((query_result.flags & LIGHT_PROBE_FLAG_AFFECTS_LIGHTMAPPED_MESH_DIFFUSE) == 0u) {
+        if (query_result.flags & LIGHT_PROBE_FLAG_AFFECTS_LIGHTMAPPED_MESH_DIFFUSE) == 0u {
             continue;
         }
 
@@ -72,13 +73,12 @@ fn irradiance_volume_light(
 
         // Use Valve's formula to sample.
         let NN = N * N;
-        total_irradiance += (rgb_x * NN.x + rgb_y * NN.y + rgb_z * NN.z) * query_result.intensity *
-            query_result.weight;
+        total_irradiance += (rgb_x * NN.x + rgb_y * NN.y + rgb_z * NN.z) * query_result.intensity * query_result.weight;
 
         total_weight += query_result.weight;
     }
 
-    if (total_weight != 0.0) {
+    if total_weight != 0.0 {
         total_irradiance /= total_weight;
     }
 

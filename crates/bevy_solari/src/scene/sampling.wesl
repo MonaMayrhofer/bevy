@@ -1,7 +1,19 @@
 import bevy_pbr::render::pbr_lighting::D_GGX;
-import bevy_pbr::render::utils::{rand_vec2f, rand_u, rand_range_u};
+import bevy_pbr::render::utils::{rand_range_u, rand_u, rand_vec2f};
 import bevy_render::maths::{PI_2, orthonormalize};
-import package::scene::bindings::{trace_ray, trace_ray_previous_frame, RAY_T_MIN, RAY_T_MAX, light_sources, directional_lights, LightSource, LIGHT_SOURCE_KIND_DIRECTIONAL, resolve_triangle_data_full, ResolvedRayHitFull, MIRROR_ROUGHNESS_THRESHOLD};
+import package::scene::bindings::{
+    LIGHT_SOURCE_KIND_DIRECTIONAL,
+    LightSource,
+    MIRROR_ROUGHNESS_THRESHOLD,
+    RAY_T_MAX,
+    RAY_T_MIN,
+    ResolvedRayHitFull,
+    directional_lights,
+    light_sources,
+    resolve_triangle_data_full,
+    trace_ray,
+    trace_ray_previous_frame
+};
 
 enable wgpu_ray_query;
 
@@ -119,9 +131,17 @@ struct GenerateRandomLightSampleResult {
     resolved_light_sample: ResolvedLightSample,
 }
 
-fn sample_random_light(ray_origin: vec3<f32>, origin_world_normal: vec3<f32>, rng: ptr<function, u32>) -> LightContribution {
+fn sample_random_light(
+    ray_origin: vec3<f32>,
+    origin_world_normal: vec3<f32>,
+    rng: ptr<function, u32>,
+) -> LightContribution {
     let sample = generate_random_light_sample(rng);
-    var light_contribution = calculate_resolved_light_contribution(sample.resolved_light_sample, ray_origin, origin_world_normal);
+    var light_contribution = calculate_resolved_light_contribution(
+            sample.resolved_light_sample,
+            ray_origin,
+            origin_world_normal,
+        );
     light_contribution.radiance *= trace_visibility(ray_origin, sample.resolved_light_sample.world_position);
     return light_contribution;
 }
@@ -158,46 +178,50 @@ fn resolve_light_sample(light_sample: LightSample, light_source: LightSource) ->
         let directional_light = directional_lights[light_source.id];
 
         var direction_to_light: vec3<f32>;
-@if(!NO_DIRECTIONAL_LIGHT_SOFT_SHADOWS) {
-        // Sample a random direction within a cone whose base is the sun approximated as a disk
-        // https://www.realtimerendering.com/raytracinggems/unofficial_RayTracingGems_v1.9.pdf#0004286901.INDD%3ASec30%3A305
-        var rng = light_sample.seed;
-        let random = rand_vec2f(&rng);
-        let cos_theta = (1.0 - random.x) + random.x * directional_light.cos_theta_max;
-        let sin_theta = sqrt(1.0 - cos_theta * cos_theta);
-        let phi = random.y * PI_2;
-        let x = cos(phi) * sin_theta;
-        let y = sin(phi) * sin_theta;
-        direction_to_light = vec3(x, y, cos_theta);
+        @if(!NO_DIRECTIONAL_LIGHT_SOFT_SHADOWS) {
+            // Sample a random direction within a cone whose base is the sun approximated as a disk
+            // https://www.realtimerendering.com/raytracinggems/unofficial_RayTracingGems_v1.9.pdf#0004286901.INDD%3ASec30%3A305
+            var rng = light_sample.seed;
+            let random = rand_vec2f(&rng);
+            let cos_theta = (1.0 - random.x) + random.x * directional_light.cos_theta_max;
+            let sin_theta = sqrt(1.0 - cos_theta * cos_theta);
+            let phi = random.y * PI_2;
+            let x = cos(phi) * sin_theta;
+            let y = sin(phi) * sin_theta;
+            direction_to_light = vec3(x, y, cos_theta);
 
-        // Rotate the ray so that the cone it was sampled from is aligned with the light direction
-        direction_to_light = orthonormalize(directional_light.direction_to_light) * direction_to_light;
-} @else {
-        direction_to_light = directional_light.direction_to_light;
-}
+            // Rotate the ray so that the cone it was sampled from is aligned with the light direction
+            direction_to_light = orthonormalize(directional_light.direction_to_light) * direction_to_light;
+        } @else {
+            direction_to_light = directional_light.direction_to_light;
+        }
 
         return ResolvedLightSample(
-        vec4(direction_to_light, 0.0),
-        -direction_to_light,
-        directional_light.luminance,
-        directional_light.inverse_pdf,
-    );
-} else {
+                vec4(direction_to_light, 0.0),
+                -direction_to_light,
+                directional_light.luminance,
+                directional_light.inverse_pdf,
+            );
+    } else {
         let triangle_count = light_source.kind >> 1u;
         let triangle_id = light_sample.light_id & 0xFFFFu;
         let barycentrics = triangle_barycentrics(light_sample.seed);
         let triangle_data = resolve_triangle_data_full(light_source.id, triangle_id, barycentrics);
 
         return ResolvedLightSample(
-            vec4(triangle_data.world_position, 1.0),
-            triangle_data.world_normal,
-            triangle_data.material.emissive.rgb,
-            f32(triangle_count) * triangle_data.triangle_area,
-        );
+                vec4(triangle_data.world_position, 1.0),
+                triangle_data.world_normal,
+                triangle_data.material.emissive.rgb,
+                f32(triangle_count) * triangle_data.triangle_area,
+            );
     }
 }
 
-fn calculate_resolved_light_contribution(resolved_light_sample: ResolvedLightSample, ray_origin: vec3<f32>, origin_world_normal: vec3<f32>) -> LightContribution {
+fn calculate_resolved_light_contribution(
+    resolved_light_sample: ResolvedLightSample,
+    ray_origin: vec3<f32>,
+    origin_world_normal: vec3<f32>,
+) -> LightContribution {
     let ray = resolved_light_sample.world_position.xyz - (resolved_light_sample.world_position.w * ray_origin);
     let light_distance = length(ray);
     let wi = ray / light_distance;
@@ -209,7 +233,13 @@ fn calculate_resolved_light_contribution(resolved_light_sample: ResolvedLightSam
     let radiance = resolved_light_sample.radiance * denominator;
     let inverse_solid_angle_pdf = resolved_light_sample.inverse_pdf * denominator;
 
-    return LightContribution(radiance, resolved_light_sample.inverse_pdf, inverse_solid_angle_pdf, wi, resolved_light_sample.world_position.w == 1.0);
+    return LightContribution(
+            radiance,
+            resolved_light_sample.inverse_pdf,
+            inverse_solid_angle_pdf,
+            wi,
+            resolved_light_sample.world_position.w == 1.0,
+        );
 }
 
 fn trace_visibility(ray_origin: vec3<f32>, point: vec4<f32>) -> f32 {
@@ -223,7 +253,9 @@ fn trace_visibility(ray_origin: vec3<f32>, point: vec4<f32>) -> f32 {
         ray_t_max = dist - RAY_T_MIN;
     }
 
-    if ray_t_max < RAY_T_MIN { return 0.0; }
+    if ray_t_max < RAY_T_MIN {
+        return 0.0;
+    }
 
     let ray_hit = trace_ray(ray_origin, ray_direction, RAY_T_MIN, ray_t_max, RAY_FLAG_TERMINATE_ON_FIRST_HIT);
     return f32(ray_hit.kind == RAY_QUERY_INTERSECTION_NONE);
@@ -240,9 +272,17 @@ fn trace_visibility_previous_frame(ray_origin: vec3<f32>, point: vec4<f32>) -> f
         ray_t_max = dist - RAY_T_MIN;
     }
 
-    if ray_t_max < RAY_T_MIN { return 0.0; }
+    if ray_t_max < RAY_T_MIN {
+        return 0.0;
+    }
 
-    let ray_hit = trace_ray_previous_frame(ray_origin, ray_direction, RAY_T_MIN, ray_t_max, RAY_FLAG_TERMINATE_ON_FIRST_HIT);
+    let ray_hit = trace_ray_previous_frame(
+            ray_origin,
+            ray_direction,
+            RAY_T_MIN,
+            ray_t_max,
+            RAY_FLAG_TERMINATE_ON_FIRST_HIT,
+        );
     return f32(ray_hit.kind == RAY_QUERY_INTERSECTION_NONE);
 }
 
@@ -250,6 +290,8 @@ fn trace_visibility_previous_frame(ray_origin: vec3<f32>, point: vec4<f32>) -> f
 fn triangle_barycentrics(seed: u32) -> vec3<f32> {
     var rng = seed;
     var barycentrics = rand_vec2f(&rng);
-    if barycentrics.x + barycentrics.y > 1.0 { barycentrics = 1.0 - barycentrics; }
+    if barycentrics.x + barycentrics.y > 1.0 {
+        barycentrics = 1.0 - barycentrics;
+    }
     return vec3(1.0 - barycentrics.x - barycentrics.y, barycentrics);
 }

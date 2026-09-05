@@ -3,10 +3,7 @@
 
 // First we import everything we need from bevy_pbr
 // A 2D shader would be very similar but import from bevy_sprite_render instead
-import bevy_pbr::render::{
-    mesh_functions,
-    view_transformations::position_world_to_clip
-};
+import bevy_pbr::render::{mesh_functions, view_transformations::position_world_to_clip};
 
 struct Vertex {
     // This is needed if you are using batching and/or gpu preprocessing
@@ -15,19 +12,24 @@ struct Vertex {
     // Like we defined for the vertex layout
     // position is at location 0
     @if(VERTEX_POSITIONS_COMPRESSED)
-    @location(0) compressed_position: vec4<f32>,
+    @location(0)
+    compressed_position: vec4<f32>,
     @else
-    @location(0) position: vec3<f32>,
+    @location(0)
+    position: vec3<f32>,
     // and color at location 1
-    @location(1) color: vec4<f32>,
-};
+    @location(1)
+    color: vec4<f32>,
+}
 
 /// This is the output of the vertex shader and we also use it as the input for the fragment shader
 struct VertexOutput {
     @builtin(position) clip_position: vec4<f32>,
-    @location(0) world_position: vec4<f32>,
-    @location(1) color: vec3<f32>,
-};
+    @location(0)
+    world_position: vec4<f32>,
+    @location(1)
+    color: vec3<f32>,
+}
 
 @vertex
 fn vertex(vertex: Vertex) -> VertexOutput {
@@ -38,7 +40,11 @@ fn vertex(vertex: Vertex) -> VertexOutput {
     @if(VERTEX_POSITIONS_COMPRESSED)
     let mesh_uniform = bevy_pbr::render::mesh_bindings::mesh[vertex.instance_index];
     @if(VERTEX_POSITIONS_COMPRESSED)
-    let vertex_position = bevy_render::utils::decompress_vertex_position(vertex.compressed_position, mesh_uniform.aabb_center, mesh_uniform.aabb_half_extents);
+    let vertex_position = bevy_render::utils::decompress_vertex_position(
+            vertex.compressed_position,
+            mesh_uniform.aabb_center,
+            mesh_uniform.aabb_half_extents,
+        );
     @else
     let vertex_position = vertex.position;
     out.world_position = mesh_functions::mesh_position_local_to_world(world_from_local, vec4(vertex_position, 1.0));
